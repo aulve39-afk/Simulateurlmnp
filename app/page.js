@@ -52,7 +52,7 @@ const STEPS = [
   { id: "resultats",    label: "Résultats",  icon: "📈" },
 ];
 
-// ═══ MOTEURS FINANCIERS ═══════════════════════════════════════
+
 
 function amortCredit(capital, tauxAnnuel, dureeAns, differe = 0, typeDiffere = "partiel") {
   const tm = tauxAnnuel / 100 / 12;
@@ -189,7 +189,7 @@ function runCalc(p, type) {
 }
 
 
-// ═══ PDF ══════════════════════════════════════════════════════
+
 
 function loadScripts(cb) {
   if (window._pdfReady) { cb(); return; }
@@ -238,7 +238,7 @@ function generatePDF(form, result) {
     const bld = { halign:"left", fontStyle:"bold", fillColor:C.lbg };
     const feux = feuxTricolores(result.tri, result.cashflowM, result.ratioEndt);
 
-    /* PAGE 1 : COUVERTURE */
+ 
     newPage();
     fillR(0,0,W,H,C.pri); fillR(18,45,W-36,H-90,C.whi,6);
     setF(20,"bold",C.whi); doc.text("DOSSIER", W/2, 22, { align:"center" });
@@ -260,7 +260,7 @@ function generatePDF(form, result) {
     setF(7,"italic",[200,215,235]); doc.text("Ne constitue pas un conseil en investissement.", W/2, H-28, { align:"center" });
     setF(8,"normal",[200,215,235]); doc.text("Généré le "+new Date().toLocaleDateString("fr-FR"), W/2, H-22, { align:"center" });
 
-    /* PAGE 2 : PROFIL */
+  
     newPage(); let y = pageHeader("Profil Emprunteur","Analyse de la situation financière et capacité bancaire"); pageFooter();
     y = bar(y,"Informations personnelles");
     y = tbl(y,[["Nom complet",`${form.prenom} ${form.nom}`,"Email",form.email||"—"],
@@ -280,7 +280,7 @@ function generatePDF(form, result) {
                ["TAUX D'ENDETTEMENT",{content:fmtPct(newR),styles:{textColor:newR>35?C.err:C.ok,fontStyle:"bold",fontSize:10}},"Seuil bancaire","35 %"]],
       null,{0:{...bld,cellWidth:55},2:{...bld,cellWidth:55}});
 
-    /* PAGE 3 : BIEN & FINANCEMENT */
+
     newPage(); y = pageHeader("Présentation du Bien & Plan de Financement"); pageFooter();
     y = bar(y,"Caractéristiques du bien");
     y = tbl(y,[["Adresse",form.adresseBien||"—","Type",form.typeBien||"—"],
@@ -306,7 +306,6 @@ function generatePDF(form, result) {
                ["Cash-flow net/mois An1",{content:fmt(result.cashflowM),styles:{textColor:result.cashflowM>=0?C.ok:C.err,fontStyle:"bold"}},"Investissement total",fmt(result.investTotal)]],
       null,{0:{...bld,cellWidth:55},2:{...bld,cellWidth:55}});
 
-    /* PAGE 4 : AMORTISSEMENT */
     newPage(); y = pageHeader("Tableau d'Amortissement",`${form.dureeCredit} ans — ${fmtPct(form.interet)} — ${fmt(result.capital)}`); pageFooter();
     y = tbl(y, result.amortSchedule.slice(0,20).map((r)=>[`Année ${r.an}`,fmt(r.mensualite),fmt(r.interets),fmt(r.capital),fmt(r.capRestant)]),
       [["Année","Mensualité","Intérêts","Capital","Capital restant"]],{0:{halign:"left",fontStyle:"bold",cellWidth:28}});
@@ -314,7 +313,7 @@ function generatePDF(form, result) {
     y = doc.lastAutoTable.finalY; fillR(ml,y,cw,8,C.lbg,2); setF(8.5,"bold",C.pri);
     doc.text("Intérêts totaux payés : "+fmt(totInt), ml+4, y+5.5);
 
-    /* PAGE 5 : PROJECTION */
+   
     newPage(); y = pageHeader("Projection Cash-Flow 20 ans","Après remboursement, charges et fiscalité"); pageFooter();
     y = tbl(y, result.projections.map((r)=>{
       const isH=r.an===form.horizon;
@@ -324,7 +323,7 @@ function generatePDF(form, result) {
         c(fmt(r.cfM),{textColor:r.cfM<0?C.err:C.ok}),c(fmt(r.cum)),c(fmt(r.val)),c(fmt(r.patNet),{textColor:r.patNet<0?C.err:C.pri,fontStyle:"bold"})];
     }),[["An","Loyers nets","Mensualité","Impôt","CF net/an","CF/mois","CF cumulé","Val. bien","Patrim. net"]],{0:{halign:"center",cellWidth:10}});
 
-    /* PAGE 6 : FISCAL */
+  
     newPage(); y = pageHeader("Analyse Fiscale & Optimisation",`Régime ${result.type}`); pageFooter();
     y = bar(y,`Règles fiscales — ${result.type}`);
     y = tbl(y, result.fiscalInfo, null, {0:{...bld,cellWidth:50},1:lft});
@@ -350,7 +349,7 @@ function generatePDF(form, result) {
                ["Impôt plus-value",fmt(hd.pvImp),"Patrimoine net",{content:fmt(hd.patNet),styles:{fontStyle:"bold",textColor:C.pri}}]],
       null,{0:{...bld,cellWidth:55},2:{...bld,cellWidth:55}});
 
-    /* PAGE 7 : CONCLUSION */
+    
     newPage(); y = pageHeader("Synthèse & Arguments Bancaires"); pageFooter();
     const isOK = result.cashflowM>=0 && result.ratioEndt<=35;
     fillR(ml,y,cw,40,isOK?[240,253,244]:[255,241,242],4);
@@ -380,7 +379,7 @@ function generatePDF(form, result) {
 }
 
 
-// ═══ COMPOSANTS UI ════════════════════════════════════════════
+
 
 function Term({ word, children }) {
   const [show, setShow] = useState(false);
@@ -472,7 +471,7 @@ function FeuxBadge({ tri, cashflowM, ratioEndt }) {
   );
 }
 
-// ═══ AUTH MODAL ═══════════════════════════════════════════════
+
 
 function AuthModal({ onClose, onAuth }) {
   const [mode, setMode] = useState("login");
@@ -528,7 +527,7 @@ function AuthModal({ onClose, onAuth }) {
   );
 }
 
-// ═══ PROJECTS PANEL ═══════════════════════════════════════════
+
 
 function ProjectsPanel({ user, onLoad, onClose }) {
   const [projects, setProjects] = useState([]);
@@ -578,7 +577,7 @@ function ProjectsPanel({ user, onLoad, onClose }) {
 }
 
 
-// ═══ MODULE RÉSIDENCE PRINCIPALE ══════════════════════════════
+
 
 function ModuleRP({ form, onBack }) {
   const [rp, setRp] = useState({ revenus: form.revenusMensuels||4500, autresRevenus: form.autresRevenus||0, charges: form.chargesCredit||0, taux: 3.45, duree: 25, fraisVie: 1800 });
@@ -623,7 +622,7 @@ function ModuleRP({ form, onBack }) {
   );
 }
 
-// ═══ MODULE ACHETER VS LOUER ══════════════════════════════════
+
 
 function ModuleAVL({ form, onBack }) {
   const [avl, setAvl] = useState({
@@ -697,7 +696,6 @@ function ModuleAVL({ form, onBack }) {
   );
 }
 
-// ═══ MODULE DPE ═══════════════════════════════════════════════
 
 const DPE_DATA = {
   A: { label:"A — Très performant",   color:"#059669", conso:"<50", travaux:0,       valorisation:5  },
@@ -766,7 +764,7 @@ function ModuleDPE({ form, onBack }) {
   );
 }
 
-// ═══ WIDGET DVF ═══════════════════════════════════════════════
+
 
 function DVFWidget({ adresse }) {
   const [ville, setVille] = useState(adresse||"");
@@ -831,7 +829,7 @@ function DVFWidget({ adresse }) {
 }
 
 
-// ═══ COMPARISON VIEW ══════════════════════════════════════════
+
 
 function ComparisonView({ results, onSelect, form, user, onSave }) {
   const best = results.reduce((b, r) => r.cashflowM > b.cashflowM ? r : b, results[0]);
@@ -903,7 +901,7 @@ function ComparisonView({ results, onSelect, form, user, onSave }) {
   );
 }
 
-// ═══ DETAIL VIEW ══════════════════════════════════════════════
+
 
 function DetailView({ result, form, onBack }) {
   const patData = result.projections.map(r=>({ an:`A${r.an}`, patrimoine:r.patNet, cumCF:r.cum }));
@@ -1029,7 +1027,7 @@ function DetailView({ result, form, onBack }) {
 }
 
 
-// ═══ APP PRINCIPALE ═══════════════════════════════════════════
+
 
 export default function App() {
   const [step,      setStep]     = useState(0);
@@ -1118,7 +1116,7 @@ export default function App() {
         </div>
       </div>
 
-      {/* ── BANDEAU LOI DE FINANCES 2026 ── */}
+      
       <div style={{ background:"#FFF7ED", borderBottom:"1px solid #FED7AA", padding:"7px 16px", fontSize:11.5, color:"#92400E", display:"flex", alignItems:"center", gap:8 }}>
         <span>📋</span>
         <span><strong>Mis à jour · Loi de Finances 2026</strong> · Taux réels avril 2026 (moy. 20 ans : 3,45%) · Plafond Micro-BIC : 77 700€ · IS PME : 15% ≤ 42 500€ · Passoires thermiques G : location interdite</span>
@@ -1140,15 +1138,15 @@ export default function App() {
 
       <div style={{ maxWidth:800, margin:"0 auto", padding:"20px 16px" }}>
 
-        {/* ── MODULES SECONDAIRES ── */}
+        
         {view === "rp"  && <ModuleRP  form={form} onBack={()=>setView("simulator")} />}
         {view === "avl" && <ModuleAVL form={form} onBack={()=>setView("simulator")} />}
         {view === "dpe" && <ModuleDPE form={form} onBack={()=>setView("simulator")} />}
 
-        {/* ── SIMULATEUR ── */}
+        
         {view === "simulator" && (
           <>
-            {/* STEPPER */}
+            
             <div style={{ background:"white", borderRadius:10, padding:"14px 16px", marginBottom:16, boxShadow:"0 1px 4px rgba(0,0,0,.06)" }}>
               <div style={{ display:"flex", justifyContent:"space-between", maxWidth:650, margin:"0 auto 8px" }}>
                 {STEPS.map((s,i)=>(
@@ -1166,7 +1164,7 @@ export default function App() {
               </div>
             </div>
 
-            {/* STEP 0 : EMPRUNTEUR */}
+            
             {step === 0 && (
               <Card title="👤 Profil Emprunteur" sub="Calcul du ratio d'endettement bancaire">
                 <G2>
@@ -1187,7 +1185,7 @@ export default function App() {
               </Card>
             )}
 
-            {/* STEP 1 : BIEN */}
+            
             {step === 1 && (
               <Card title="🏠 Le Bien Immobilier" sub="Caractéristiques du bien ciblé">
                 <Input label="Adresse du bien" value={form.adresseBien} onChange={set("adresseBien")} />
@@ -1211,7 +1209,7 @@ export default function App() {
               </Card>
             )}
 
-            {/* STEP 2 : FINANCEMENT */}
+            
             {step === 2 && (
               <Card title="🏦 Plan de Financement" sub="Conditions du crédit immobilier">
                 <Slider label="Apport personnel" value={form.apport} onChange={set("apport")} min={0} max={400000} step={5000} suffix=" €" />
@@ -1256,7 +1254,7 @@ export default function App() {
               </Card>
             )}
 
-            {/* STEP 3 : EXPLOITATION */}
+          
             {step === 3 && (
               <Card title="📊 Paramètres d'Exploitation" sub="Revenus et charges locatifs prévisionnels">
                 <Slider label="Loyer mensuel hors charges" value={form.loyer} onChange={set("loyer")} min={200} max={5000} step={25} suffix=" €" />
@@ -1278,7 +1276,7 @@ export default function App() {
               </Card>
             )}
 
-            {/* STEP 4 : RÉSULTATS */}
+            
             {step === 4 && results && (
               selected
                 ? <DetailView result={selected} form={form} onBack={()=>setSelected(null)} />
@@ -1302,7 +1300,7 @@ export default function App() {
         )}
       </div>
 
-      {/* ── MODALS ── */}
+      
       {showAuth && <AuthModal onClose={()=>setShowAuth(false)} onAuth={(u)=>{ setUser(u); setShowAuth(false); }} />}
       {showProj && user && <ProjectsPanel user={user} onLoad={(params)=>{ setForm(params); setStep(4); }} onClose={()=>setShowProj(false)} />}
     </div>
