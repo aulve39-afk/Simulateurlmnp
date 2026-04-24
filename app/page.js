@@ -7,10 +7,9 @@ import {
 } from "recharts";
 import { createClient } from "@supabase/supabase-js";
 
-const sb = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL ?? "",
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? ""
-);
+const _SUPA_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const _SUPA_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+const sb = (_SUPA_URL && _SUPA_KEY) ? createClient(_SUPA_URL, _SUPA_KEY) : null;
 
 const fmt    = (n) => new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR", maximumFractionDigits: 0 }).format(n ?? 0);
 const fmtPct = (n) => `${(+n || 0).toFixed(2)} %`;
@@ -482,6 +481,7 @@ function AuthModal({ onClose, onAuth }) {
 
   const submit = async (e) => {
     e.preventDefault();
+    if (!sb) { setError("Auth non configurée (env vars manquantes)."); return; }
     setLoading(true); setError("");
     try {
       if (mode === "login") {
@@ -534,11 +534,13 @@ function ProjectsPanel({ user, onLoad, onClose }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (!sb) { setLoading(false); return; }
     sb.from("projets").select("*").eq("user_id", user.id).order("updated_at", { ascending:false })
       .then(({ data }) => { setProjects(data||[]); setLoading(false); });
   }, [user.id]);
 
   const del = async (id) => {
+    if (!sb) return;
     await sb.from("projets").delete().eq("id", id);
     setProjects(p => p.filter(x => x.id !== id));
   };
@@ -1042,6 +1044,7 @@ export default function App() {
   const set = (k) => (v) => setForm((f) => ({ ...f, [k]: v }));
 
   useEffect(() => {
+    if (!sb) return;
     sb.auth.getSession().then(({ data: { session } }) => {
       if (session?.user) setUser(session.user);
     });
@@ -1057,7 +1060,7 @@ export default function App() {
   }, [form, step]);
 
   const saveProject = async () => {
-    if (!user || !results) return;
+    if (!user || !results || !sb) return;
     const best = results[0];
     const feux = feuxTricolores(best.tri, best.cashflowM, best.ratioEndt);
     const nom = form.adresseBien || form.typeBien || "Mon projet";
@@ -1102,7 +1105,7 @@ export default function App() {
                 style={{ padding:"6px 14px", background:"rgba(255,255,255,.15)", color:"white", border:"1px solid rgba(255,255,255,.3)", borderRadius:7, cursor:"pointer", fontSize:12, fontWeight:600 }}>
                 💾 Mes projets
               </button>
-              <button onClick={()=>sb.auth.signOut()}
+              <button onClick={()=>sb && sb.auth.signOut()}
                 style={{ padding:"6px 12px", background:"rgba(255,255,255,.1)", color:"white", border:"1px solid rgba(255,255,255,.2)", borderRadius:7, cursor:"pointer", fontSize:11 }}>
                 {user.email?.split("@")[0]}  ·  Déconnexion
               </button>
