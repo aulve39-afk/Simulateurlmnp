@@ -1324,6 +1324,14 @@ function StepProjet({ form, set }) {
         </div>
 
         <AmortDureesTable prix={form.prix} terrain={form.terrain ?? 15} travaux={form.travaux} mobilier={form.mobilier} />
+
+        {/* Checklist de visite */}
+        <button onClick={() => downloadChecklist(form)}
+          className="mt-3 w-full flex items-center justify-center gap-2 rounded-xl py-2.5 text-sm font-semibold text-white transition-all active:scale-95 hover:opacity-90"
+          style={{ background:"linear-gradient(135deg,#185FA5,#1e40af)" }}>
+          📋 Télécharger ma checklist de visite
+          <span className="text-blue-200 text-[10px] font-normal">6 sections · 40 points</span>
+        </button>
       </Card>
     </div>
   );
@@ -1418,6 +1426,39 @@ function StepFinancement({ form, set }) {
             </p>
           )}
         </div>
+
+        {/* Répartition budget mensuel */}
+        {form.revenusMensuels > 0 && (
+          <div className="mt-3 rounded-xl bg-slate-50 border border-slate-100 p-3">
+            <p className="text-xs font-semibold text-slate-600 mb-2">📊 Répartition de vos revenus mensuels</p>
+            <div className="flex h-5 rounded-lg overflow-hidden w-full mb-2.5 bg-green-100">
+              {mens > 0 && (
+                <div style={{ width:`${Math.min(mens/form.revenusMensuels*100,100).toFixed(1)}%`, background:"#185FA5", transition:"width .4s" }}
+                  title={`Crédit LMNP : ${fmt(mens)}`} />
+              )}
+              {(+form.chargesCredit||0) > 0 && (
+                <div style={{ width:`${Math.min((+form.chargesCredit)/form.revenusMensuels*100,100).toFixed(1)}%`, background:"#6366F1", transition:"width .4s" }}
+                  title={`Autres crédits : ${fmt(form.chargesCredit)}`} />
+              )}
+            </div>
+            <div className="flex flex-wrap gap-x-4 gap-y-1">
+              <div className="flex items-center gap-1.5 text-[10px]">
+                <div className="w-2.5 h-2.5 rounded-sm bg-blue-700" />
+                <span className="text-slate-500">Crédit LMNP — <strong>{fmt(mens)}</strong> ({(mens/form.revenusMensuels*100).toFixed(0)}%)</span>
+              </div>
+              {(+form.chargesCredit||0) > 0 && (
+                <div className="flex items-center gap-1.5 text-[10px]">
+                  <div className="w-2.5 h-2.5 rounded-sm bg-indigo-500" />
+                  <span className="text-slate-500">Autres crédits — <strong>{fmt(+form.chargesCredit)}</strong> ({((+form.chargesCredit)/form.revenusMensuels*100).toFixed(0)}%)</span>
+                </div>
+              )}
+              <div className="flex items-center gap-1.5 text-[10px]">
+                <div className="w-2.5 h-2.5 rounded-sm bg-emerald-400" />
+                <span className="text-slate-500">Reste à vivre — <strong>{fmt(Math.max(0,rav))}</strong> ({(Math.max(0,rav)/form.revenusMensuels*100).toFixed(0)}%)</span>
+              </div>
+            </div>
+          </div>
+        )}
       </Card>
 
       {/* Affiliation banner — visible dès que le taux dépasse 3.3% */}
@@ -2022,6 +2063,212 @@ function ReferencesLegales() {
   );
 }
 
+/* ── Achat vs Épargne financière ── */
+function AchatVsEpargneChart({ rows, form }) {
+  const revalo  = (form.revalorisation || 1.5) / 100;
+  const apport  = form.apport || 0;
+  let breakEven = null;
+
+  const data = rows.map(r => {
+    const valeurBien     = Math.round(form.prix * Math.pow(1 + revalo, r.an));
+    const patrimoineAchat = Math.max(0, valeurBien - Math.max(0, r.capRestant || 0)) + (r.cumCashflow || 0);
+    const patrimoineEpargne = Math.round(apport * Math.pow(1.04, r.an));
+    if (breakEven === null && patrimoineAchat > patrimoineEpargne) breakEven = r.an;
+    return { an: `A${r.an}`, achat: patrimoineAchat, epargne: patrimoineEpargne };
+  });
+
+  return (
+    <div>
+      {breakEven ? (
+        <div className="mb-3 rounded-xl bg-emerald-50 border border-emerald-200 px-3 py-2 flex items-center gap-2">
+          <span className="text-base">🏆</span>
+          <p className="text-xs font-semibold text-emerald-700">
+            L'achat LMNP dépasse l'épargne à partir de <strong>l'an {breakEven}</strong>
+          </p>
+        </div>
+      ) : (
+        <div className="mb-3 rounded-xl bg-amber-50 border border-amber-200 px-3 py-2">
+          <p className="text-xs text-amber-700">L'achat ne dépasse pas l'épargne sur la période. Ajustez loyer ou apport.</p>
+        </div>
+      )}
+      <ResponsiveContainer width="100%" height={210}>
+        <LineChart data={data} margin={{ top:8, right:8, left:0, bottom:0 }}>
+          <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" />
+          <XAxis dataKey="an" tick={{ fontSize:10 }} interval={Math.floor(rows.length/5)} />
+          <YAxis tick={{ fontSize:10 }} width={58}
+            tickFormatter={n => n>=1000?`${Math.round(n/1000)}k€`:fmt(n)} />
+          <RTooltip formatter={(v,n) => [fmt(v), n==="achat"?"Patrimoine LMNP":"Épargne 4%/an"]}
+            contentStyle={{ fontSize:11 }} />
+          <Legend iconSize={10} wrapperStyle={{ fontSize:11 }}
+            formatter={n => n==="achat"?"Patrimoine LMNP (bien − dette + CF)":"Apport placé à 4%/an"} />
+          {breakEven && (
+            <ReferenceLine x={`A${breakEven}`} stroke="#10B981" strokeDasharray="4 4"
+              label={{ value:"Break-even", position:"insideTopLeft", fill:"#10B981", fontSize:10 }} />
+          )}
+          <Line type="monotone" dataKey="achat"   stroke="#185FA5" strokeWidth={2.5} dot={false} />
+          <Line type="monotone" dataKey="epargne" stroke="#F59E0B" strokeWidth={2}   dot={false} strokeDasharray="5 5" />
+        </LineChart>
+      </ResponsiveContainer>
+      <p className="text-[9px] text-slate-400 text-center mt-1">
+        Hypothèses : revalorisation bien {form.revalorisation || 1.5}%/an · Épargne 4%/an net · Apport {fmt(apport)}
+      </p>
+    </div>
+  );
+}
+
+/* ── Plus-value latente ── */
+function PlusValueLatente({ form }) {
+  // CGI Art. 150 U — abattements progressifs IR et PS
+  const prixAchat  = form.prix + form.prix*(form.notaire/100) + form.travaux;
+  const scenarios  = [5, 10, 15];
+
+  const calcScenario = (an) => {
+    const prixRevente = Math.round(prixAchat * Math.pow(1.02, an));
+    const pvBrute     = Math.max(0, prixRevente - prixAchat);
+
+    // Abattement IR (6%/an de la 6e à la 21e année, 4% en 22e)
+    let abattIR = 0;
+    for (let y=6; y<=Math.min(an,21); y++) abattIR += 6;
+    if (an >= 22) abattIR += 4;
+    abattIR = Math.min(abattIR, 100);
+
+    // Abattement PS (1.65%/an 6–21, 1.60% en 22e, 9%/an 23–30)
+    let abattPS = 0;
+    for (let y=6; y<=Math.min(an,21); y++) abattPS += 1.65;
+    if (an >= 22) abattPS += 1.60;
+    for (let y=23; y<=Math.min(an,30); y++) abattPS += 9;
+    abattPS = Math.min(abattPS, 100);
+
+    const baseIR  = pvBrute * (1 - abattIR/100);
+    const basePS  = pvBrute * (1 - abattPS/100);
+    const impotIR = Math.round(baseIR * 0.19);
+    const impotPS = Math.round(basePS * 0.172);
+    const pvNette = pvBrute - impotIR - impotPS;
+    return { an, prixRevente, pvBrute, abattIR: +abattIR.toFixed(1), abattPS: +abattPS.toFixed(1), impotIR, impotPS, pvNette };
+  };
+
+  const rows = scenarios.map(calcScenario);
+  const colors = ["#6366F1","#185FA5","#10B981"];
+
+  return (
+    <div className="space-y-3">
+      <p className="text-[10px] text-slate-400">Hypothèse : croissance du marché +2%/an · Prix de revient {fmt(prixAchat)} · Abattements CGI Art. 150 U</p>
+      <div className="grid grid-cols-3 gap-2">
+        {rows.map((r,i) => (
+          <div key={r.an} className="rounded-xl border p-3 text-center"
+            style={{ background:colors[i]+"11", borderColor:colors[i]+"33" }}>
+            <p className="text-[10px] font-bold mb-1" style={{ color:colors[i] }}>An {r.an}</p>
+            <p className="text-xs font-semibold text-slate-700">{fmt(r.prixRevente)}</p>
+            <p className="text-[9px] text-slate-400 mb-1.5">Prix de revente</p>
+            <div className="border-t pt-1.5 mt-1.5 space-y-0.5" style={{ borderColor:colors[i]+"22" }}>
+              <p className="text-[9px] text-slate-500">PV brute <strong className="text-slate-700">{fmt(r.pvBrute)}</strong></p>
+              <p className="text-[9px] text-slate-500">Abat. IR <strong>{r.abattIR}%</strong> · PS <strong>{r.abattPS}%</strong></p>
+              <p className="text-[9px] text-slate-500">Impôt IR <strong>{fmt(r.impotIR)}</strong> + PS <strong>{fmt(r.impotPS)}</strong></p>
+            </div>
+            <div className="mt-2 rounded-lg py-1" style={{ background:colors[i], color:"white" }}>
+              <p className="text-[9px] font-semibold">Net après impôt</p>
+              <p className="text-sm font-bold">{fmt(r.pvNette)}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* ── Checklist de visite ── */
+function downloadChecklist(form) {
+  const adresse = form.adresse || "Bien immobilier";
+  const dateStr = new Date().toLocaleDateString("fr-FR",{day:"numeric",month:"long",year:"numeric"});
+  const section = (icon, title, items) => `
+    <div class="section">
+      <div class="section-title">${icon} ${title}</div>
+      <table class="ct"><tbody>
+        ${items.map(it => `<tr><td class="cb"><input type="checkbox" onclick="this.parentElement.parentElement.classList.toggle('done',this.checked)"></td><td class="ci">${it}</td></tr>`).join("")}
+      </tbody></table>
+    </div>`;
+  const html = `<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8">
+<title>Checklist Visite LMNP — ${adresse}</title>
+<style>
+  *{box-sizing:border-box;} body{margin:0;padding:0;background:#F8FAFC;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#0F172A;}
+  .wrap{max-width:640px;margin:0 auto;padding:20px;}
+  .header{background:linear-gradient(135deg,#0F172A,#185FA5);color:white;padding:28px 24px;border-radius:16px;margin-bottom:16px;}
+  .header h1{margin:0 0 4px;font-size:20px;} .header p{margin:0;font-size:12px;color:rgba(255,255,255,.7);}
+  .section{background:white;border-radius:12px;padding:20px;margin-bottom:14px;box-shadow:0 1px 3px rgba(0,0,0,.06);}
+  .section-title{font-size:13px;font-weight:700;color:#0F172A;margin:0 0 12px;padding-bottom:8px;border-bottom:1px solid #F1F5F9;}
+  .ct{width:100%;border-collapse:collapse;} .ct tr{border-bottom:1px solid #F8FAFC;}
+  .ct tr.done .ci{text-decoration:line-through;color:#94A3B8;}
+  .cb{width:28px;padding:7px 6px 7px 0;vertical-align:top;} .cb input{width:16px;height:16px;cursor:pointer;accent-color:#185FA5;}
+  .ci{font-size:12px;padding:7px 0;line-height:1.4;color:#334155;}
+  .footer{text-align:center;font-size:10px;color:#94A3B8;padding:12px 0 4px;}
+  @media print{body{background:white;} .header{-webkit-print-color-adjust:exact;print-color-adjust:exact;}}
+</style></head><body>
+<div class="wrap">
+  <div class="header">
+    <h1>🏠 Checklist de visite LMNP</h1>
+    <p>${adresse} · ${dateStr}</p>
+  </div>
+  ${section("🏗️","Structure & Gros œuvre",[
+    "Fissures sur les murs porteurs ou façade extérieure",
+    "État de la toiture (tuiles, zinguerie, étanchéité)",
+    "Présence d'humidité, traces de moisissures ou salpêtre",
+    "État du plancher (souplesse, affaissement, craquements)",
+    "Alignement des ouvertures (portes, fenêtres — signe de tassement)",
+    "État des fondations (visible en cave/vide sanitaire)",
+  ])}
+  ${section("📋","Diagnostics DDT (obligatoires)",[
+    "DPE fourni (classe énergie — impact location et valeur)",
+    "Diagnostic amiante (si avant 1997)",
+    "Diagnostic plomb (CREP — si avant 1949)",
+    "État des risques naturels et technologiques (ERNT)",
+    "Diagnostic électricité (si installation > 15 ans)",
+    "Diagnostic gaz (si installation > 15 ans)",
+    "Métrage Loi Carrez (surface privative certifiée)",
+  ])}
+  ${section("🏢","Copropriété (si applicable)",[
+    "PV des 3 dernières AG (travaux votés ou à venir ?)",
+    "Montant des charges de copropriété mensuelles",
+    "Montant du fonds de travaux (Loi Alur : min 5%/an)",
+    "Procédures judiciaires en cours contre la copro",
+    "État de l'entretien des parties communes",
+    "Règlement de copropriété (location meublée autorisée ?)",
+  ])}
+  ${section("🔧","Technique & Équipements",[
+    "État de l'installation électrique (tableau, disjoncteurs)",
+    "Pression et état de la plomberie (rouille, fuites)",
+    "Chaudière ou système de chauffage (âge, entretien)",
+    "Isolation thermique (combles, murs — impact DPE)",
+    "Ventilation (VMC — présence et fonctionnement)",
+    "Double vitrage (état des joints, condensation entre vitres)",
+    "Internet haut débit disponible (fibre / ADSL)",
+  ])}
+  ${section("📁","Administratif & Juridique",[
+    "Titre de propriété (vendeur propriétaire sans litige)",
+    "Situation locative actuelle (locataire en place ? bail ?)",
+    "Taxe foncière (montant annuel)",
+    "Charges déductibles estimées (syndic, assurance PNO)",
+    "Zonage PLU (possibilité de transformer ou agrandir)",
+    "Servitudes éventuelles",
+  ])}
+  ${section("🛋️","LMNP spécifique — Location meublée",[
+    "Surface suffisante (min 9 m² pour meublé décent)",
+    "Liste mobilier obligatoire Décret 2015-981 (lit, table, rangements…)",
+    "Cuisine équipée (réfrigérateur, plaques, vaisselle…)",
+    "Loyer marché meublé vs nu (prime ~10-30% en meublé)",
+    "Cible locataire (étudiant, professionnel, tourisme courte durée ?)",
+    "Résidence services éligible CENSI-BOUVARD ? (9 ans engagement)",
+    "Bail mobilité possible (1-10 mois, pratique pour étudiants)",
+    "Comptable LMNP identifié (déclaration 2031 obligatoire au Réel)",
+  ])}
+  <div class="footer">Généré par simulateur-lmnp.vercel.app · ${dateStr} · Fourni à titre indicatif, consultez un expert avant achat</div>
+</div></body></html>`;
+  const blob = new Blob([html], { type:"text/html" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = `checklist-visite-lmnp-${new Date().toISOString().slice(0,10)}.html`;
+  a.click();
+}
+
 function StepResultats({ form, results, comparaison, amort, onLead, onArgumentaire }) {
   if (!results) return null;
   const best = results[0]; // LMNP Réel
@@ -2111,6 +2358,20 @@ function StepResultats({ form, results, comparaison, amort, onLead, onArgumentai
         <SectionTitle icon="🏗️" title="Projection patrimoniale"
           sub={`Évolution de votre patrimoine sur ${form.horizon} ans`} />
         <PatrimoineChart rows={best.rows} form={form} />
+      </Card>
+
+      {/* Achat vs Épargne */}
+      <Card>
+        <SectionTitle icon="⚖️" title="Achat LMNP vs Épargne financière"
+          sub="À quel moment l'immobilier surpasse le placement financier ?" />
+        <AchatVsEpargneChart rows={best.rows} form={form} />
+      </Card>
+
+      {/* Plus-value latente */}
+      <Card>
+        <SectionTitle icon="📈" title="Simulation plus-value latente"
+          sub="Revente à 5, 10 et 15 ans — abattements CGI Art. 150 U" />
+        <PlusValueLatente form={form} />
       </Card>
 
       {/* Tableau */}
