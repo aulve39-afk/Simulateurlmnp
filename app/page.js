@@ -1187,26 +1187,173 @@ function StepResultats({ form, results, comparaison, amort, onLead }) {
    LEAD CAPTURE MODAL
 ════════════════════════════════════════ */
 
+/* ── Générateur de rapport HTML téléchargeable (fallback client-side) ── */
+function downloadReport(form, results, amort, nom) {
+  const r0  = results?.[0];
+  const fmt2 = (n) => new Intl.NumberFormat("fr-FR",{style:"currency",currency:"EUR",maximumFractionDigits:0}).format(n??0);
+  const cfColor = (r0?.cashflowM??0)>=0?"#059669":"#DC2626";
+  const triColor = (r0?.tri??0)>=6?"#059669":(r0?.tri??0)>=4?"#D97706":"#DC2626";
+  const verdictEmoji = (r0?.tri??0)>=6?"🟢":(r0?.tri??0)>=4?"🟡":"🔴";
+
+  const html = `<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8">
+<title>Rapport LMNP</title>
+<style>
+  body{margin:0;padding:20px;background:#F1F5F9;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;}
+  .wrap{max-width:680px;margin:0 auto;}
+  .header{background:linear-gradient(135deg,#0F172A,#185FA5);color:white;padding:28px;border-radius:16px 16px 0 0;text-align:center;}
+  .body{background:white;padding:28px;}
+  .footer{background:#F8FAFC;padding:16px;border-radius:0 0 16px 16px;text-align:center;border-top:1px solid #E2E8F0;font-size:11px;color:#94A3B8;}
+  .kpi{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:20px 0;}
+  .kpi-box{border-radius:12px;padding:14px;text-align:center;}
+  .kpi-label{font-size:10px;font-weight:700;text-transform:uppercase;margin-bottom:6px;}
+  .kpi-val{font-size:24px;font-weight:800;}
+  .section-title{font-size:14px;font-weight:700;color:#0F172A;margin:24px 0 12px;}
+  .regime{border-radius:10px;padding:13px 16px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;}
+  .detail-table{width:100%;border-collapse:collapse;}
+  .detail-table td{padding:5px 0;font-size:12px;}
+  .detail-table td:last-child{text-align:right;font-weight:600;}
+  .amort-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+  .bar-bg{flex:1;background:#DBEAFE;border-radius:4px;height:7px;}
+  .bar-fill{background:#185FA5;border-radius:4px;height:7px;}
+  @media print{body{background:white;}@page{margin:15mm;}}
+</style>
+</head><body><div class="wrap">
+
+<div class="header">
+  <div style="font-size:40px;margin-bottom:8px;">🏢</div>
+  <h1 style="margin:0 0 4px;font-size:22px;font-weight:800;">Simulateur LMNP</h1>
+  <p style="margin:0;font-size:12px;opacity:.7;">Rapport fiscal · ${new Date().toLocaleDateString("fr-FR",{day:"numeric",month:"long",year:"numeric"})}</p>
+</div>
+
+<div class="body">
+  <p style="font-size:16px;font-weight:700;color:#0F172A;margin:0 0 4px;">Bonjour ${nom||"Investisseur"},</p>
+  <p style="font-size:13px;color:#64748B;margin:0 0 20px;">Bien à <strong>${fmt2(form.prix)}</strong> · Loyer <strong>${fmt2(form.loyer)}/mois</strong> · Horizon <strong>${form.horizon} ans</strong></p>
+
+  <div style="background:${triColor}15;border:1px solid ${triColor}44;border-radius:14px;padding:16px;display:flex;align-items:center;gap:14px;margin-bottom:20px;">
+    <span style="font-size:32px;">${verdictEmoji}</span>
+    <div>
+      <div style="font-weight:800;font-size:16px;color:${triColor};">Verdict : ${(r0?.tri??0)>=6?"Excellent":(r0?.tri??0)>=4?"Acceptable":"Risqué"}</div>
+      <div style="font-size:12px;color:#64748B;margin-top:3px;">TRI ${r0?.tri??"-"}% · CF ${r0?.cashflowM!=null?((r0.cashflowM>=0?"+":"")+r0.cashflowM+"€"):"-"}/mois · TMI ${form.tmi}%</div>
+    </div>
+  </div>
+
+  <div class="kpi">
+    <div class="kpi-box" style="background:#EFF6FF;border:1px solid #BFDBFE;">
+      <div class="kpi-label" style="color:#3B82F6;">TRI</div>
+      <div class="kpi-val" style="color:#185FA5;">${r0?.tri??"-"}%</div>
+      <div style="font-size:11px;color:#93C5FD;">Sur ${form.horizon} ans</div>
+    </div>
+    <div class="kpi-box" style="background:${cfColor}10;border:1px solid ${cfColor}44;">
+      <div class="kpi-label" style="color:${cfColor};">Cash-flow</div>
+      <div class="kpi-val" style="color:${cfColor};">${r0?.cashflowM!=null?((r0.cashflowM>=0?"+":"")+r0.cashflowM+"€"):"-"}</div>
+      <div style="font-size:11px;color:#94A3B8;">par mois</div>
+    </div>
+    <div class="kpi-box" style="background:#EFF6FF;border:1px solid #BFDBFE;">
+      <div class="kpi-label" style="color:#3B82F6;">Rdt net</div>
+      <div class="kpi-val" style="color:#185FA5;">${r0?.rendNet!=null?(+r0.rendNet).toFixed(2):"-"}%</div>
+      <div style="font-size:11px;color:#93C5FD;">Après charges</div>
+    </div>
+  </div>
+
+  <div class="section-title">🏠 Caractéristiques du bien</div>
+  <table class="detail-table" style="background:#F8FAFC;border-radius:12px;padding:4px 12px;">
+    ${[["Prix d'achat",fmt2(form.prix)],["Frais de notaire",`${fmt2(form.prix*form.notaire/100)} (${form.notaire}%)`],["Travaux + Mobilier",fmt2(form.travaux+form.mobilier)],["Apport",fmt2(form.apport)],["Loyer mensuel",`${fmt2(form.loyer)}/mois`],["Crédit",`${form.dureeCredit} ans à ${form.interet}%`]].map(([l,v])=>`<tr><td style="color:#64748B;">${l}</td><td>${v}</td></tr>`).join("")}
+  </table>
+
+  <div class="section-title">📊 Comparaison des 4 régimes</div>
+  ${(results||[]).map((r,i)=>{
+    const labels=["LMNP Réel","Micro-BIC","SCI à l'IS","SCI à l'IR"];
+    const icons=["🥇","🥈","🏅","🏅"];
+    const bg=i===0?"#EFF6FF":"#F8FAFC";
+    const bd=i===0?"#BFDBFE":"#E2E8F0";
+    const cc=(r.cashflowM??0)>=0?"#059669":"#DC2626";
+    return `<div class="regime" style="background:${bg};border:1px solid ${bd};">
+      <div><div style="font-weight:700;font-size:13px;">${icons[i]} ${labels[i]}</div>
+      <div style="font-size:11px;color:#64748B;margin-top:2px;">TRI ${r.tri??"-"}% · Rdt ${r.rendNet!=null?(+r.rendNet).toFixed(2):"-"}%</div></div>
+      <div style="text-align:right;font-size:18px;font-weight:800;color:${cc};">${r.cashflowM!=null?((r.cashflowM>=0?"+":"")+r.cashflowM+"€"):"-"}/mois</div>
+    </div>`;
+  }).join("")}
+
+  ${amort?.chartData?.length ? `
+  <div class="section-title">🏗️ Amortissement par composants — ${fmt2(amort.totalAnnuel)}/an</div>
+  ${amort.chartData.map(c=>`<div class="amort-row">
+    <div style="width:110px;font-size:11px;color:#64748B;">${c.name}</div>
+    <div class="bar-bg"><div class="bar-fill" style="width:${Math.round(c.montant/amort.totalAnnuel*100)}%;"></div></div>
+    <div style="width:55px;text-align:right;font-size:11px;font-weight:700;">${fmt2(c.montant)}</div>
+    <div style="width:36px;font-size:10px;color:#94A3B8;">${c.duree}ans</div>
+  </div>`).join("")}` : ""}
+
+</div>
+<div class="footer">
+  Simulateur LMNP — Rapport à titre informatif. Consultez un expert-comptable spécialisé LMNP.
+</div>
+</div></body></html>`;
+
+  const blob = new Blob([html], { type:"text/html" });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement("a");
+  a.href     = url;
+  a.download = `rapport-lmnp-${new Date().toISOString().slice(0,10)}.html`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
 function LeadModal({ onClose, form, results }) {
-  const [email, setEmail] = useState("");
-  const [name,  setName]  = useState("");
-  const [sent,  setSent]  = useState(false);
+  const [email,   setEmail]   = useState("");
+  const [name,    setName]    = useState("");
+  const [sent,    setSent]    = useState(false);
   const [loading, setLoading] = useState(false);
+  const [emailOk, setEmailOk] = useState(false); // l'API email a réussi
+
+  const amort = useMemo(
+    () => calcAmortComposants(form.prix, form.notaire, form.mobilier, form.travaux),
+    [form]
+  );
 
   const submit = async (e) => {
     e.preventDefault();
     if (!email) return;
     setLoading(true);
     try {
+      // 1. Sauvegarder en DB
       if (sb) {
-        await sb.from("leads").upsert({ email, nom: name, params: form,
-          tri: results?.[0]?.tri, cashflow_m: results?.[0]?.cashflowM,
-          created_at: new Date().toISOString() });
+        await sb.from("leads").upsert({
+          email, nom: name, params: form,
+          tri: results?.[0]?.tri,
+          cashflow_m: results?.[0]?.cashflowM,
+          created_at: new Date().toISOString(),
+        });
       }
+      // 2. Envoyer l'email via API route
+      let emailSent = false;
+      try {
+        const res = await fetch("/api/send-report", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            email, nom: name, params: form,
+            tri:        results?.[0]?.tri,
+            cashflow_m: results?.[0]?.cashflowM,
+            rend_net:   results?.[0]?.rendNet,
+            amort,
+            results: results?.map(r => ({
+              tri: r.tri, cashflowM: r.cashflowM, rendNet: r.rendNet,
+            })),
+          }),
+        });
+        const data = await res.json();
+        emailSent = data.success && !data.warning;
+      } catch { /* silencieux */ }
+
+      setEmailOk(emailSent);
       setSent(true);
     } catch {
-      setSent(true); // On affiche le succès même si Supabase échoue
-    } finally { setLoading(false); }
+      setSent(true);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -1248,7 +1395,7 @@ function LeadModal({ onClose, form, results }) {
               <button type="submit" disabled={loading || !email}
                 className="w-full py-3 rounded-xl text-sm font-bold text-white transition-opacity"
                 style={{ background:"linear-gradient(135deg, #0F172A, #185FA5)", opacity: loading||!email ? 0.6 : 1 }}>
-                {loading ? "Envoi en cours…" : "Recevoir mon rapport gratuit →"}
+                {loading ? "⏳ Génération en cours…" : "Recevoir mon rapport gratuit →"}
               </button>
             </form>
             <p className="text-[10px] text-slate-400 text-center mt-3">
@@ -1259,14 +1406,31 @@ function LeadModal({ onClose, form, results }) {
             </button>
           </>
         ) : (
-          <div className="text-center py-6">
+          <div className="text-center py-4">
             <div className="text-4xl mb-3">✅</div>
-            <h2 className="text-lg font-bold text-slate-800 mb-2">Rapport envoyé !</h2>
+            <h2 className="text-lg font-bold text-slate-800 mb-2">
+              {emailOk ? "Rapport envoyé !" : "Rapport prêt !"}
+            </h2>
             <p className="text-sm text-slate-500 mb-5">
-              Vérifiez votre boîte mail. Votre analyse complète est en route.
+              {emailOk
+                ? `Vérifiez votre boîte mail (${email}). Votre analyse complète est en route.`
+                : "Téléchargez votre rapport directement ou rouvrez le simulateur pour le générer à nouveau."}
             </p>
-            <button onClick={onClose} className="w-full py-3 rounded-xl text-sm font-bold text-white"
-              style={{ background:"#185FA5" }}>Fermer</button>
+            {/* Toujours proposer le téléchargement */}
+            <button
+              onClick={() => downloadReport(form, results, amort, name)}
+              className="w-full py-3 rounded-xl text-sm font-bold text-white mb-3"
+              style={{ background:"linear-gradient(135deg, #185FA5, #1e40af)" }}>
+              ⬇ Télécharger le rapport (.html)
+            </button>
+            <button onClick={onClose} className="w-full py-2.5 rounded-xl text-sm font-semibold border border-slate-200 text-slate-600 hover:bg-slate-50">
+              Fermer
+            </button>
+            {emailOk && (
+              <p className="text-[10px] text-slate-400 mt-3">
+                Vérifiez vos spams si vous ne voyez pas l&apos;email.
+              </p>
+            )}
           </div>
         )}
       </div>
@@ -1279,56 +1443,169 @@ function LeadModal({ onClose, form, results }) {
 ════════════════════════════════════════ */
 
 function AuthModal({ onAuth, onClose }) {
-  const [mode, setMode]       = useState("login");
-  const [email, setEmail]     = useState("");
-  const [password, setPass]   = useState("");
-  const [error, setError]     = useState("");
-  const [loading, setLoading] = useState(false);
+  const [mode,           setMode]     = useState("login");
+  const [email,          setEmail]    = useState("");
+  const [password,       setPass]     = useState("");
+  const [error,          setError]    = useState("");
+  const [loading,        setLoading]  = useState(false);
+  const [pendingConfirm, setPending]  = useState(false); // en attente de confirmation email
+  const [cooldown,       setCooldown] = useState(0);     // délai avant re-envoi
+  const [infoMsg,        setInfoMsg]  = useState("");
+
+  // Décompte cooldown
+  useEffect(() => {
+    if (cooldown <= 0) return;
+    const t = setInterval(() => setCooldown(c => c - 1), 1000);
+    return () => clearInterval(t);
+  }, [cooldown]);
+
+  const resendConfirmation = async () => {
+    if (!sb || cooldown > 0) return;
+    setLoading(true);
+    try {
+      await sb.auth.resend({ type:"signup", email });
+      setCooldown(60);
+      setInfoMsg("Email de confirmation renvoyé !");
+    } catch (err) {
+      setError(err.message);
+    } finally { setLoading(false); }
+  };
+
+  const resetPassword = async () => {
+    if (!sb) return;
+    if (!email) { setError("Entrez votre email pour réinitialiser le mot de passe."); return; }
+    setLoading(true);
+    try {
+      await sb.auth.resetPasswordForEmail(email, {
+        redirectTo: typeof window !== "undefined" ? window.location.origin : undefined,
+      });
+      setInfoMsg("Email de réinitialisation envoyé ! Vérifiez votre boîte mail.");
+      setError("");
+    } catch (err) {
+      setError(err.message);
+    } finally { setLoading(false); }
+  };
 
   const submit = async (e) => {
     e.preventDefault();
-    if (!sb) { setError("Service non configuré."); return; }
-    setLoading(true); setError("");
+    if (!sb) { setError("Service non configuré. Rechargez la page."); return; }
+    setLoading(true); setError(""); setInfoMsg("");
     try {
-      if (mode==="login") {
+      if (mode === "login") {
         const { data, error:err } = await sb.auth.signInWithPassword({ email, password });
-        if (err) throw err;
-        onAuth(data.user);
+        if (err) {
+          if (err.message.includes("Email not confirmed") || err.code === "email_not_confirmed") {
+            setPending(true);
+          } else if (err.message.includes("Invalid login credentials")) {
+            throw new Error("Email ou mot de passe incorrect.");
+          } else {
+            throw err;
+          }
+        } else {
+          onAuth(data.user);
+        }
       } else {
         const { data, error:err } = await sb.auth.signUp({ email, password });
-        if (err) throw err;
-        if (data.user) onAuth(data.user);
-        else setError("Vérifiez votre email pour confirmer l'inscription.");
+        if (err) {
+          if (err.message.includes("already registered") || err.message.includes("already been registered")) {
+            throw new Error("Un compte existe déjà avec cet email. Connectez-vous plutôt.");
+          }
+          throw err;
+        }
+        if (data.session) {
+          // Confirmation désactivée — connexion directe
+          onAuth(data.user);
+        } else {
+          // Confirmation email requise
+          setPending(true);
+          setCooldown(60);
+        }
       }
-    } catch(err) { setError(err.message || "Erreur"); }
-    finally { setLoading(false); }
+    } catch (err) {
+      setError(err.message || "Une erreur est survenue.");
+    } finally { setLoading(false); }
   };
 
+  /* ── État : en attente de confirmation email ── */
+  if (pendingConfirm) {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background:"rgba(0,0,0,.55)", backdropFilter:"blur(3px)" }}>
+        <div className="bg-white rounded-2xl p-6 w-80 shadow-2xl text-center">
+          <div className="text-4xl mb-3">📧</div>
+          <h2 className="font-bold text-slate-800 mb-2">Confirmez votre email</h2>
+          <p className="text-sm text-slate-500 mb-1 leading-relaxed">
+            Un lien de confirmation a été envoyé à
+          </p>
+          <p className="text-sm font-bold text-slate-700 mb-4 break-all">{email}</p>
+          <p className="text-xs text-slate-400 mb-5 leading-relaxed">
+            Cliquez sur le lien dans l&apos;email pour activer votre compte, puis revenez ici pour vous connecter.
+          </p>
+          <button
+            onClick={resendConfirmation}
+            disabled={cooldown > 0 || loading}
+            className="w-full py-2.5 mb-3 rounded-xl text-sm font-semibold border border-slate-200 text-slate-600 hover:bg-slate-50 transition-colors disabled:opacity-50">
+            {cooldown > 0 ? `Renvoyer dans ${cooldown} s` : "📨 Renvoyer l'email"}
+          </button>
+          <button onClick={() => { setPending(false); setMode("login"); }}
+            className="w-full py-2.5 mb-2 rounded-xl text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 transition-colors">
+            J&apos;ai confirmé → Se connecter
+          </button>
+          <button onClick={onClose} className="text-xs text-slate-400 hover:text-slate-600 mt-1">
+            Continuer sans compte
+          </button>
+          <p className="text-[10px] text-slate-400 mt-3">📂 Vérifiez vos spams si vous ne trouvez pas l&apos;email.</p>
+        </div>
+      </div>
+    );
+  }
+
+  /* ── Formulaire principal ── */
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background:"rgba(0,0,0,.5)" }}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background:"rgba(0,0,0,.55)", backdropFilter:"blur(3px)" }}>
       <div className="bg-white rounded-2xl p-6 w-80 shadow-2xl">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="font-bold text-slate-800">{mode==="login"?"Connexion":"Créer un compte"}</h2>
-          <button onClick={onClose} className="text-slate-400 hover:text-slate-600 text-xl">×</button>
+          <h2 className="font-bold text-slate-800">{mode==="login" ? "Connexion" : "Créer un compte"}</h2>
+          <button onClick={onClose} className="text-slate-400 hover:text-slate-600 text-2xl leading-none">×</button>
         </div>
+
         <form onSubmit={submit} className="space-y-3">
-          <input type="email" value={email} onChange={e=>setEmail(e.target.value)}
-            placeholder="Email" required
-            className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-blue-400" />
-          <input type="password" value={password} onChange={e=>setPass(e.target.value)}
-            placeholder="Mot de passe" required
-            className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-blue-400" />
-          {error && <p className="text-xs text-red-500">{error}</p>}
+          <input type="email" value={email} onChange={e=>{setEmail(e.target.value);setError("");}}
+            placeholder="Email" required autoComplete="email"
+            className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-blue-400 bg-slate-50 focus:bg-white transition-colors" />
+          <input type="password" value={password} onChange={e=>{setPass(e.target.value);setError("");}}
+            placeholder={mode==="register" ? "Mot de passe (6 car. min.)" : "Mot de passe"}
+            required minLength={mode==="register" ? 6 : undefined} autoComplete={mode==="login" ? "current-password" : "new-password"}
+            className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-blue-400 bg-slate-50 focus:bg-white transition-colors" />
+
+          {error && (
+            <div className="bg-red-50 border border-red-100 rounded-lg px-3 py-2">
+              <p className="text-xs text-red-600">{error}</p>
+            </div>
+          )}
+          {infoMsg && (
+            <div className="bg-green-50 border border-green-100 rounded-lg px-3 py-2">
+              <p className="text-xs text-green-700">{infoMsg}</p>
+            </div>
+          )}
+
           <button type="submit" disabled={loading}
             className="w-full py-2.5 rounded-xl text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 transition-colors disabled:opacity-60">
-            {loading ? "…" : mode==="login" ? "Se connecter" : "Créer le compte"}
+            {loading ? "⏳ …" : mode==="login" ? "Se connecter" : "Créer le compte"}
           </button>
         </form>
-        <p className="text-center text-xs text-slate-400 mt-3">
-          <button onClick={()=>setMode(m=>m==="login"?"register":"login")} className="text-blue-500 hover:underline">
-            {mode==="login" ? "Pas encore de compte ?" : "Déjà un compte ?"}
+
+        <div className="mt-3 space-y-1.5 text-center">
+          <button onClick={() => { setMode(m => m==="login"?"register":"login"); setError(""); setInfoMsg(""); }}
+            className="text-xs text-blue-500 hover:underline block w-full">
+            {mode==="login" ? "Pas encore de compte ? Créer un compte →" : "← Déjà un compte ? Se connecter"}
           </button>
-        </p>
+          {mode==="login" && (
+            <button onClick={resetPassword} disabled={loading}
+              className="text-xs text-slate-400 hover:text-slate-600 hover:underline">
+              Mot de passe oublié ?
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );
