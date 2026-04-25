@@ -1251,9 +1251,12 @@ function StepFinancement({ form, set }) {
   const mens    = capital > 0 && form.interet > 0
     ? Math.round((capital * (form.interet/100/12)) / (1 - Math.pow(1+form.interet/100/12, -form.dureeCredit*12)))
     : 0;
-  const totalMens = mens + (+form.chargesCredit || 0);
-  const ratioEndt = (totalMens / (form.revenusMensuels || 1) * 100).toFixed(1);
+  const totalMens  = mens + (+form.chargesCredit || 0);
+  const ratioEndt  = (totalMens / (form.revenusMensuels || 1) * 100).toFixed(1);
   const ratioColor = +ratioEndt > 35 ? "#EF4444" : +ratioEndt > 30 ? "#F59E0B" : "#10B981";
+  const rav        = Math.round((+form.revenusMensuels || 0) - totalMens);
+  const ravColor   = rav >= 1500 ? "#10B981" : rav >= 1200 ? "#F59E0B" : "#EF4444";
+  const ravLabel   = rav >= 1500 ? "Confortable ✅" : rav >= 1200 ? "Juste ⚠️" : "Serré 🔴";
 
   return (
     <div className="slide-up space-y-4">
@@ -1310,6 +1313,25 @@ function StepFinancement({ form, set }) {
           {+ratioEndt > 35 && (
             <p className="text-[11px] mt-1.5" style={{ color:ratioColor }}>
               ⚠ Dépasse le seuil HCSF de 35 %. Augmentez l&apos;apport ou réduisez la durée.
+            </p>
+          )}
+        </div>
+
+        {/* Reste à Vivre */}
+        <div className="rounded-xl p-3 border mt-2" style={{ background:ravColor+"11", borderColor:ravColor+"44" }}>
+          <div className="flex justify-between items-center">
+            <div>
+              <p className="text-sm font-semibold text-slate-700">Reste à vivre</p>
+              <p className="text-[10px] text-slate-400">Revenus − total mensualités crédit</p>
+            </div>
+            <div className="text-right">
+              <p className="text-lg font-bold" style={{ color:ravColor }}>{fmt(rav)}/mois</p>
+              <p className="text-[10px] font-semibold" style={{ color:ravColor }}>{ravLabel}</p>
+            </div>
+          </div>
+          {rav < 1200 && (
+            <p className="text-[11px] mt-1.5" style={{ color:ravColor }}>
+              Un reste à vivre inférieur à 1 200 €/mois peut fragiliser votre dossier bancaire. Envisagez d&apos;augmenter votre apport.
             </p>
           )}
         </div>
@@ -1531,6 +1553,84 @@ function BouclierFiscalChart({ rows }) {
   );
 }
 
+/* ── Projection patrimoniale ── */
+function PatrimoineChart({ rows, form }) {
+  const revalo = (form.revalorisation || 1.5) / 100;
+  const data = rows.map(r => {
+    const valeurBien    = Math.round(form.prix * Math.pow(1 + revalo, r.an));
+    const detteRestante = Math.max(0, Math.round(r.capRestant || 0));
+    const patrimoineNet = Math.max(0, valeurBien - detteRestante);
+    return { an:`A${r.an}`, valeurBien, detteRestante, patrimoineNet };
+  });
+
+  const last       = data[data.length - 1] || {};
+  const plusvalue  = (last.valeurBien || 0) - form.prix;
+  const pvColor    = plusvalue >= 0 ? "#10B981" : "#EF4444";
+
+  return (
+    <div>
+      <div className="grid grid-cols-3 gap-2 mb-4">
+        <div className="rounded-xl bg-blue-50 border border-blue-100 p-3 text-center">
+          <p className="text-[10px] text-blue-500 font-semibold mb-0.5">Valeur finale</p>
+          <p className="text-sm font-bold text-blue-700">{fmtK(last.valeurBien)}</p>
+          <p className="text-[9px] text-blue-400">À {form.horizon} ans</p>
+        </div>
+        <div className="rounded-xl bg-red-50 border border-red-100 p-3 text-center">
+          <p className="text-[10px] text-red-500 font-semibold mb-0.5">Dette restante</p>
+          <p className="text-sm font-bold text-red-600">{fmtK(last.detteRestante)}</p>
+          <p className="text-[9px] text-red-400">Capital dû</p>
+        </div>
+        <div className="rounded-xl bg-emerald-50 border border-emerald-100 p-3 text-center">
+          <p className="text-[10px] text-emerald-600 font-semibold mb-0.5">Patrimoine net</p>
+          <p className="text-sm font-bold text-emerald-700">{fmtK(last.patrimoineNet)}</p>
+          <p className="text-[9px]" style={{ color:pvColor }}>
+            {plusvalue >= 0 ? "+" : ""}{fmtK(plusvalue)} plus-value
+          </p>
+        </div>
+      </div>
+
+      <ResponsiveContainer width="100%" height={200}>
+        <AreaChart data={data} margin={{ top:10, right:4, left:0, bottom:0 }}>
+          <defs>
+            <linearGradient id="gradPatrimoine" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="5%"  stopColor="#10B981" stopOpacity={0.25} />
+              <stop offset="95%" stopColor="#10B981" stopOpacity={0.02} />
+            </linearGradient>
+          </defs>
+          <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" />
+          <XAxis dataKey="an" tick={{ fontSize:10, fill:"#94A3B8" }} interval={1} />
+          <YAxis tick={{ fontSize:10, fill:"#94A3B8" }} tickFormatter={v=>fmtK(v)} width={52} />
+          <RTooltip
+            formatter={(v,n) => [fmt(v), n]}
+            contentStyle={{ borderRadius:8, border:"1px solid #E2E8F0", fontSize:11 }}
+          />
+          <Area  type="monotone" dataKey="patrimoineNet" name="💚 Patrimoine net"
+            stroke="#10B981" fill="url(#gradPatrimoine)" strokeWidth={2} />
+          <Line  type="monotone" dataKey="valeurBien"    name="🏠 Valeur du bien"
+            stroke="#185FA5" strokeWidth={2} dot={false} strokeDasharray="5 3" />
+          <Line  type="monotone" dataKey="detteRestante" name="🔴 Dette restante"
+            stroke="#EF4444" strokeWidth={2} dot={false} strokeDasharray="3 2" />
+        </AreaChart>
+      </ResponsiveContainer>
+
+      <div className="flex flex-wrap items-center justify-center gap-3 mt-2">
+        <div className="flex items-center gap-1.5">
+          <div className="w-3 h-3 rounded-sm bg-emerald-500" />
+          <span className="text-[10px] text-slate-500">Patrimoine net</span>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <div className="w-5 border-t-2 border-dashed border-blue-600" />
+          <span className="text-[10px] text-slate-500">Valeur du bien</span>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <div className="w-5 border-t-2 border-dashed border-red-400" />
+          <span className="text-[10px] text-slate-500">Dette restante</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /* ── Tableau de projection ── */
 function TableauProjection({ rows, horizon }) {
   const [open, setOpen] = useState(false);
@@ -1567,6 +1667,94 @@ function TableauProjection({ rows, horizon }) {
               ))}
             </tbody>
           </table>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ── Références légales CGI ── */
+const CGI_REFS = [
+  {
+    code: "CGI Art. 34",
+    titre: "Bénéfices industriels et commerciaux (BIC)",
+    resume: "Les revenus de la location meublée sont imposés dans la catégorie des BIC. Cet article fixe le champ d'application du régime BIC pour les loueurs en meublé (professionnels et non-professionnels).",
+    lien: "https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000006307555",
+  },
+  {
+    code: "CGI Art. 39 C",
+    titre: "Amortissements par composants — plafonnement LMNP",
+    resume: "Autorise la déduction des amortissements en LMNP Réel, par composants (gros œuvre, toiture, façade, équipements, agencements). L'amortissement est plafonné : il ne peut pas créer de déficit BIC imputable sur le revenu global.",
+    lien: "https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000006307707",
+  },
+  {
+    code: "CGI Art. 156",
+    titre: "Déficit reportable — carry-forward 10 ans",
+    resume: "Les déficits dégagés en LMNP (par les amortissements excédentaires) ne sont pas imputables sur le revenu global, mais sont reportables sur les bénéfices de même nature pendant 10 ans. Ce simulateur en tient compte annuellement.",
+    lien: "https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000045789673",
+  },
+  {
+    code: "CGI Art. 150 U",
+    titre: "Plus-value immobilière des particuliers",
+    resume: "Régit la taxation de la plus-value à la revente (LMNP relève du régime des particuliers). Abattement pour durée de détention : 6 % / an de 6 à 21 ans puis 4 % la 22e année → exonération IR à 22 ans. Exonération totale (PV + PS) à 30 ans.",
+    lien: "https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000006307925",
+  },
+  {
+    code: "CGI Art. 238 bis K",
+    titre: "SCI soumise à l'IS",
+    resume: "Permet à une SCI d'opter pour l'impôt sur les sociétés. Les amortissements sont déductibles, mais la plus-value à la revente est taxée comme un bénéfice professionnel (pas d'exonération durée). Taux IS réduit 15 % jusqu'à 42 500 €, puis 25 %.",
+    lien: "https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000006302988",
+  },
+  {
+    code: "Règle HCSF 2021",
+    titre: "Taux d'endettement maximal — Recommandation HCSF",
+    resume: "Le Haut Conseil de Stabilité Financière impose aux banques de respecter un taux d'endettement ≤ 35 % des revenus nets (incluant toutes les mensualités crédit). Le simulateur calcule et signale tout dépassement de ce seuil.",
+    lien: "https://www.hcsf.fr/hcsf/recommandation-r-hcsf-2021-r-6/",
+  },
+];
+
+function ReferencesLegales() {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="rounded-2xl border border-slate-200 overflow-hidden bg-white">
+      <button
+        onClick={() => setOpen(o => !o)}
+        className="w-full flex items-center justify-between px-4 py-3.5 text-left hover:bg-slate-50 transition-colors">
+        <div className="flex items-center gap-2">
+          <span className="text-base">⚖️</span>
+          <div>
+            <p className="text-sm font-bold text-slate-800">Références légales &amp; fiscales</p>
+            <p className="text-[10px] text-slate-400">CGI · HCSF · Base juridique des calculs</p>
+          </div>
+        </div>
+        <span className="text-slate-400 text-sm">{open ? "▲" : "▼"}</span>
+      </button>
+
+      {open && (
+        <div className="border-t border-slate-100 divide-y divide-slate-50">
+          {CGI_REFS.map(ref => (
+            <div key={ref.code} className="px-4 py-3">
+              <div className="flex items-start justify-between gap-2 mb-1">
+                <div className="flex items-center gap-2">
+                  <span className="inline-block bg-blue-100 text-blue-700 text-[10px] font-bold px-2 py-0.5 rounded-full whitespace-nowrap">
+                    {ref.code}
+                  </span>
+                  <p className="text-xs font-semibold text-slate-700">{ref.titre}</p>
+                </div>
+                <a href={ref.lien} target="_blank" rel="noopener noreferrer"
+                  className="shrink-0 text-[10px] text-blue-500 hover:text-blue-700 underline">
+                  Texte officiel →
+                </a>
+              </div>
+              <p className="text-[11px] text-slate-500 leading-relaxed">{ref.resume}</p>
+            </div>
+          ))}
+          <div className="px-4 py-3 bg-amber-50">
+            <p className="text-[10px] text-amber-700 leading-relaxed">
+              ⚠️ Ce simulateur applique les règles fiscales en vigueur à la date de publication (LF 2026).
+              Les textes législatifs peuvent évoluer. Consultez un expert-comptable spécialisé LMNP pour votre situation personnelle.
+            </p>
+          </div>
         </div>
       )}
     </div>
@@ -1655,6 +1843,13 @@ function StepResultats({ form, results, comparaison, amort, onLead, onArgumentai
         <SectionTitle icon="🛡️" title="Bouclier fiscal LMNP"
           sub="Années protégées par les amortissements — et quand l'impôt revient" />
         <BouclierFiscalChart rows={best.rows} />
+      </Card>
+
+      {/* Projection patrimoniale */}
+      <Card>
+        <SectionTitle icon="🏗️" title="Projection patrimoniale"
+          sub={`Évolution de votre patrimoine sur ${form.horizon} ans`} />
+        <PatrimoineChart rows={best.rows} form={form} />
       </Card>
 
       {/* Tableau */}
@@ -1746,6 +1941,9 @@ function StepResultats({ form, results, comparaison, amort, onLead, onArgumentai
           </div>
         </div>
       </div>
+
+      {/* Références légales CGI */}
+      <ReferencesLegales />
 
       {/* Trust footnotes */}
       <div className="text-[10px] text-slate-400 text-center space-y-1 px-2 pb-4">
