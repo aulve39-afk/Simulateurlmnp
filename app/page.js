@@ -558,10 +558,10 @@ function LandingPage({ onStart }) {
       {/* Hero */}
       <div style={{ background:"linear-gradient(135deg, #0F172A 0%, #1e3a5f 60%, #185FA5 100%)" }}
         className="relative overflow-hidden">
-        {/* Badge LF 2026 */}
+        {/* Badge mise à jour */}
         <div className="absolute top-4 right-4">
-          <span className="text-[10px] font-bold bg-white/10 border border-white/20 text-white px-2 py-0.5 rounded-full">
-            ✦ Loi Finances 2026
+          <span className="text-[10px] font-bold bg-green-400/20 border border-green-400/30 text-green-300 px-2.5 py-1 rounded-full">
+            🟢 Mis à jour · Avril 2026
           </span>
         </div>
         <div className="max-w-2xl mx-auto px-5 pt-12 pb-10">
@@ -630,7 +630,7 @@ function LandingPage({ onStart }) {
           Conforme aux règles fiscales en vigueur
         </p>
         <div className="flex flex-wrap justify-center gap-x-6 gap-y-2">
-          {["✅ Amortissement par composants","✅ Règle HCSF 35%","✅ Loi de Finances 2026","✅ 4 régimes comparés"].map(t => (
+          {["✅ Amortissement par composants","✅ Règle HCSF 35%","✅ LF 2026 · Mis à jour Avril 2026","✅ 4 régimes comparés"].map(t => (
             <span key={t} className="text-xs text-slate-500 font-medium">{t}</span>
           ))}
         </div>
@@ -1188,6 +1188,87 @@ function PresetsBar({ onSelect }) {
   );
 }
 
+/* ── Tableau durées d'amortissement ── */
+function AmortDureesTable({ prix, terrain, travaux, mobilier }) {
+  const [open, setOpen] = useState(false);
+  const baseImmeuble = prix * (1 - terrain / 100);
+  const composants = [
+    { name:"Gros œuvre",   pct:50, duree:50, base:baseImmeuble },
+    { name:"Toiture",      pct:10, duree:25, base:baseImmeuble },
+    { name:"Façade",       pct:10, duree:25, base:baseImmeuble },
+    { name:"Équipements",  pct:15, duree:15, base:baseImmeuble },
+    { name:"Agencements",  pct:15, duree:10, base:baseImmeuble },
+  ];
+  const totalImmeubleAn = composants.reduce((s,c) => s + (c.base * c.pct/100 / c.duree), 0);
+  const mobilierAn  = mobilier / 7;
+  const travauxAn   = travaux  / 12;
+  const totalAn     = totalImmeubleAn + mobilierAn + travauxAn;
+
+  return (
+    <div className="mt-2">
+      <button onClick={() => setOpen(o=>!o)}
+        className="w-full flex items-center justify-between text-left px-0 py-1.5">
+        <span className="text-[11px] font-semibold text-blue-600 flex items-center gap-1">
+          🏗️ Voir les durées d&apos;amortissement par composant
+        </span>
+        <span className="text-blue-400 text-[10px]">{open ? "▲" : "▼"}</span>
+      </button>
+      {open && (
+        <div className="rounded-xl border border-blue-100 overflow-hidden mt-1">
+          <div className="bg-blue-50 px-3 py-2">
+            <p className="text-[10px] font-semibold text-blue-700">
+              Déduction totale : <span className="text-blue-800 text-xs font-bold">{fmt(totalAn)}/an</span>
+              <span className="text-blue-500 ml-2">· Conformément CGI Art. 39 C</span>
+            </p>
+          </div>
+          <table className="w-full text-xs">
+            <thead className="bg-slate-50">
+              <tr>
+                <th className="px-3 py-1.5 text-left text-[10px] font-semibold text-slate-500">Composant</th>
+                <th className="px-3 py-1.5 text-center text-[10px] font-semibold text-slate-500">Durée</th>
+                <th className="px-3 py-1.5 text-right text-[10px] font-semibold text-slate-500">Annuité</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-50">
+              {composants.map(c => (
+                <tr key={c.name} className="bg-white">
+                  <td className="px-3 py-1.5 text-slate-600">
+                    {c.name}
+                    <span className="text-slate-400 ml-1">({c.pct}%)</span>
+                  </td>
+                  <td className="px-3 py-1.5 text-center text-slate-500">{c.duree} ans</td>
+                  <td className="px-3 py-1.5 text-right font-semibold text-blue-700">
+                    {fmt(c.base * c.pct/100 / c.duree)}
+                  </td>
+                </tr>
+              ))}
+              {mobilier > 0 && (
+                <tr className="bg-amber-50">
+                  <td className="px-3 py-1.5 text-slate-600">Mobilier</td>
+                  <td className="px-3 py-1.5 text-center text-slate-500">7 ans</td>
+                  <td className="px-3 py-1.5 text-right font-semibold text-amber-700">{fmt(mobilierAn)}</td>
+                </tr>
+              )}
+              {travaux > 0 && (
+                <tr className="bg-amber-50">
+                  <td className="px-3 py-1.5 text-slate-600">Travaux</td>
+                  <td className="px-3 py-1.5 text-center text-slate-500">12 ans</td>
+                  <td className="px-3 py-1.5 text-right font-semibold text-amber-700">{fmt(travauxAn)}</td>
+                </tr>
+              )}
+              <tr className="bg-blue-50 font-bold">
+                <td className="px-3 py-2 text-blue-800">Total déductible</td>
+                <td className="px-3 py-2 text-center text-blue-600">—</td>
+                <td className="px-3 py-2 text-right text-blue-800">{fmt(totalAn)}<span className="text-blue-500 text-[10px] font-normal">/an</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function StepProjet({ form, set }) {
   const applyPreset = (p) =>
     Object.entries(p)
@@ -1241,6 +1322,8 @@ function StepProjet({ form, set }) {
             · Base amortissable immeuble : {fmt(form.prix * (1 - (form.terrain ?? 15) / 100))}
           </p>
         </div>
+
+        <AmortDureesTable prix={form.prix} terrain={form.terrain ?? 15} travaux={form.travaux} mobilier={form.mobilier} />
       </Card>
     </div>
   );
@@ -1713,6 +1796,184 @@ const CGI_REFS = [
   },
 ];
 
+/* ── Alerte LF 2026 — capture email ── */
+function AlerteLF2026() {
+  const [email,   setEmail]   = useState("");
+  const [sent,    setSent]    = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [open,    setOpen]    = useState(false);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!email) return;
+    setLoading(true);
+    try {
+      if (sb) {
+        await sb.from("leads").insert({
+          email,
+          source: "alerte_fiscale_lf2026",
+          created_at: new Date().toISOString(),
+        });
+      }
+      setSent(true);
+    } catch {}
+    setLoading(false);
+  };
+
+  return (
+    <div className="rounded-2xl border border-indigo-200 overflow-hidden bg-indigo-50">
+      <button onClick={() => setOpen(o=>!o)}
+        className="w-full flex items-center justify-between px-4 py-3.5 text-left hover:bg-indigo-100/50 transition-colors">
+        <div className="flex items-center gap-2.5">
+          <span className="text-lg">🔔</span>
+          <div>
+            <p className="text-sm font-bold text-indigo-800">Alerte fiscale LMNP 2026</p>
+            <p className="text-[10px] text-indigo-500">
+              Soyez alerté des changements de la Loi de Finances · Gratuit
+            </p>
+          </div>
+        </div>
+        <span className="text-indigo-400 text-sm">{open ? "▲" : "▼"}</span>
+      </button>
+
+      {open && (
+        <div className="border-t border-indigo-100 px-4 pb-4 pt-3">
+          {sent ? (
+            <div className="flex items-center gap-2 py-2">
+              <span className="text-green-500 text-xl">✅</span>
+              <p className="text-sm font-semibold text-green-700">
+                Inscription confirmée ! Vous recevrez les alertes fiscales LMNP 2026.
+              </p>
+            </div>
+          ) : (
+            <>
+              <p className="text-xs text-indigo-700 mb-3 leading-relaxed">
+                La Loi de Finances 2026 peut modifier les règles d&apos;amortissement LMNP, les plafonds Micro-BIC
+                ou les taux de prélèvements sociaux. Recevez une alerte dès qu&apos;un changement impacte vos calculs.
+              </p>
+              <form onSubmit={handleSubmit} className="flex gap-2">
+                <input
+                  type="email"
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
+                  placeholder="votre@email.fr"
+                  required
+                  className="flex-1 text-sm px-3 py-2.5 rounded-xl border border-indigo-200 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-400"
+                />
+                <button type="submit" disabled={loading}
+                  className="px-4 py-2.5 rounded-xl text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 transition-colors disabled:opacity-60 whitespace-nowrap">
+                  {loading ? "…" : "M'alerter →"}
+                </button>
+              </form>
+              <p className="text-[9px] text-indigo-400 mt-2">
+                Désabonnement en 1 clic · Données stockées en France · Aucun spam
+              </p>
+            </>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ── Affiliation contextuelle ── */
+function AffiliationContextuelle({ results, form }) {
+  const best = results?.[0];
+  const tri  = best?.tri ?? 0;
+  const ratioEndt = +(best?.ratioEndt ?? 0);
+  const capital   = form.prix + form.travaux + form.prix*(form.notaire/100) - form.apport;
+  const tm        = form.interet/100/12;
+  const n         = form.dureeCredit * 12;
+  const mens      = capital > 0 && tm > 0
+    ? Math.round((capital * tm) / (1 - Math.pow(1+tm, -n))) : 0;
+
+  // Sélectionner le message selon le profil
+  const showCourtier = tri >= 4;
+  const showComptable = (form.travaux || 0) >= 15000;
+  const triIsGreat    = tri >= 6;
+
+  if (!showCourtier && !showComptable) return null;
+
+  return (
+    <div className="space-y-3">
+      {/* CTA Courtier — contextuel TRI */}
+      {showCourtier && (
+        <div className={`rounded-2xl p-4 border ${triIsGreat
+          ? "border-emerald-200 bg-emerald-50"
+          : "border-amber-200 bg-amber-50"}`}>
+          <div className="flex items-start gap-3">
+            <span className="text-2xl">{triIsGreat ? "🚀" : "⚡"}</span>
+            <div className="flex-1">
+              {triIsGreat ? (
+                <>
+                  <p className="text-sm font-bold text-emerald-800 mb-0.5">
+                    Ce projet est finançable — TRI {tri}%
+                  </p>
+                  <p className="text-xs text-emerald-700 mb-3">
+                    Avec un TRI de {tri}%, votre projet est solide. Un courtier peut vous obtenir un meilleur taux
+                    que les <strong>{form.interet}%</strong> actuellement simulés et améliorer encore votre cash-flow.
+                  </p>
+                </>
+              ) : (
+                <>
+                  <p className="text-sm font-bold text-amber-800 mb-0.5">
+                    Votre projet peut être optimisé — TRI {tri}%
+                  </p>
+                  <p className="text-xs text-amber-700 mb-3">
+                    Un courtier peut restructurer votre financement (taux, durée, différé) pour améliorer le cash-flow
+                    et passer votre TRI au-dessus de 6%.
+                  </p>
+                </>
+              )}
+              <div className="flex flex-wrap gap-2">
+                <a href={`https://www.pretto.fr?utm_source=simulateur-lmnp&utm_medium=cta-contextuel&utm_content=tri-${tri}`}
+                  target="_blank" rel="noopener noreferrer"
+                  className={`inline-flex items-center gap-1.5 text-white text-xs font-bold px-4 py-2 rounded-xl transition-colors ${
+                    triIsGreat
+                      ? "bg-emerald-600 hover:bg-emerald-700"
+                      : "bg-amber-600 hover:bg-amber-700"}`}>
+                  🏦 Comparer les offres de prêt →
+                </a>
+                <a href={`https://www.meilleurtaux.com?utm_source=simulateur-lmnp&utm_medium=cta-contextuel`}
+                  target="_blank" rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 bg-white border border-slate-200 text-slate-700 text-xs font-semibold px-3 py-2 rounded-xl hover:bg-slate-50 transition-colors">
+                  MeilleurTaux
+                </a>
+              </div>
+              <p className="text-[9px] text-slate-400 mt-2">Liens partenaires · Comparaison gratuite sans engagement</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* CTA Comptable — contextuel travaux */}
+      {showComptable && (
+        <div className="rounded-2xl p-4 border border-blue-200 bg-blue-50">
+          <div className="flex items-start gap-3">
+            <span className="text-2xl">🧮</span>
+            <div className="flex-1">
+              <p className="text-sm font-bold text-blue-800 mb-0.5">
+                {fmtK(form.travaux)} de travaux — maximisez vos amortissements
+              </p>
+              <p className="text-xs text-blue-700 mb-3">
+                Avec ce volume de travaux, un expert-comptable spécialisé LMNP peut optimiser la ventilation
+                par composants et potentiellement <strong>augmenter votre déduction annuelle</strong>.
+                Premier mois souvent offert.
+              </p>
+              <a href="https://www.compta-lmnp.fr?utm_source=simulateur-lmnp&utm_medium=cta-travaux"
+                target="_blank" rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 bg-blue-600 text-white text-xs font-bold px-4 py-2 rounded-xl hover:bg-blue-700 transition-colors">
+                🧾 Trouver un comptable LMNP →
+              </a>
+              <p className="text-[9px] text-slate-400 mt-2">Lien partenaire · Sans engagement</p>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function ReferencesLegales() {
   const [open, setOpen] = useState(false);
   return (
@@ -1925,22 +2186,11 @@ function StepResultats({ form, results, comparaison, amort, onLead, onArgumentai
         </div>
       </div>
 
-      {/* CTA Courtier */}
-      <div className="rounded-2xl p-4 border border-emerald-200 bg-emerald-50">
-        <div className="flex items-start gap-3">
-          <span className="text-2xl">🤝</span>
-          <div className="flex-1">
-            <p className="text-sm font-bold text-emerald-800 mb-0.5">Optimisez votre taux de crédit</p>
-            <p className="text-xs text-emerald-700 mb-3">
-              Nos partenaires courtiers négocient les meilleures conditions pour financer votre projet LMNP.
-            </p>
-            <a href="https://www.pretto.fr" target="_blank" rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 bg-emerald-600 text-white text-xs font-bold px-4 py-2 rounded-xl hover:bg-emerald-700 transition-colors">
-              Prendre RDV avec un courtier →
-            </a>
-          </div>
-        </div>
-      </div>
+      {/* CTAs affiliés contextuels */}
+      <AffiliationContextuelle results={results} form={form} />
+
+      {/* Alerte LF 2026 */}
+      <AlerteLF2026 />
 
       {/* Références légales CGI */}
       <ReferencesLegales />
@@ -1961,78 +2211,213 @@ function StepResultats({ form, results, comparaison, amort, onLead, onArgumentai
 
 /* ── Générateur de rapport HTML téléchargeable (fallback client-side) ── */
 function downloadReport(form, results, amort, nom) {
-  const r0  = results?.[0];
+  const r0   = results?.[0];
   const fmt2 = (n) => new Intl.NumberFormat("fr-FR",{style:"currency",currency:"EUR",maximumFractionDigits:0}).format(n??0);
-  const cfColor = (r0?.cashflowM??0)>=0?"#059669":"#DC2626";
-  const triColor = (r0?.tri??0)>=6?"#059669":(r0?.tri??0)>=4?"#D97706":"#DC2626";
+  const cfColor   = (r0?.cashflowM??0)>=0?"#059669":"#DC2626";
+  const triColor  = (r0?.tri??0)>=6?"#059669":(r0?.tri??0)>=4?"#D97706":"#DC2626";
   const verdictEmoji = (r0?.tri??0)>=6?"🟢":(r0?.tri??0)>=4?"🟡":"🔴";
+  const dateStr   = new Date().toLocaleDateString("fr-FR",{day:"numeric",month:"long",year:"numeric"});
+
+  // Score bancabilité inline
+  const ratioEndt = +(r0?.ratioEndt ?? 0);
+  const capital   = form.prix + form.travaux + form.prix*(form.notaire/100) - form.apport;
+  const tm        = form.interet/100/12;
+  const nn        = form.dureeCredit * 12;
+  const mens      = capital>0&&tm>0 ? Math.round((capital*tm)/(1-Math.pow(1+tm,-nn))) : 0;
+  const totalMens = mens + (+form.chargesCredit||0);
+  const rav       = Math.round((+form.revenusMensuels||0) - totalMens);
+  const ravColor  = rav>=1500?"#059669":rav>=1200?"#D97706":"#DC2626";
+  const pctApport = Math.round(form.apport / Math.max(form.prix,1) * 100);
+  const rendBrut  = +r0?.rendBrut || 0;
+  const scoreEndt = ratioEndt<=28?25:ratioEndt<=33?18:ratioEndt<=35?10:0;
+  const scoreCF   = (r0?.cashflowM??0)>=200?25:(r0?.cashflowM??0)>=50?20:(r0?.cashflowM??0)>=0?15:(r0?.cashflowM??0)>=-100?8:0;
+  const scoreRdt  = rendBrut>=7?20:rendBrut>=5.5?15:rendBrut>=4?10:3;
+  const scoreAppt = pctApport>=20?20:pctApport>=15?15:pctApport>=10?8:2;
+  const scoreTRI  = (r0?.tri??0)>=6?10:(r0?.tri??0)>=4?7:2;
+  const scoreTot  = scoreEndt+scoreCF+scoreRdt+scoreAppt+scoreTRI;
+  const scoreColor= scoreTot>=75?"#059669":scoreTot>=50?"#D97706":"#DC2626";
+  const scoreLabel= scoreTot>=75?"Dossier solide ✅":scoreTot>=50?"Dossier acceptable ⚠️":"Dossier fragile 🔴";
+
+  // Projection patrimoniale finale
+  const revalo = (form.revalorisation||1.5)/100;
+  const lastRow = r0?.rows?.[(form.horizon||20)-1];
+  const valFinale = Math.round(form.prix * Math.pow(1+revalo, form.horizon||20));
+  const detteFinale = Math.max(0, Math.round(lastRow?.capRestant||0));
+  const patriFinal  = Math.max(0, valFinale - detteFinale);
 
   const html = `<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8">
-<title>Rapport LMNP</title>
+<title>Dossier Bancaire LMNP — ${nom||"Investisseur"}</title>
 <style>
-  body{margin:0;padding:20px;background:#F1F5F9;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;}
-  .wrap{max-width:680px;margin:0 auto;}
-  .header{background:linear-gradient(135deg,#0F172A,#185FA5);color:white;padding:28px;border-radius:16px 16px 0 0;text-align:center;}
-  .body{background:white;padding:28px;}
-  .footer{background:#F8FAFC;padding:16px;border-radius:0 0 16px 16px;text-align:center;border-top:1px solid #E2E8F0;font-size:11px;color:#94A3B8;}
-  .kpi{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:20px 0;}
+  *{box-sizing:border-box;}
+  body{margin:0;padding:0;background:#F1F5F9;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#0F172A;}
+  .wrap{max-width:700px;margin:0 auto;padding:20px;}
+  /* Header */
+  .header{background:linear-gradient(135deg,#0F172A 0%,#185FA5 100%);color:white;padding:32px 28px;border-radius:16px;margin-bottom:16px;position:relative;}
+  .header-badge{position:absolute;top:16px;right:16px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);color:white;font-size:10px;font-weight:700;padding:4px 10px;border-radius:20px;}
+  /* Executive summary */
+  .exec{background:white;border-radius:16px;padding:24px;margin-bottom:16px;border:2px solid ${triColor}33;}
+  /* Sections */
+  .section{background:white;border-radius:16px;padding:24px;margin-bottom:16px;}
+  .section-title{font-size:13px;font-weight:700;color:#0F172A;margin:0 0 14px;padding-bottom:8px;border-bottom:1px solid #F1F5F9;display:flex;align-items:center;gap:6px;}
+  /* KPIs */
+  .kpi4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px;}
+  .kpi3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
   .kpi-box{border-radius:12px;padding:14px;text-align:center;}
-  .kpi-label{font-size:10px;font-weight:700;text-transform:uppercase;margin-bottom:6px;}
-  .kpi-val{font-size:24px;font-weight:800;}
-  .section-title{font-size:14px;font-weight:700;color:#0F172A;margin:24px 0 12px;}
-  .regime{border-radius:10px;padding:13px 16px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;}
-  .detail-table{width:100%;border-collapse:collapse;}
-  .detail-table td{padding:5px 0;font-size:12px;}
-  .detail-table td:last-child{text-align:right;font-weight:600;}
-  .amort-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
-  .bar-bg{flex:1;background:#DBEAFE;border-radius:4px;height:7px;}
-  .bar-fill{background:#185FA5;border-radius:4px;height:7px;}
-  @media print{body{background:white;}@page{margin:15mm;}}
+  .kpi-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;margin-bottom:5px;}
+  .kpi-val{font-size:22px;font-weight:800;line-height:1;}
+  .kpi-sub{font-size:10px;margin-top:4px;opacity:.75;}
+  /* Score bancabilité */
+  .score-bar-bg{height:8px;background:#E2E8F0;border-radius:4px;flex:1;}
+  .score-bar-fill{height:8px;border-radius:4px;background:${scoreColor};}
+  .score-row{display:flex;align-items:center;gap:8px;margin-bottom:7px;font-size:11px;}
+  /* Tables */
+  .dt{width:100%;border-collapse:collapse;font-size:12px;}
+  .dt td{padding:6px 4px;border-bottom:1px solid #F8FAFC;}
+  .dt td:last-child{text-align:right;font-weight:600;}
+  .dt tr:last-child td{border-bottom:none;}
+  /* Regimes */
+  .regime{border-radius:10px;padding:12px 16px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;}
+  /* Amort */
+  .amort-row{display:flex;align-items:center;gap:8px;margin-bottom:7px;}
+  .bar-bg{flex:1;background:#DBEAFE;border-radius:3px;height:6px;}
+  .bar-fill{background:#185FA5;border-radius:3px;height:6px;}
+  /* Footer */
+  .footer{background:#F8FAFC;border-radius:12px;padding:14px 20px;text-align:center;border:1px solid #E2E8F0;font-size:10px;color:#94A3B8;margin-top:8px;}
+  @media print{body{background:white;}.wrap{padding:0;}@page{margin:12mm;size:A4;}}
 </style>
 </head><body><div class="wrap">
 
+<!-- PAGE DE GARDE -->
 <div class="header">
-  <div style="font-size:40px;margin-bottom:8px;">🏢</div>
-  <h1 style="margin:0 0 4px;font-size:22px;font-weight:800;">Simulateur LMNP</h1>
-  <p style="margin:0;font-size:12px;opacity:.7;">Rapport fiscal · ${new Date().toLocaleDateString("fr-FR",{day:"numeric",month:"long",year:"numeric"})}</p>
+  <div class="header-badge">LF 2026 · ${dateStr}</div>
+  <div style="display:flex;align-items:center;gap:14px;margin-bottom:18px;">
+    <span style="font-size:44px;">🏢</span>
+    <div>
+      <div style="font-size:22px;font-weight:800;margin-bottom:2px;">Dossier Bancaire LMNP</div>
+      <div style="font-size:13px;opacity:.7;">Analyse fiscale complète · 4 régimes comparés · Conformité CGI</div>
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:4px;">
+    ${[
+      ["Investisseur", nom||"—"],
+      ["Bien", fmt2(form.prix)],
+      ["Durée", `${form.horizon} ans`],
+    ].map(([l,v])=>`<div style="background:rgba(255,255,255,.1);border-radius:10px;padding:10px 12px;">
+      <div style="font-size:9px;opacity:.6;text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px;">${l}</div>
+      <div style="font-weight:700;font-size:14px;">${v}</div>
+    </div>`).join("")}
+  </div>
 </div>
 
-<div class="body">
-  <p style="font-size:16px;font-weight:700;color:#0F172A;margin:0 0 4px;">Bonjour ${nom||"Investisseur"},</p>
-  <p style="font-size:13px;color:#64748B;margin:0 0 20px;">Bien à <strong>${fmt2(form.prix)}</strong> · Loyer <strong>${fmt2(form.loyer)}/mois</strong> · Horizon <strong>${form.horizon} ans</strong></p>
-
-  <div style="background:${triColor}15;border:1px solid ${triColor}44;border-radius:14px;padding:16px;display:flex;align-items:center;gap:14px;margin-bottom:20px;">
-    <span style="font-size:32px;">${verdictEmoji}</span>
-    <div>
-      <div style="font-weight:800;font-size:16px;color:${triColor};">Verdict : ${(r0?.tri??0)>=6?"Excellent":(r0?.tri??0)>=4?"Acceptable":"Risqué"}</div>
-      <div style="font-size:12px;color:#64748B;margin-top:3px;">TRI ${r0?.tri??"-"}% · CF ${r0?.cashflowM!=null?((r0.cashflowM>=0?"+":"")+r0.cashflowM+"€"):"-"}/mois · TMI ${form.tmi}%</div>
+<!-- RÉSUMÉ EXÉCUTIF (PAGE BANQUIER) -->
+<div class="exec">
+  <div style="display:flex;align-items:center;gap:16px;margin-bottom:20px;">
+    <span style="font-size:40px;">${verdictEmoji}</span>
+    <div style="flex:1;">
+      <div style="font-weight:800;font-size:18px;color:${triColor};margin-bottom:3px;">
+        Verdict : ${(r0?.tri??0)>=6?"Projet excellent — Finançable":(r0?.tri??0)>=4?"Projet acceptable — Optimisable":"Projet risqué — À restructurer"}
+      </div>
+      <div style="font-size:12px;color:#64748B;">
+        TRI ${r0?.tri??"-"}% · Cash-flow ${r0?.cashflowM!=null?((r0.cashflowM>=0?"+":"")+r0.cashflowM+"€"):"-"}/mois · TMI ${form.tmi}% · Apport ${pctApport}%
+      </div>
+    </div>
+    <div style="text-align:center;background:${scoreColor}11;border:2px solid ${scoreColor}33;border-radius:12px;padding:12px 16px;min-width:90px;">
+      <div style="font-size:28px;font-weight:800;color:${scoreColor};">${scoreTot}</div>
+      <div style="font-size:9px;font-weight:700;color:${scoreColor};">/ 100</div>
+      <div style="font-size:9px;color:#64748B;margin-top:2px;">Score bancaire</div>
     </div>
   </div>
 
-  <div class="kpi">
+  <!-- 4 KPIs principaux -->
+  <div class="kpi4">
     <div class="kpi-box" style="background:#EFF6FF;border:1px solid #BFDBFE;">
       <div class="kpi-label" style="color:#3B82F6;">TRI</div>
       <div class="kpi-val" style="color:#185FA5;">${r0?.tri??"-"}%</div>
-      <div style="font-size:11px;color:#93C5FD;">Sur ${form.horizon} ans</div>
+      <div class="kpi-sub" style="color:#93C5FD;">Sur ${form.horizon} ans</div>
     </div>
-    <div class="kpi-box" style="background:${cfColor}10;border:1px solid ${cfColor}44;">
+    <div class="kpi-box" style="background:${cfColor}0F;border:1px solid ${cfColor}33;">
       <div class="kpi-label" style="color:${cfColor};">Cash-flow</div>
       <div class="kpi-val" style="color:${cfColor};">${r0?.cashflowM!=null?((r0.cashflowM>=0?"+":"")+r0.cashflowM+"€"):"-"}</div>
-      <div style="font-size:11px;color:#94A3B8;">par mois</div>
+      <div class="kpi-sub" style="color:#94A3B8;">par mois</div>
     </div>
-    <div class="kpi-box" style="background:#EFF6FF;border:1px solid #BFDBFE;">
-      <div class="kpi-label" style="color:#3B82F6;">Rdt net</div>
-      <div class="kpi-val" style="color:#185FA5;">${r0?.rendNet!=null?(+r0.rendNet).toFixed(2):"-"}%</div>
-      <div style="font-size:11px;color:#93C5FD;">Après charges</div>
+    <div class="kpi-box" style="background:#F0FDF4;border:1px solid #BBF7D0;">
+      <div class="kpi-label" style="color:#16A34A;">Rdt net</div>
+      <div class="kpi-val" style="color:#15803D;">${r0?.rendNet!=null?(+r0.rendNet).toFixed(2):"-"}%</div>
+      <div class="kpi-sub" style="color:#86EFAC;">Après charges</div>
+    </div>
+    <div class="kpi-box" style="background:${ratioEndt<=35?"#F0FDF4":"#FEF2F2"};border:1px solid ${ratioEndt<=35?"#BBF7D0":"#FECACA"};">
+      <div class="kpi-label" style="color:${ratioEndt<=35?"#16A34A":"#DC2626"};">Endettement</div>
+      <div class="kpi-val" style="color:${ratioEndt<=35?"#15803D":"#DC2626"};">${ratioEndt}%</div>
+      <div class="kpi-sub" style="color:#94A3B8;">${ratioEndt<=35?"✅ HCSF OK":"⚠ > 35%"}</div>
     </div>
   </div>
 
-  <div class="section-title">🏠 Caractéristiques du bien</div>
-  <table class="detail-table" style="background:#F8FAFC;border-radius:12px;padding:4px 12px;">
-    ${[["Prix d'achat",fmt2(form.prix)],["Frais de notaire",`${fmt2(form.prix*form.notaire/100)} (${form.notaire}%)`],["Travaux + Mobilier",fmt2(form.travaux+form.mobilier)],["Apport",fmt2(form.apport)],["Loyer mensuel",`${fmt2(form.loyer)}/mois`],["Crédit",`${form.dureeCredit} ans à ${form.interet}%`]].map(([l,v])=>`<tr><td style="color:#64748B;">${l}</td><td>${v}</td></tr>`).join("")}
-  </table>
+  <!-- Reste à vivre -->
+  <div style="background:${ravColor}0F;border:1px solid ${ravColor}33;border-radius:10px;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;">
+    <div>
+      <div style="font-size:12px;font-weight:700;color:#0F172A;">Reste à vivre mensuel</div>
+      <div style="font-size:10px;color:#64748B;">Revenus ${fmt2(form.revenusMensuels)} − mensualités ${fmt2(totalMens)}</div>
+    </div>
+    <div style="text-align:right;">
+      <div style="font-size:20px;font-weight:800;color:${ravColor};">${fmt2(rav)}/mois</div>
+      <div style="font-size:10px;color:${ravColor};font-weight:600;">${rav>=1500?"Confortable ✅":rav>=1200?"Juste ⚠️":"Serré 🔴"}</div>
+    </div>
+  </div>
+</div>
 
-  <div class="section-title">📊 Comparaison des 4 régimes</div>
+<!-- SCORE BANCABILITÉ DÉTAILLÉ -->
+<div class="section">
+  <div class="section-title">⚖️ Score de bancabilité — ${scoreLabel}</div>
+  <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+    <div style="font-size:36px;font-weight:800;color:${scoreColor};">${scoreTot}<span style="font-size:16px;color:#94A3B8;">/100</span></div>
+    <div style="flex:1;">
+      <div class="bar-bg" style="height:12px;background:#E2E8F0;border-radius:6px;">
+        <div style="height:12px;border-radius:6px;background:${scoreColor};width:${scoreTot}%;"></div>
+      </div>
+    </div>
+  </div>
+  ${[
+    ["Taux d'endettement",scoreEndt,25,`${ratioEndt}%`],
+    ["Cash-flow mensuel",scoreCF,25,`${r0?.cashflowM!=null?(r0.cashflowM>=0?"+":"")+r0.cashflowM+"€":"-"}/mois`],
+    ["Rendement brut",scoreRdt,20,`${rendBrut.toFixed(2)}%`],
+    ["Apport personnel",scoreAppt,20,`${pctApport}%`],
+    ["TRI",scoreTRI,10,`${r0?.tri??"-"}%`],
+  ].map(([label,score,max,val])=>`
+    <div class="score-row">
+      <div style="width:150px;color:#64748B;">${label}</div>
+      <div style="flex:1;background:#E2E8F0;border-radius:3px;height:6px;">
+        <div style="height:6px;border-radius:3px;background:${score/max>=.8?"#10B981":score/max>=.5?"#F59E0B":"#EF4444"};width:${Math.round(score/max*100)}%;"></div>
+      </div>
+      <div style="width:50px;text-align:right;font-weight:700;color:#0F172A;">${score}/${max}</div>
+      <div style="width:60px;text-align:right;font-size:10px;color:#64748B;">${val}</div>
+    </div>`).join("")}
+</div>
+
+<!-- CARACTÉRISTIQUES DU BIEN -->
+<div class="section">
+  <div class="section-title">🏠 Caractéristiques du bien &amp; financement</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+    ${[
+      ["Prix d'achat",fmt2(form.prix)],
+      ["Frais de notaire",`${fmt2(form.prix*form.notaire/100)} (${form.notaire}%)`],
+      ["Travaux",fmt2(form.travaux)],
+      ["Mobilier",fmt2(form.mobilier)],
+      ["Apport",`${fmt2(form.apport)} (${pctApport}%)`],
+      ["Capital emprunté",fmt2(capital)],
+      ["Mensualité LMNP",`${fmt2(mens)}/mois`],
+      ["Durée crédit",`${form.dureeCredit} ans à ${form.interet}%`],
+      ["Loyer mensuel",`${fmt2(form.loyer)}/mois`],
+      ["Terrain (non amort.)",`${form.terrain??15}% · ${fmt2(form.prix*(form.terrain??15)/100)}`],
+    ].map(([l,v])=>`<div style="background:#F8FAFC;border-radius:8px;padding:9px 12px;">
+      <div style="font-size:10px;color:#64748B;margin-bottom:2px;">${l}</div>
+      <div style="font-size:13px;font-weight:700;">${v}</div>
+    </div>`).join("")}
+  </div>
+</div>
+
+<!-- COMPARAISON 4 RÉGIMES -->
+<div class="section">
+  <div class="section-title">📊 Comparaison des 4 régimes fiscaux</div>
   ${(results||[]).map((r,i)=>{
     const labels=["LMNP Réel","Micro-BIC","SCI à l'IS","SCI à l'IR"];
     const icons=["🥇","🥈","🏅","🏅"];
@@ -2040,25 +2425,60 @@ function downloadReport(form, results, amort, nom) {
     const bd=i===0?"#BFDBFE":"#E2E8F0";
     const cc=(r.cashflowM??0)>=0?"#059669":"#DC2626";
     return `<div class="regime" style="background:${bg};border:1px solid ${bd};">
-      <div><div style="font-weight:700;font-size:13px;">${icons[i]} ${labels[i]}</div>
-      <div style="font-size:11px;color:#64748B;margin-top:2px;">TRI ${r.tri??"-"}% · Rdt ${r.rendNet!=null?(+r.rendNet).toFixed(2):"-"}%</div></div>
-      <div style="text-align:right;font-size:18px;font-weight:800;color:${cc};">${r.cashflowM!=null?((r.cashflowM>=0?"+":"")+r.cashflowM+"€"):"-"}/mois</div>
+      <div>
+        <div style="font-weight:700;font-size:13px;">${icons[i]} ${labels[i]}</div>
+        <div style="font-size:10px;color:#64748B;margin-top:2px;">TRI ${r.tri??"-"}% · Rdt ${r.rendNet!=null?(+r.rendNet).toFixed(2):"-"}% · Impôt an 1 ${fmt2(r.rows?.[0]?.impot)}</div>
+      </div>
+      <div style="text-align:right;">
+        <div style="font-size:18px;font-weight:800;color:${cc};">${r.cashflowM!=null?((r.cashflowM>=0?"+":"")+r.cashflowM+"€"):"-"}/mois</div>
+      </div>
     </div>`;
   }).join("")}
+</div>
 
-  ${amort?.chartData?.length ? `
-  <div class="section-title">🏗️ Amortissement par composants — ${fmt2(amort.totalAnnuel)}/an</div>
+<!-- AMORTISSEMENTS PAR COMPOSANTS -->
+${amort?.chartData?.length ? `
+<div class="section">
+  <div class="section-title">🏗️ Amortissement par composants — ${fmt2(amort.totalAnnuel)}/an déductible</div>
   ${amort.chartData.map(c=>`<div class="amort-row">
-    <div style="width:110px;font-size:11px;color:#64748B;">${c.name}</div>
+    <div style="width:120px;font-size:11px;color:#64748B;">${c.name}</div>
     <div class="bar-bg"><div class="bar-fill" style="width:${Math.round(c.montant/amort.totalAnnuel*100)}%;"></div></div>
-    <div style="width:55px;text-align:right;font-size:11px;font-weight:700;">${fmt2(c.montant)}</div>
-    <div style="width:36px;font-size:10px;color:#94A3B8;">${c.duree}ans</div>
-  </div>`).join("")}` : ""}
+    <div style="width:60px;text-align:right;font-size:11px;font-weight:700;">${fmt2(c.montant)}</div>
+    <div style="width:38px;font-size:10px;color:#94A3B8;">${c.duree}ans</div>
+  </div>`).join("")}
+  <div style="background:#EFF6FF;border-radius:8px;padding:10px 12px;margin-top:12px;font-size:11px;color:#185FA5;">
+    💡 <strong>Économie fiscale annuelle</strong> : ${fmt2(amort.totalAnnuel)} × ${form.tmi}% TMI = <strong>${fmt2(amort.totalAnnuel * form.tmi/100)}/an</strong> d'impôt évité en régime Réel
+  </div>
+</div>` : ""}
 
+<!-- PROJECTION PATRIMONIALE -->
+<div class="section">
+  <div class="section-title">📈 Projection patrimoniale à ${form.horizon} ans</div>
+  <div class="kpi3">
+    <div class="kpi-box" style="background:#EFF6FF;border:1px solid #BFDBFE;">
+      <div class="kpi-label" style="color:#3B82F6;">Valeur du bien</div>
+      <div class="kpi-val" style="color:#185FA5;font-size:18px;">${fmt2(valFinale)}</div>
+      <div class="kpi-sub" style="color:#93C5FD;">Revalorisation ${form.revalorisation??1.5}%/an</div>
+    </div>
+    <div class="kpi-box" style="background:#FEF2F2;border:1px solid #FECACA;">
+      <div class="kpi-label" style="color:#EF4444;">Dette restante</div>
+      <div class="kpi-val" style="color:#DC2626;font-size:18px;">${fmt2(detteFinale)}</div>
+      <div class="kpi-sub" style="color:#FCA5A5;">Capital dû</div>
+    </div>
+    <div class="kpi-box" style="background:#F0FDF4;border:1px solid #BBF7D0;">
+      <div class="kpi-label" style="color:#16A34A;">Patrimoine net</div>
+      <div class="kpi-val" style="color:#15803D;font-size:18px;">${fmt2(patriFinal)}</div>
+      <div class="kpi-sub" style="color:#86EFAC;">+${fmt2(valFinale-form.prix)} PV</div>
+    </div>
+  </div>
 </div>
+
+<!-- AVERTISSEMENT -->
 <div class="footer">
-  Simulateur LMNP — Rapport à titre informatif. Consultez un expert-comptable spécialisé LMNP.
+  <strong>Dossier Bancaire LMNP</strong> — Généré le ${dateStr} · Calculs conformes LF 2026 · CGI Art. 39 C (amortissements) · CGI Art. 156 (déficit) · Règle HCSF 35%<br/>
+  Ce document est fourni à titre indicatif. Consultez un expert-comptable spécialisé LMNP pour votre situation personnelle.
 </div>
+
 </div></body></html>`;
 
   const blob = new Blob([html], { type:"text/html" });
