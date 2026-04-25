@@ -14,6 +14,36 @@ const fmt    = (n) => new Intl.NumberFormat("fr-FR", { style: "currency", curren
 const fmtPct = (n) => `${(+n || 0).toFixed(1)} %`;
 
 /* ══════════════════════════════════════
+   LEXIQUE RP
+══════════════════════════════════════ */
+const LEXIQUE_RP = {
+  "PTZ": "Prêt à Taux Zéro : prêt aidé par l'État réservé aux primo-accédants sous conditions de revenus. Ne finance qu'une partie du bien (20–50 % selon la zone), sans intérêts. Remboursé après le crédit principal.",
+  "Zone PTZ": "Le barème PTZ dépend de la localisation du bien. Zone A bis (Paris + petite couronne) → quotité 50 %. Zone A (grandes agglomérations) → 50 %. Zone B1 (agglo > 250 000 hab.) → 40 %. Zone B2/C → 20 %. Les zones A et B1 ont les meilleures conditions.",
+  "Quotité PTZ": "Part du coût total de l'opération que le PTZ peut financer. Varie de 20 % (zone C) à 50 % (zones A et A bis). Plus la quotité est élevée, plus le PTZ allège votre crédit principal.",
+  "Primo-accédant": "Personne n'ayant pas été propriétaire de sa résidence principale au cours des 2 dernières années. Condition nécessaire pour bénéficier du PTZ et de certains autres dispositifs aidés.",
+  "DPE": "Diagnostic de Performance Énergétique. Classes A (très économe) à G (très énergivore). Les logements G sont interdits à la location depuis 2025, F en 2028. Un DPE F ou G peut dévaluer le bien de 10–20 %.",
+  "Loyer vs Acheter": "Comparaison du patrimoine constitué selon que vous restez locataire (et investissez la différence) ou achetez votre résidence principale. L'achat est avantageux à long terme si vous restez plus de 5–7 ans dans le bien.",
+  "DVF": "Demandes de Valeurs Foncières : base de données officielle du gouvernement recensant toutes les transactions immobilières en France depuis 2014. Source de référence pour estimer la valeur d'un bien et négocier le prix.",
+  "Taux d'effort": "Part de vos revenus consacrée à votre mensualité de crédit. Limite HCSF : 35 % (assurance incluse). Au-delà, les banques refusent généralement le financement.",
+  "Coût total du crédit": "Somme de toutes les mensualités payées sur la durée du prêt, moins le capital emprunté. Représente le coût réel du financement (intérêts + assurance).",
+  "Revalo immobilière": "Revalorisation annuelle estimée du prix du bien immobilier. Historiquement ~1–2 % / an en France en termes réels. Variable selon la localisation et le marché.",
+};
+
+/* ══════════════════════════════════════
+   COMPOSANT TOOLTIP
+══════════════════════════════════════ */
+function Tip({ text }) {
+  return (
+    <span className="tip-trigger" style={{ position:"relative", display:"inline-flex", alignItems:"center", marginLeft:4, cursor:"help" }} tabIndex={0}>
+      <span style={{ display:"inline-flex", alignItems:"center", justifyContent:"center",
+        width:15, height:15, borderRadius:"50%", background:"#DBEAFE",
+        color:"#2563EB", fontSize:10, fontWeight:700, lineHeight:1, flexShrink:0 }}>ⓘ</span>
+      <span className="tip-bubble">{text}</span>
+    </span>
+  );
+}
+
+/* ══════════════════════════════════════
    COMPOSANTS UI PARTAGÉS
 ══════════════════════════════════════ */
 function Card({ children, style = {} }) {
@@ -39,12 +69,14 @@ function SectionBadge({ icon, label, color = "#185FA5", bg = "#EFF6FF" }) {
   );
 }
 
-function SliderInput({ label, value, onChange, min, max, step = 1, format = fmt, color = "#185FA5" }) {
+function SliderInput({ label, value, onChange, min, max, step = 1, format = fmt, color = "#185FA5", help }) {
   const pct = Math.round(((value - min) / (max - min)) * 100);
   return (
     <div style={{ marginBottom: 16 }}>
       <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
-        <span style={{ fontSize: 13, fontWeight: 600, color: "#334155" }}>{label}</span>
+        <span style={{ fontSize: 13, fontWeight: 600, color: "#334155", display:"flex", alignItems:"center" }}>
+          {label}{help && <Tip text={help} />}
+        </span>
         <span style={{ fontSize: 13, fontWeight: 700, color }}>{format(value)}</span>
       </div>
       <input type="range" min={min} max={max} step={step} value={value}
@@ -96,10 +128,12 @@ function NumInput({ label, value, onChange, suffix = "" }) {
   );
 }
 
-function KPIBox({ label, value, sub, color = "#185FA5", bg = "#EFF6FF" }) {
+function KPIBox({ label, value, sub, color = "#185FA5", bg = "#EFF6FF", help }) {
   return (
     <div style={{ background: bg, borderRadius: 14, padding: "16px 14px", textAlign: "center" }}>
-      <div style={{ fontSize: 9, fontWeight: 700, color, textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 4 }}>{label}</div>
+      <div style={{ fontSize: 9, fontWeight: 700, color, textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 4, display:"flex", alignItems:"center", justifyContent:"center", gap:2 }}>
+        {label}{help && <Tip text={help} />}
+      </div>
       <div style={{ fontSize: 22, fontWeight: 800, color, lineHeight: 1 }}>{value}</div>
       {sub && <div style={{ fontSize: 10, color: "#94A3B8", marginTop: 4 }}>{sub}</div>}
     </div>
@@ -249,13 +283,13 @@ function LoueurVsAcheteur() {
         </summary>
         <div style={{ paddingTop: 16 }}>
           <SliderInput label="Prix du bien" value={prix} onChange={setPrix} min={80000} max={800000} step={5000} color="#185FA5" />
-          <SliderInput label="Apport" value={apport} onChange={setApport} min={0} max={200000} step={1000} color="#185FA5" />
-          <SliderInput label="Loyer actuel (si locataire)" value={loyer_loc} onChange={setLoyerLoc} min={300} max={3500} step={50} color="#185FA5" />
-          <SliderInput label="Taux du crédit" value={taux} onChange={setTaux} min={1} max={6} step={0.05} format={v => `${v.toFixed(2)} %`} color="#185FA5" />
-          <SliderInput label="Durée du crédit (ans)" value={duree} onChange={setDuree} min={10} max={25} step={1} format={v => `${v} ans`} color="#185FA5" />
-          <SliderInput label="Horizon de comparaison (ans)" value={horizon} onChange={setHorizon} min={5} max={25} step={1} format={v => `${v} ans`} color="#185FA5" />
-          <SliderInput label="Revalorisation annuelle du bien" value={revalo} onChange={setRevalo} min={0} max={5} step={0.1} format={v => `${v.toFixed(1)} %/an`} color="#059669" />
-          <SliderInput label="Rendement placement locataire" value={rendLocatif} onChange={setRendLocatif} min={0} max={8} step={0.1} format={v => `${v.toFixed(1)} %/an`} color="#059669" />
+          <SliderInput label="Apport" value={apport} onChange={setApport} min={0} max={200000} step={1000} color="#185FA5" help="Somme apportée de votre poche. Recommandé : 10% minimum. Plus l'apport est élevé, meilleur est le taux et moins vous payez d'intérêts." />
+          <SliderInput label="Loyer actuel (si locataire)" value={loyer_loc} onChange={setLoyerLoc} min={300} max={3500} step={50} color="#185FA5" help="Votre loyer mensuel actuel. Sert à calculer ce que vous économisez (ou dépensez de plus) en achetant vs en restant locataire." />
+          <SliderInput label="Taux du crédit" value={taux} onChange={setTaux} min={1} max={6} step={0.05} format={v => `${v.toFixed(2)} %`} color="#185FA5" help="Taux nominal hors assurance. Comparez les offres de plusieurs banques ou passez par un courtier pour obtenir les meilleures conditions." />
+          <SliderInput label="Durée du crédit (ans)" value={duree} onChange={setDuree} min={10} max={25} step={1} format={v => `${v} ans`} color="#185FA5" help="Durée standard : 20–25 ans. Une durée plus longue réduit la mensualité mais augmente le coût total des intérêts." />
+          <SliderInput label="Horizon de comparaison (ans)" value={horizon} onChange={setHorizon} min={5} max={25} step={1} format={v => `${v} ans`} color="#185FA5" help="Nombre d'années pendant lesquelles vous comparez louer vs acheter. En dessous de 5 ans, louer est souvent plus rentable (frais de notaire non amortis)." />
+          <SliderInput label="Revalorisation annuelle du bien" value={revalo} onChange={setRevalo} min={0} max={5} step={0.1} format={v => `${v.toFixed(1)} %/an`} color="#059669" help={LEXIQUE_RP["Revalo immobilière"]} />
+          <SliderInput label="Rendement placement locataire" value={rendLocatif} onChange={setRendLocatif} min={0} max={8} step={0.1} format={v => `${v.toFixed(1)} %/an`} color="#059669" help="Rendement annuel du placement financier dans lequel le locataire investit la différence (apport + charges de propriété). Ex : 4% pour un PEA actions." />
         </div>
       </details>
     </div>
@@ -475,13 +509,13 @@ function CalculateurPTZ() {
         options={Object.entries(PTZ_ZONES).map(([v, d]) => ({ v, l: d.label }))}
       />
 
-      <SliderInput label="Nombre de personnes dans le foyer" value={nbPersonnes} onChange={setNb}
+      <SliderInput label="Nombre de personnes dans le foyer" help="Détermine les plafonds de revenus PTZ. Plus le foyer est grand, plus les plafonds sont élevés — vous pouvez donc avoir des revenus plus importants tout en restant éligible." value={nbPersonnes} onChange={setNb}
         min={1} max={8} step={1} format={v => `${v} personne${v > 1 ? "s" : ""}`} color="#7C3AED" />
 
-      <SliderInput label="Revenu fiscal de référence (N-2)" value={revenus} onChange={setRevenus}
+      <SliderInput label="Revenu fiscal de référence (N-2)" help="Revenu net imposable de l'année N-2 (ligne 1BJ de votre avis d'imposition). C'est sur cette base que l'éligibilité PTZ est vérifiée." value={revenus} onChange={setRevenus}
         min={10000} max={200000} step={1000} color="#7C3AED" />
 
-      <SliderInput label="Prix d'achat du bien" value={prixAchat} onChange={setPrix}
+      <SliderInput label="Prix d'achat du bien" help="Coût total de l'opération = prix FAI + frais de notaire + travaux. C'est sur cette base que le PTZ est calculé (selon les plafonds de coût d'opération par zone)." value={prixAchat} onChange={setPrix}
         min={50000} max={800000} step={5000} color="#7C3AED" />
 
       {/* Plafond de revenus */}
@@ -650,9 +684,9 @@ function AssistantNegociation() {
       {dvfData && (
         <div style={{ marginBottom: 20 }}>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 8, marginBottom: 12 }}>
-            <KPIBox label="Prix moyen" value={`${dvfData.prixMoyen} €/m²`} sub={`${dvfData.nbTransactions} ventes`} color="#DC2626" bg="#FEF2F2" />
-            <KPIBox label="Prix min" value={`${dvfData.prixMin} €/m²`} sub="Marché" color="#64748B" bg="#F8FAFC" />
-            <KPIBox label="Prix max" value={`${dvfData.prixMax} €/m²`} sub="Marché" color="#64748B" bg="#F8FAFC" />
+            <KPIBox label="Prix moyen" value={`${dvfData.prixMoyen} €/m²`} sub={`${dvfData.nbTransactions} ventes`} color="#DC2626" bg="#FEF2F2" help={LEXIQUE_RP["DVF"]} />
+            <KPIBox label="Prix min" value={`${dvfData.prixMin} €/m²`} sub="Marché" color="#64748B" bg="#F8FAFC" help="Prix le plus bas constaté parmi les ventes DVF dans ce code postal. Peut correspondre à un logement atypique ou dégradé." />
+            <KPIBox label="Prix max" value={`${dvfData.prixMax} €/m²`} sub="Marché" color="#64748B" bg="#F8FAFC" help="Prix le plus élevé constaté. Peut correspondre à un bien d'exception, refait à neuf ou très bien situé." />
           </div>
           {/* Transactions récentes */}
           <div style={{ background: "#F8FAFC", borderRadius: 12, padding: 12 }}>

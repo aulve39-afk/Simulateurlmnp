@@ -20,19 +20,27 @@ const fmtK   = (n) => Math.abs(n??0) >= 1000 ? `${((n??0)/1000).toFixed(1)}k€`
 
 /* ── Lexique ── */
 const LEXIQUE = {
-  "TRI": "Taux de Rendement Interne : mesure la rentabilité globale en tenant compte de tous les flux sur la durée de détention.",
-  "Cash-flow": "Différence mensuelle entre loyers perçus et toutes les charges : mensualité crédit, taxes, assurance, impôt.",
-  "Amortissement": "En LMNP, déduction fiscale correspondant à la dépréciation comptable du bien (par composants) et du mobilier.",
-  "TMI": "Taux Marginal d'Imposition. Taux applicable à la dernière tranche de vos revenus (11 %, 30 %, 41 %, 45 %).",
-  "Micro-BIC": "Régime simplifié LMNP : abattement forfaitaire de 50 % sur les loyers. Simple mais souvent moins avantageux que le Réel.",
-  "Régime Réel": "Permet de déduire toutes les charges réelles + amortissements par composants. Souvent bien plus avantageux que le Micro-BIC.",
-  "Amortissement par composants": "Méthode comptable qui décompose le bien en plusieurs éléments (structure, toiture, équipements…) chacun amorti sur sa durée propre.",
-  "Différé": "Période post-déblocage pendant laquelle vous ne remboursez que les intérêts (partiel) ou rien (total, intérêts capitalisés).",
-  "Rendement brut": "Loyers annuels bruts / prix d'acquisition. Indicateur rapide avant charges et impôts.",
-  "Plus-value": "Gain à la revente. En IR, abattements progressifs jusqu'à exonération totale à 30 ans de détention.",
-  "DPE": "Diagnostic de Performance Énergétique. Classes A (très économe) à G (très énergivore). Impact sur valeur et louabilité.",
-  "Ratio d'endettement": "Part de vos revenus consacrée aux crédits. La règle HCSF impose un max de 35 %.",
-  "Frais de notaire": "En neuf : ~3 %. En ancien : ~7–8 %. Comprend droits de mutation, émoluments et taxes.",
+  "TRI": "Taux de Rendement Interne : mesure la rentabilité globale en tenant compte de tous les flux (loyers, impôts, crédit, revente) sur la durée de détention. Un TRI > 6 % est excellent.",
+  "Cash-flow": "Différence mensuelle entre loyers perçus et toutes les charges : mensualité crédit, taxes, assurance, impôt et prélèvements sociaux. Un cash-flow positif = l'investissement s'autofinance.",
+  "Amortissement": "En LMNP, déduction fiscale correspondant à la dépréciation comptable du bien (par composants) et du mobilier. Réduit le revenu imposable sans sortie d'argent réelle.",
+  "TMI": "Taux Marginal d'Imposition. Taux applicable à la dernière tranche de vos revenus : 0 %, 11 %, 30 %, 41 % ou 45 %. Plus votre TMI est élevé, plus le LMNP Réel vous fait économiser.",
+  "Micro-BIC": "Régime simplifié LMNP : abattement forfaitaire de 50 % sur les loyers (71 % pour meublé tourisme classé). Aucune comptabilité, mais aucune déduction de charges réelles ni amortissement.",
+  "Régime Réel": "Permet de déduire toutes les charges réelles (intérêts, assurance, taxe foncière…) + amortissements par composants. Presque toujours plus avantageux que le Micro-BIC dès TMI ≥ 30 %.",
+  "LMNP Réel": "Loueur Meublé Non Professionnel au régime réel simplifié. Vous déduisez charges + amortissements, ce qui génère souvent un revenu imposable nul pendant 10–15 ans. Plus-value taxée au régime des particuliers (exonération à 30 ans).",
+  "SCI IS": "Société Civile Immobilière soumise à l'Impôt sur les Sociétés. Amortissements déductibles comme en LMNP, taux IS 15 % jusqu'à 42 500 € puis 25 %. Inconvénient majeur : la plus-value à la revente est taxée comme un bénéfice d'entreprise (pas d'exonération durée).",
+  "SCI IR": "SCI transparente fiscalement, revenus imposés entre les mains des associés comme des revenus fonciers. Pas d'amortissement possible. Régime proche de la location nue — généralement moins avantageux que le LMNP Réel.",
+  "Amortissement par composants": "Méthode comptable qui décompose le bien en éléments (gros œuvre 50 ans, toiture 25 ans, équipements 15 ans, mobilier 7 ans…) chacun amorti sur sa durée propre. Conforme CGI Art. 39 C.",
+  "Différé": "Période post-déblocage pendant laquelle vous ne remboursez que les intérêts (différé partiel) ou rien (différé total, intérêts capitalisés). Utile pour absorber les travaux avant la première mise en location.",
+  "Rendement brut": "Loyers annuels bruts / prix total d'acquisition. Indicateur rapide avant déduction des charges et impôts. Au-dessus de 6 %, le bien est généralement rentable.",
+  "Rendement net": "(Loyers − toutes les charges annuelles) / prix total. Indicateur plus précis. Au-dessus de 4 % net, l'investissement est solide.",
+  "Plus-value": "Gain à la revente = prix de vente − prix d'achat. En LMNP (régime particuliers), abattements progressifs sur l'IR : exonération totale à 22 ans et sur les prélèvements sociaux à 30 ans.",
+  "Bouclier fiscal": "Période pendant laquelle les amortissements absorbent entièrement le revenu imposable → impôt = 0 €. Dure typiquement 10–15 ans. Anticipez la fin du bouclier pour planifier une revente ou un refinancement.",
+  "Prélèvements sociaux": "17,2 % prélevés sur le bénéfice net BIC positif (après déduction des charges et amortissements). En plus de l'IR au TMI.",
+  "CFE": "Cotisation Foncière des Entreprises. Taxe locale due par tout loueur meublé, calculée sur la valeur locative du bien. Généralement entre 100 € et 500 € / an selon commune.",
+  "DPE": "Diagnostic de Performance Énergétique. Classes A (très économe) à G (très énergivore). Les logements F et G sont progressivement interdits à la location (gel des loyers dès 2022, interdiction G en 2025, F en 2028).",
+  "Ratio d'endettement": "Part de vos revenus consacrée à toutes vos mensualités de crédit. La règle HCSF impose un maximum de 35 % (assurance incluse). Au-delà, les banques refusent généralement le financement.",
+  "Frais de notaire": "En neuf : ~2–3 %. En ancien : ~7–8 % du prix. Comprend les droits de mutation (majoritaires), les émoluments du notaire et diverses taxes. Non récupérables à la revente.",
+  "Vacance locative": "Période sans locataire, exprimée en % annuel. 5 % ≈ 18 jours/an. Prévoir 5–8 % selon le marché. Réduit directement le rendement effectif.",
 };
 
 /* ── Steps ── */
@@ -315,8 +323,8 @@ function Tip({ text }) {
   return (
     <span className="tip-trigger ml-1 cursor-help" tabIndex={0}>
       <span style={{ display:"inline-flex", alignItems:"center", justifyContent:"center",
-        width:16, height:16, borderRadius:"50%", background:"#E2E8F0",
-        color:"#64748B", fontSize:10, fontWeight:700, lineHeight:1 }}>?</span>
+        width:16, height:16, borderRadius:"50%", background:"#DBEAFE",
+        color:"#2563EB", fontSize:10, fontWeight:700, lineHeight:1, flexShrink:0 }}>ⓘ</span>
       <span className="tip-bubble">{text}</span>
     </span>
   );
@@ -396,11 +404,13 @@ function SelectField({ label, value, onChange, options, help }) {
   );
 }
 
-function KPICard({ label, value, sub, color="#185FA5", bg="#EFF6FF", icon }) {
+function KPICard({ label, value, sub, color="#185FA5", bg="#EFF6FF", icon, help }) {
   return (
     <div className="rounded-2xl p-4 border" style={{ background:bg, borderColor:color+"33" }}>
       <div className="flex items-start justify-between mb-1">
-        <p className="text-xs font-semibold text-slate-500 leading-tight">{label}</p>
+        <p className="text-xs font-semibold text-slate-500 leading-tight flex items-center">
+          {label}{help && <Tip text={help} />}
+        </p>
         {icon && <span className="text-base">{icon}</span>}
       </div>
       <p className="text-xl font-bold" style={{ color }}>{value}</p>
@@ -2321,16 +2331,21 @@ function StepResultats({ form, results, comparaison, amort, onLead, onArgumentai
       <div className="grid grid-cols-2 gap-3">
         <KPICard label="TRI sur la durée" value={`${best.tri} %`}
           sub="Taux de rendement interne" icon="📈"
+          help={LEXIQUE["TRI"]}
           color={best.tri>=6?"#10B981":best.tri>=4?"#F59E0B":"#EF4444"}
           bg={best.tri>=6?"#ECFDF5":best.tri>=4?"#FFFBEB":"#FEF2F2"} />
         <KPICard label="Cash-flow mensuel" value={fmtK(best.cashflowM)}
           sub="Après crédit, IR + prélèvements sociaux" icon="💸"
+          help={LEXIQUE["Cash-flow"]}
           color={best.cashflowM>=0?"#10B981":"#EF4444"}
           bg={best.cashflowM>=0?"#ECFDF5":"#FEF2F2"} />
         <KPICard label="Rendement net" value={`${best.rendNet.toFixed(2)} %`}
-          sub="(loyers − charges) / prix total achat" icon="🏠" color="#185FA5" bg="#EFF6FF" />
+          sub="(loyers − charges) / prix total achat" icon="🏠"
+          help={LEXIQUE["Rendement net"]}
+          color="#185FA5" bg="#EFF6FF" />
         <KPICard label="Taux d'endettement" value={`${best.ratioEndt} %`}
           sub={best.ratioEndt<=35?"✅ Règle HCSF OK":"⚠ Dépasse 35%"} icon="⚖️"
+          help={LEXIQUE["Ratio d'endettement"]}
           color={best.ratioEndt<=35?"#10B981":"#EF4444"}
           bg={best.ratioEndt<=35?"#ECFDF5":"#FEF2F2"} />
       </div>
@@ -2347,7 +2362,10 @@ function StepResultats({ form, results, comparaison, amort, onLead, onArgumentai
             <div className="px-4 pt-4 pb-1 flex items-center gap-2">
               <span className="text-xl">🛡️</span>
               <div>
-                <p className="text-sm font-bold text-emerald-800">Bouclier fiscal LMNP — votre économie réelle</p>
+                <p className="text-sm font-bold text-emerald-800 flex items-center">
+                  Bouclier fiscal LMNP — votre économie réelle
+                  <Tip text={LEXIQUE["Bouclier fiscal"]} />
+                </p>
                 <p className="text-[10px] text-emerald-600">Calcul basé sur votre TMI {tmiLabel} · CGI Art. 39 C</p>
               </div>
             </div>
@@ -2457,14 +2475,18 @@ function StepResultats({ form, results, comparaison, amort, onLead, onArgumentai
         <SectionTitle icon="🔬" title="Comparaison des 4 régimes" sub="Choisissez la meilleure stratégie fiscale" />
         <div className="space-y-2">
           {results.map((r,i) => {
-            const labels = ["LMNP Réel","Micro-BIC","SCI à l'IS","SCI à l'IR"];
-            const icons  = ["🥇","🥈","🏅","🏅"];
-            const isWin  = i===0;
+            const labels  = ["LMNP Réel","Micro-BIC","SCI à l'IS","SCI à l'IR"];
+            const icons   = ["🥇","🥈","🏅","🏅"];
+            const helpMap = [LEXIQUE["LMNP Réel"], LEXIQUE["Micro-BIC"], LEXIQUE["SCI IS"], LEXIQUE["SCI IR"]];
+            const isWin   = i===0;
             return (
               <div key={r.type} className={`rounded-xl p-3 border ${isWin?"bg-blue-50 border-blue-200":"bg-slate-50 border-slate-100"}`}>
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-bold text-slate-800">{icons[i]} {labels[i]}</p>
+                    <p className="text-sm font-bold text-slate-800 flex items-center">
+                      {icons[i]} <span className="ml-1">{labels[i]}</span>
+                      <Tip text={helpMap[i]} />
+                    </p>
                     <p className="text-[11px] text-slate-500">TRI {r.tri}% · CF {fmtK(r.cashflowM)}/mois</p>
                   </div>
                   <div className="text-right">

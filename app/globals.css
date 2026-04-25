@@ -55,23 +55,27 @@ input[type="range"]::-moz-range-thumb {
 }
 
 /* ── Tooltip ── */
-.tip-trigger { position: relative; display: inline-block; }
+.tip-trigger { position: relative; display: inline-flex; align-items: center; vertical-align: middle; }
 .tip-bubble {
   display: none;
   position: absolute;
-  bottom: calc(100% + 8px);
+  bottom: calc(100% + 10px);
   left: 50%;
   transform: translateX(-50%);
-  background: #0F172A;
-  color: white;
+  background: #1E293B;
+  color: #F1F5F9;
   font-size: 12px;
-  line-height: 1.5;
-  padding: 8px 12px;
-  border-radius: 8px;
-  width: 220px;
-  z-index: 100;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+  font-weight: 400;
+  line-height: 1.55;
+  padding: 10px 14px;
+  border-radius: 10px;
+  width: 240px;
+  max-width: calc(100vw - 32px);
+  z-index: 9999;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.25);
   pointer-events: none;
+  white-space: normal;
+  text-align: left;
 }
 .tip-bubble::after {
   content: '';
@@ -79,8 +83,21 @@ input[type="range"]::-moz-range-thumb {
   top: 100%;
   left: 50%;
   transform: translateX(-50%);
-  border: 6px solid transparent;
-  border-top-color: #0F172A;
+  border: 7px solid transparent;
+  border-top-color: #1E293B;
+}
+/* Éviter que la bulle déborde à droite sur mobile */
+.tip-trigger:last-child .tip-bubble,
+.tip-trigger:only-child .tip-bubble {
+  left: auto;
+  right: 0;
+  transform: none;
+}
+.tip-trigger:last-child .tip-bubble::after,
+.tip-trigger:only-child .tip-bubble::after {
+  left: auto;
+  right: 10px;
+  transform: none;
 }
 .tip-trigger:hover .tip-bubble,
 .tip-trigger:focus .tip-bubble { display: block; }
