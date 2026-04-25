@@ -2308,6 +2308,52 @@ function StepResultats({ form, results, comparaison, amort, onLead, onArgumentai
           bg={best.ratioEndt<=35?"#ECFDF5":"#FEF2F2"} />
       </div>
 
+      {/* ─── Économie fiscale LMNP — l'argument n°1 ─── */}
+      {(() => {
+        const econIR    = Math.round(amort.totalAnnuel * (form.tmi / 100));
+        const terrainEur = Math.round(form.prix * (form.terrain ?? 15) / 100);
+        const baseAmort  = form.prix - terrainEur;
+        const tmiLabel   = form.tmi === 0 ? "Non imposable" : `${form.tmi} %`;
+        return (
+          <div className="rounded-2xl overflow-hidden border border-emerald-200"
+            style={{ background:"linear-gradient(135deg,#ECFDF5 0%,#D1FAE5 100%)" }}>
+            <div className="px-4 pt-4 pb-1 flex items-center gap-2">
+              <span className="text-xl">🛡️</span>
+              <div>
+                <p className="text-sm font-bold text-emerald-800">Bouclier fiscal LMNP — votre économie réelle</p>
+                <p className="text-[10px] text-emerald-600">Calcul basé sur votre TMI {tmiLabel} · CGI Art. 39 C</p>
+              </div>
+            </div>
+            <div className="px-4 py-3 grid grid-cols-3 gap-2">
+              <div className="rounded-xl bg-white/70 border border-emerald-100 p-3 text-center">
+                <p className="text-[9px] font-semibold text-emerald-600 uppercase tracking-wide mb-1">Amortissements / an</p>
+                <p className="text-lg font-extrabold text-emerald-700">{fmt(amort.totalAnnuel)}</p>
+                <p className="text-[9px] text-emerald-500 mt-0.5">déductibles du revenu imposable</p>
+              </div>
+              <div className="rounded-xl p-3 text-center" style={{ background:"#059669", color:"white" }}>
+                <p className="text-[9px] font-semibold uppercase tracking-wide mb-1 opacity-80">Économie IR / an</p>
+                <p className="text-lg font-extrabold">{fmt(econIR)}</p>
+                <p className="text-[9px] mt-0.5 opacity-75">= amort. × TMI {form.tmi}%</p>
+              </div>
+              <div className="rounded-xl bg-white/70 border border-emerald-100 p-3 text-center">
+                <p className="text-[9px] font-semibold text-emerald-600 uppercase tracking-wide mb-1">Économie sur {form.horizon} ans</p>
+                <p className="text-lg font-extrabold text-emerald-700">{fmt(econIR * form.horizon)}</p>
+                <p className="text-[9px] text-emerald-500 mt-0.5">économisés vs location nue</p>
+              </div>
+            </div>
+            <div className="px-4 pb-3 flex flex-wrap gap-x-4 gap-y-1">
+              <p className="text-[9px] text-emerald-600">
+                🏗 Base amortissable immeuble : <strong>{fmt(baseAmort)}</strong>
+                {" "}(terrain {form.terrain ?? 15}% = {fmt(terrainEur)} <strong>exclu</strong> · art. 39 C CGI ✅)
+              </p>
+              {form.tmi === 0 && (
+                <p className="text-[9px] text-amber-600 font-semibold">⚠ TMI à 0 % : les amortissements ne génèrent pas d'économie IR immédiate mais restent déductibles.</p>
+              )}
+            </div>
+          </div>
+        );
+      })()}
+
       {/* Micro-BIC vs Réel */}
       <Card>
         <SectionTitle icon="⚔️" title="Micro-BIC vs Régime Réel"
