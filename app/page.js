@@ -45,12 +45,41 @@ const STEPS = [
 /* ── Defaults ── */
 const DEFAULTS = {
   typeBien:"Appartement", surface:45, adresse:"", dpe:"C",
-  prix:180000, notaire:8, travaux:12000, mobilier:6000,
+  prix:180000, notaire:8, travaux:12000, mobilier:6000, terrain:15,
   apport:30000, interet:3.45, dureeCredit:20, differe:0, typeDiffere:"partiel",
   loyer:850, charges:120, taxeFonciere:1200, vacance:5, revalorisation:1.5,
   tmi:30, revenusMensuels:4500, chargesCredit:0,
   horizon:20,
 };
+
+/* ── Presets de biens ── */
+const PRESETS = [
+  {
+    label:"Studio Paris", icon:"🏙️",
+    typeBien:"Studio", surface:28, prix:235000, notaire:8, travaux:8000, mobilier:5000, terrain:28,
+    loyer:1050, charges:150, taxeFonciere:1600, vacance:5, revalorisation:1.5,
+  },
+  {
+    label:"T2 Province", icon:"🏘️",
+    typeBien:"Appartement", surface:45, prix:130000, notaire:8, travaux:10000, mobilier:5000, terrain:15,
+    loyer:620, charges:100, taxeFonciere:900, vacance:6, revalorisation:1.2,
+  },
+  {
+    label:"Résidence étud.", icon:"🎓",
+    typeBien:"Studio", surface:22, prix:85000, notaire:8, travaux:5000, mobilier:4000, terrain:12,
+    loyer:480, charges:60, taxeFonciere:600, vacance:8, revalorisation:1.0,
+  },
+  {
+    label:"T3 Banlieue", icon:"🏠",
+    typeBien:"Appartement", surface:65, prix:190000, notaire:8, travaux:15000, mobilier:7000, terrain:15,
+    loyer:850, charges:130, taxeFonciere:1300, vacance:5, revalorisation:1.5,
+  },
+  {
+    label:"Maison locative", icon:"🏡",
+    typeBien:"Maison", surface:90, prix:280000, notaire:8, travaux:25000, mobilier:9000, terrain:30,
+    loyer:1200, charges:80, taxeFonciere:1800, vacance:4, revalorisation:1.5,
+  },
+];
 
 /* ════════════════════════════════════════
    MOTEURS DE CALCUL
@@ -77,9 +106,9 @@ function amortCredit(capital, tauxAnnuel, dureeAns, differe=0, typeDiffere="part
   return rows;
 }
 
-function calcAmortComposants(prix, notaire, mobilier, travaux) {
+function calcAmortComposants(prix, notaire, mobilier, travaux, terrainPct=15) {
   /* Méthode par composants — fiscalité LMNP Réel */
-  const terrain   = prix * 0.15; // terrain non amortissable ~15%
+  const terrain   = prix * (terrainPct / 100); // terrain non amortissable
   const bienAmort = prix - terrain;
   const composants = {
     "Gros œuvre":    { base: bienAmort * 0.50, duree: 50 },
@@ -103,39 +132,62 @@ function runCalc(p, type="lmnp") {
   const capital    = p.prix + p.travaux + p.prix*(p.notaire/100) - p.apport;
   const creditRows = amortCredit(capital, p.interet, p.dureeCredit, p.differe, p.typeDiffere);
   const mensualite = creditRows[0]?.mensualite ?? 0;
-  const amort      = calcAmortComposants(p.prix, p.notaire, p.mobilier, p.travaux);
+  const terrainPct = p.terrain ?? 15;
+  const amort      = calcAmortComposants(p.prix, p.notaire, p.mobilier, p.travaux, terrainPct);
+
+  // Prélèvements sociaux : 17.2% sur BIC net positif (LMNP non-professionnel)
+  const PS_RATE = 0.172;
 
   const rows = [];
-  let cumCashflow = 0;
+  let cumCashflow   = 0;
+  let deficitPool   = 0; // déficit reportable LMNP — art. 156 CGI, 10 ans
+  let deficitPoolIS = 0; // déficit reportable SCI IS
+
   for (let yr=1; yr<=p.horizon; yr++) {
     const facReval  = Math.pow(1+(p.revalorisation/100), yr-1);
     const loyers    = p.loyer * 12 * facReval;
     const charges   = p.charges * 12 + p.taxeFonciere;
     const vacance   = loyers * (p.vacance/100);
+    const loyersNets = loyers - vacance;
     const interets  = creditRows[yr-1]?.interets ?? 0;
     const capRest   = creditRows[yr-1]?.capRestant ?? 0;
 
     let impot = 0;
     if (type==="lmnp") {
-      const base = Math.max(0, loyers - vacance - charges - interets - amort.totalAnnuel);
-      impot = base * (p.tmi/100);
+      // Déficit reportable sur 10 ans (CGI art. 156)
+      const baseRaw = loyersNets - charges - interets - amort.totalAnnuel;
+      const baseApresReport = baseRaw + deficitPool; // deficitPool ≤ 0
+      if (baseApresReport <= 0) {
+        deficitPool = Math.max(baseApresReport, -loyersNets * 10); // cap sécurité 10 ans
+        impot = 0;
+      } else {
+        deficitPool = 0;
+        impot = baseApresReport * (p.tmi/100 + PS_RATE);
+      }
     } else if (type==="microbic") {
-      const base = (loyers - vacance) * 0.50;
-      impot = base * (p.tmi/100);
+      // Micro-BIC : abattement 50%, pas de déficit possible
+      const base = loyersNets * 0.50;
+      impot = Math.max(0, base) * (p.tmi/100 + PS_RATE);
     } else if (type==="nue") {
-      const defFoncier = loyers - vacance - charges - interets;
-      const base = defFoncier > 0 ? defFoncier : 0;
-      impot = base * (p.tmi/100);
+      const base = Math.max(0, loyersNets - charges - interets);
+      impot = base * (p.tmi/100 + PS_RATE);
     } else if (type==="sciis") {
-      const base = Math.max(0, loyers - vacance - charges - interets - amort.totalAnnuel);
-      const is = base <= 42500 ? base*0.15 : 42500*0.15 + (base-42500)*0.25;
-      impot = is;
+      // IS : 15% jusqu'à 42 500 €, puis 25% — déficit reportable illimité
+      const baseRaw = loyersNets - charges - interets - amort.totalAnnuel;
+      const baseIS  = baseRaw + deficitPoolIS;
+      if (baseIS <= 0) {
+        deficitPoolIS = baseIS;
+        impot = 0;
+      } else {
+        deficitPoolIS = 0;
+        impot = baseIS <= 42500 ? baseIS*0.15 : 42500*0.15 + (baseIS-42500)*0.25;
+      }
     } else if (type==="sciir") {
-      const base = Math.max(0, loyers - vacance - charges - interets);
-      impot = base * (p.tmi/100);
+      const base = Math.max(0, loyersNets - charges - interets);
+      impot = base * (p.tmi/100 + PS_RATE);
     }
 
-    const cashflowBrut = loyers - vacance - charges - mensualite - impot;
+    const cashflowBrut = loyersNets - charges - mensualite - impot;
     const cashflowM    = cashflowBrut / 12;
     cumCashflow += cashflowBrut;
 
@@ -147,13 +199,17 @@ function runCalc(p, type="lmnp") {
     });
   }
 
-  const investTotal = p.apport + p.prix*(p.notaire/100) + p.mobilier;
+  // Prix total d'acquisition (base correcte pour rendements)
+  const prixTotal   = p.prix + p.prix*(p.notaire/100) + p.travaux;
+  const investTotal = p.apport + p.mobilier; // flux initial cash (TRI)
   const loyers0     = p.loyer * 12;
   const charges0    = p.charges * 12 + p.taxeFonciere;
-  const rendBrut    = loyers0 / (p.prix + p.prix*(p.notaire/100) + p.travaux) * 100;
-  const rendNet     = (loyers0 - charges0) / investTotal * 100;
+  const rendBrut    = loyers0 / prixTotal * 100;
+  const rendNet     = (loyers0 - charges0) / prixTotal * 100;  // base prixTotal, pas apport
   const cashflowM0  = rows[0]?.cashflowM ?? 0;
-  const ratioEndt   = mensualite*12 / (p.revenusMensuels*12) * 100;
+  // Ratio d'endettement HCSF : inclut crédits existants
+  const totalMens   = mensualite + (+p.chargesCredit || 0);
+  const ratioEndt   = totalMens / (p.revenusMensuels || 1) * 100;
 
   // TRI approché (Newton-Raphson simplifié)
   const fluxes = [-investTotal, ...rows.map((r,i) => {
@@ -178,22 +234,31 @@ function runCalc(p, type="lmnp") {
 }
 
 function calcComparaison10ans(p) {
-  const amort    = calcAmortComposants(p.prix, p.notaire, p.mobilier, p.travaux);
-  const capital  = p.prix + p.travaux + p.prix*(p.notaire/100) - p.apport;
+  const terrainPct = p.terrain ?? 15;
+  const amort      = calcAmortComposants(p.prix, p.notaire, p.mobilier, p.travaux, terrainPct);
+  const capital    = p.prix + p.travaux + p.prix*(p.notaire/100) - p.apport;
   const creditRows = amortCredit(capital, p.interet, p.dureeCredit);
-  const data = [];
+  const PS_RATE    = 0.172;
+  const data       = [];
+  let deficitReel  = 0;
   for (let yr=1; yr<=10; yr++) {
-    const fac     = Math.pow(1+(p.revalorisation/100), yr-1);
-    const loyers  = p.loyer * 12 * fac * (1 - p.vacance/100);
-    const charges = p.charges * 12 + p.taxeFonciere;
-    const ints    = creditRows[yr-1]?.interets ?? 0;
-    // Micro-BIC
-    const baseMicro = loyers * 0.50;
-    const impotMicro = Math.round(Math.max(0, baseMicro) * (p.tmi/100));
-    // Réel
-    const baseReel = loyers - charges - ints - amort.totalAnnuel;
-    const impotReel = Math.round(Math.max(0, baseReel) * (p.tmi/100));
-    // Economie
+    const fac      = Math.pow(1+(p.revalorisation/100), yr-1);
+    const loyers   = p.loyer * 12 * fac * (1 - p.vacance/100);
+    const charges  = p.charges * 12 + p.taxeFonciere;
+    const ints     = creditRows[yr-1]?.interets ?? 0;
+    // Micro-BIC : abattement 50%, IR+PS
+    const baseMicro  = loyers * 0.50;
+    const impotMicro = Math.round(Math.max(0, baseMicro) * (p.tmi/100 + PS_RATE));
+    // Réel : déficit carry-forward, IR+PS
+    const baseRaw    = loyers - charges - ints - amort.totalAnnuel;
+    const baseApres  = baseRaw + deficitReel;
+    let impotReel    = 0;
+    if (baseApres <= 0) {
+      deficitReel = Math.max(baseApres, -loyers * 10);
+    } else {
+      deficitReel = 0;
+      impotReel = Math.round(baseApres * (p.tmi/100 + PS_RATE));
+    }
     data.push({
       an: `A${yr}`,
       "Micro-BIC": impotMicro,
@@ -359,6 +424,131 @@ function FeuxBadge({ tri, cashflowM, ratioEndt }) {
 }
 
 /* ════════════════════════════════════════
+   SCORE DE BANCABILITÉ
+════════════════════════════════════════ */
+
+function ScoreBancabilite({ ratioEndt, cashflowM, tri, apport, prix, rendBrut }) {
+  let score = 0;
+  const details = [];
+
+  // 1. Taux d'endettement (25 pts)
+  if (ratioEndt <= 28)      { score += 25; details.push({ label:"Taux endettement",  val:`${ratioEndt}%`,        ok:true,  note:"Excellent" }); }
+  else if (ratioEndt <= 33) { score += 18; details.push({ label:"Taux endettement",  val:`${ratioEndt}%`,        ok:true,  note:"Bon" }); }
+  else if (ratioEndt <= 35) { score += 10; details.push({ label:"Taux endettement",  val:`${ratioEndt}%`,        ok:null,  note:"Limite HCSF" }); }
+  else                      { score +=  0; details.push({ label:"Taux endettement",  val:`${ratioEndt}%`,        ok:false, note:"Hors limite" }); }
+
+  // 2. Cash-flow mensuel (25 pts)
+  if (cashflowM >= 200)      { score += 25; details.push({ label:"Cash-flow mensuel", val:`+${cashflowM}€/mois`,  ok:true,  note:"Excellent" }); }
+  else if (cashflowM >= 50)  { score += 20; details.push({ label:"Cash-flow mensuel", val:`+${cashflowM}€/mois`,  ok:true,  note:"Positif" }); }
+  else if (cashflowM >= 0)   { score += 15; details.push({ label:"Cash-flow mensuel", val:`${cashflowM}€/mois`,   ok:true,  note:"Équilibré" }); }
+  else if (cashflowM >= -100){ score +=  8; details.push({ label:"Cash-flow mensuel", val:`${cashflowM}€/mois`,   ok:null,  note:"Effort modéré" }); }
+  else                       { score +=  0; details.push({ label:"Cash-flow mensuel", val:`${cashflowM}€/mois`,   ok:false, note:"Effort élevé" }); }
+
+  // 3. Rendement brut (20 pts)
+  if (rendBrut >= 7)      { score += 20; details.push({ label:"Rendement brut",   val:`${rendBrut}%`, ok:true,  note:"Très attractif" }); }
+  else if (rendBrut >= 5.5){ score += 15; details.push({ label:"Rendement brut",   val:`${rendBrut}%`, ok:true,  note:"Attractif" }); }
+  else if (rendBrut >= 4)  { score += 10; details.push({ label:"Rendement brut",   val:`${rendBrut}%`, ok:null,  note:"Acceptable" }); }
+  else                     { score +=  3; details.push({ label:"Rendement brut",   val:`${rendBrut}%`, ok:false, note:"Faible" }); }
+
+  // 4. Apport (20 pts)
+  const apportPct = prix > 0 ? Math.round(apport / prix * 100) : 0;
+  if (apportPct >= 20)      { score += 20; details.push({ label:"Apport personnel",  val:`${apportPct}%`, ok:true,  note:"Rassure la banque" }); }
+  else if (apportPct >= 15) { score += 15; details.push({ label:"Apport personnel",  val:`${apportPct}%`, ok:true,  note:"Bon" }); }
+  else if (apportPct >= 10) { score +=  8; details.push({ label:"Apport personnel",  val:`${apportPct}%`, ok:null,  note:"Minimum" }); }
+  else                      { score +=  2; details.push({ label:"Apport personnel",  val:`${apportPct}%`, ok:false, note:"Insuffisant" }); }
+
+  // 5. TRI (10 pts)
+  if (tri >= 6)      { score += 10; details.push({ label:"TRI global", val:`${tri}%`, ok:true,  note:"Solide" }); }
+  else if (tri >= 4) { score +=  7; details.push({ label:"TRI global", val:`${tri}%`, ok:null,  note:"Correct" }); }
+  else               { score +=  2; details.push({ label:"TRI global", val:`${tri}%`, ok:false, note:"Faible" }); }
+
+  const scoreColor = score >= 75 ? "#10B981" : score >= 55 ? "#F59E0B" : score >= 40 ? "#FB923C" : "#EF4444";
+  const scoreLabel = score >= 75 ? "Très bancable" : score >= 55 ? "Bancable" : score >= 40 ? "Dossier fragile" : "Difficile à financer";
+  const scoreBg    = score >= 75 ? "#ECFDF5"     : score >= 55 ? "#FFFBEB"    : score >= 40 ? "#FFF7ED"         : "#FEF2F2";
+
+  return (
+    <div className="rounded-2xl border p-4" style={{ background:scoreBg, borderColor:scoreColor+"33" }}>
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center gap-2">
+          <span className="text-xl">🏦</span>
+          <div>
+            <p className="text-sm font-bold text-slate-800">Score de bancabilité</p>
+            <p className="text-[11px] text-slate-500">Estimation de l&apos;éligibilité au financement</p>
+          </div>
+        </div>
+        <div className="text-right">
+          <p className="text-3xl font-extrabold leading-none" style={{ color:scoreColor }}>{score}</p>
+          <p className="text-[10px] font-bold mt-0.5" style={{ color:scoreColor }}>/100 · {scoreLabel}</p>
+        </div>
+      </div>
+
+      {/* Barre de progression */}
+      <div className="h-2.5 bg-slate-100 rounded-full mb-3 overflow-hidden">
+        <div className="h-2.5 rounded-full transition-all duration-700"
+          style={{ width:`${score}%`, background:scoreColor }} />
+      </div>
+
+      {/* Détails des critères */}
+      <div className="space-y-1.5">
+        {details.map(d => (
+          <div key={d.label} className="flex items-center justify-between">
+            <span className="text-xs text-slate-600">{d.label}</span>
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-semibold text-slate-700">{d.val}</span>
+              <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${
+                d.ok === true  ? "bg-green-100 text-green-700" :
+                d.ok === false ? "bg-red-100 text-red-600" :
+                                 "bg-amber-100 text-amber-700"
+              }`}>{d.note}</span>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <p className="text-[10px] text-slate-400 mt-3">
+        {score >= 70
+          ? "✅ Dossier solide — présentez ce projet à votre banque ou courtier."
+          : score < 55
+          ? "💡 Augmentez l'apport ou renégociez le prix pour renforcer votre dossier."
+          : "⚠ Dossier passable — quelques ajustements amélioreront vos chances."}
+      </p>
+    </div>
+  );
+}
+
+/* ════════════════════════════════════════
+   GAIN VS LOCATION NUE
+════════════════════════════════════════ */
+
+function GainVsNue({ results }) {
+  const lmnp = results?.[0]; // LMNP Réel
+  const nue  = results?.[3]; // SCI IR ≈ location nue (revenus fonciers)
+  if (!lmnp || !nue) return null;
+  const impotNue10  = nue.rows.slice(0,10).reduce((s,r) => s + (r.impot||0), 0);
+  const impotLmnp10 = lmnp.rows.slice(0,10).reduce((s,r) => s + (r.impot||0), 0);
+  const gain10ans   = impotNue10 - impotLmnp10;
+  if (gain10ans <= 500) return null;
+  return (
+    <div className="rounded-2xl p-4 border border-green-200"
+      style={{ background:"linear-gradient(135deg,#F0FDF4,#DCFCE7)" }}>
+      <div className="flex items-center gap-3">
+        <span className="text-3xl">🏆</span>
+        <div>
+          <p className="text-xs font-bold text-green-700 uppercase tracking-wide">LMNP Réel vs Location Nue</p>
+          <p className="text-2xl font-extrabold text-green-600 leading-tight">{fmt(gain10ans)}</p>
+          <p className="text-[11px] text-green-600">d&apos;économie fiscale cumulée sur 10 ans</p>
+        </div>
+        <div className="ml-auto text-right">
+          <p className="text-xs text-green-500 font-medium">soit</p>
+          <p className="text-base font-bold text-green-700">{fmt(Math.round(gain10ans/120))}/mois</p>
+          <p className="text-[10px] text-green-500">en moyenne</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ════════════════════════════════════════
    LANDING PAGE
 ════════════════════════════════════════ */
 
@@ -379,13 +569,31 @@ function LandingPage({ onStart }) {
             <span className="text-2xl">🏢</span>
             <span className="text-white/60 text-sm font-semibold tracking-wide uppercase">Simulateur LMNP</span>
           </div>
+
+          {/* Badges conformité */}
+          <div className="flex flex-wrap gap-2 mb-4">
+            <span className="text-[10px] font-bold bg-green-400/20 border border-green-400/30 text-green-300 px-2.5 py-1 rounded-full">
+              📋 Dossier bancaire inclus
+            </span>
+            <span className="text-[10px] font-bold bg-white/10 border border-white/20 text-white/70 px-2.5 py-1 rounded-full">
+              ⚖️ Conforme CGI Art. 39 C
+            </span>
+            <span className="text-[10px] font-bold bg-white/10 border border-white/20 text-white/70 px-2.5 py-1 rounded-full">
+              ✦ LF 2026
+            </span>
+          </div>
+
           <h1 className="text-white font-extrabold leading-tight mb-3"
-            style={{ fontSize:"clamp(1.55rem, 6vw, 2.2rem)", letterSpacing:"-0.02em" }}>
-            Ne payez plus d&apos;impôts<br />sur vos loyers.
+            style={{ fontSize:"clamp(1.55rem, 6vw, 2.25rem)", letterSpacing:"-0.03em" }}>
+            Devenez intouchable<br />fiscalement.
           </h1>
-          <p className="text-blue-200 text-sm leading-relaxed mb-8" style={{ maxWidth:380 }}>
-            Validez la rentabilité de votre projet LMNP en&nbsp;<strong className="text-white">3&nbsp;minutes</strong>.
-            Comparaison Micro-BIC vs Réel, amortissement par composants, cash-flow mensuel et TRI.
+          <p className="text-blue-200 text-sm leading-relaxed mb-2" style={{ maxWidth:400 }}>
+            Validez votre projet LMNP et économisez jusqu&apos;à{" "}
+            <strong className="text-white">4 200 €/an</strong> d&apos;impôts.
+          </p>
+          <p className="text-blue-300 text-sm leading-relaxed mb-8" style={{ maxWidth:400 }}>
+            Dossier bancaire généré en <strong className="text-white">3 minutes</strong>.
+            Comparaison Micro-BIC vs Réel · Amortissements par composants · TRI.
           </p>
 
           {/* Stat badges */}
@@ -757,12 +965,237 @@ function SocialProof() {
 }
 
 /* ════════════════════════════════════════
+   STRESS TEST
+════════════════════════════════════════ */
+
+function StressTest({ form, results }) {
+  const normal = results?.[0];
+  // Scénario stress : TF +15% + vacance 2 mois/an min
+  const stressedForm = {
+    ...form,
+    taxeFonciere: Math.round(form.taxeFonciere * 1.15),
+    vacance: Math.max(form.vacance, 16.7),
+  };
+  const stressed  = runCalc(stressedForm, "lmnp");
+  const resists   = stressed.cashflowM >= -50;
+  const cfColor   = (v) => v >= 0 ? "#059669" : "#DC2626";
+
+  return (
+    <div>
+      <div className="grid grid-cols-2 gap-3 mb-3">
+        <div className="rounded-xl bg-green-50 border border-green-100 p-3 text-center">
+          <p className="text-[10px] font-bold text-green-600 mb-1">📊 Scénario normal</p>
+          <p className="text-xl font-extrabold" style={{ color: cfColor(normal?.cashflowM ?? 0) }}>
+            {fmtK(normal?.cashflowM)}/mois
+          </p>
+          <p className="text-[10px] text-green-500 mt-0.5">TRI {normal?.tri}%</p>
+        </div>
+        <div className="rounded-xl bg-red-50 border border-red-100 p-3 text-center">
+          <p className="text-[10px] font-bold text-red-600 mb-1">🔴 Stress test</p>
+          <p className="text-xl font-extrabold" style={{ color: cfColor(stressed.cashflowM) }}>
+            {fmtK(stressed.cashflowM)}/mois
+          </p>
+          <p className="text-[10px] text-red-500 mt-0.5">TRI {stressed.tri}%</p>
+        </div>
+      </div>
+      <div className={`rounded-xl p-3 text-center border ${
+        resists ? "bg-green-50 border-green-100" : "bg-orange-50 border-orange-100"
+      }`}>
+        <p className={`text-xs font-semibold ${resists ? "text-green-700" : "text-orange-700"}`}>
+          {resists
+            ? "✅ Votre investissement résiste au stress test — vous pouvez négocier en confiance."
+            : "⚠ Cash-flow dégradé en scénario stress — augmentez votre marge de sécurité ou renégociez le prix."}
+        </p>
+        <p className="text-[10px] text-slate-400 mt-1.5">Hypothèses : Taxe foncière +15% · Vacance 2 mois/an</p>
+      </div>
+    </div>
+  );
+}
+
+/* ════════════════════════════════════════
+   ARGUMENTAIRE VENDEUR
+════════════════════════════════════════ */
+
+function ArgumentaireModal({ form, results, onClose }) {
+  const r       = results?.[0];
+  const rc      = reverseCalc(0, form);
+  const [copied, setCopied] = useState(false);
+
+  const prixMax = rc?.prixMax ?? form.prix;
+  const ecart   = form.prix - prixMax;
+  const pctBaisse = ecart > 0 ? ((ecart / form.prix) * 100).toFixed(1) : 0;
+
+  const texte = `ARGUMENTAIRE DE NÉGOCIATION
+Généré le ${new Date().toLocaleDateString("fr-FR")} · Simulateur LMNP
+
+═══ IDENTIFICATION DU BIEN ═══
+Type       : ${form.typeBien} · ${form.surface} m² · DPE ${form.dpe}
+Prix affiché : ${fmt(form.prix)}
+Loyer estimé : ${fmt(form.loyer)}/mois (${form.vacance}% de vacance prévu)
+
+═══ RENTABILITÉ AU PRIX AFFICHÉ ═══
+• TRI sur ${form.horizon} ans  : ${r?.tri ?? "—"}%${(r?.tri ?? 0) < 5 ? "  ⚠ sous le seuil recommandé de 5%" : "  ✅"}
+• Cash-flow mensuel : ${fmtK(r?.cashflowM ?? 0)}${(r?.cashflowM ?? 0) < 0 ? " (effort financier)" : ""}
+• Taux d'endettement : ${r?.ratioEndt ?? "—"}% / 35% max HCSF
+• Rendement net     : ${r?.rendNet?.toFixed(2) ?? "—"}%
+• Crédit            : ${fmt(r?.mensualite ?? 0)}/mois sur ${form.dureeCredit} ans à ${form.interet}%
+
+═══ PRIX MAXIMUM JUSTIFIÉ ═══
+${ecart > 0
+  ? `Pour atteindre le seuil d'équilibre (0 €/mois de cash-flow) :
+→ Prix maximum : ${fmt(prixMax)}
+→ Négociation demandée : ${fmt(ecart)} (-${pctBaisse}%)
+
+ARGUMENTS CHIFFRÉS :
+1. Au prix actuel, l'effort mensuel est de ${fmtK(Math.abs(r?.cashflowM ?? 0))} pendant ${form.dureeCredit} ans.
+   Soit un effort total de ${fmt(Math.abs(r?.cashflowM ?? 0) * form.dureeCredit * 12)}.
+2. Les travaux estimés (${fmtK(form.travaux)}) pèsent sur la rentabilité nette.
+3. Les frais de notaire à ${form.notaire}% représentent ${fmt(form.prix * form.notaire / 100)} à financer.
+${form.dpe >= "E"
+  ? `4. DPE ${form.dpe} : location interdite aux logements F/G à partir de 2025.
+   Travaux de rénovation énergétique à prévoir avant mise en location.`
+  : ""}`
+  : `Le prix actuel de ${fmt(form.prix)} est cohérent avec un cash-flow de ${fmtK(r?.cashflowM ?? 0)}/mois.
+Le bien est correctement valorisé au regard du marché locatif local.`}
+
+═══ BASE LÉGALE ═══
+• CGI Art. 39 C    — Règles d'amortissement LMNP
+• CGI Art. 150 U   — Régime des plus-values immobilières
+• HCSF Déc. 2021   — Taux d'endettement max 35%
+• BOFiP BIC-AMT    — Amortissement par composants
+
+Simulation : loyer ${fmt(form.loyer)}/mois · apport ${fmt(form.apport)} · crédit ${form.dureeCredit} ans`;
+
+  const copy = () => {
+    navigator.clipboard.writeText(texte).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2500);
+    }).catch(() => {});
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center"
+      style={{ background:"rgba(15,23,42,0.75)", backdropFilter:"blur(4px)" }}>
+      <div className="bg-white w-full max-w-lg rounded-t-3xl sm:rounded-3xl shadow-2xl max-h-[88vh] flex flex-col">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100 shrink-0">
+          <div>
+            <h2 className="font-bold text-slate-800">📝 Argumentaire vendeur</h2>
+            <p className="text-[11px] text-slate-400 mt-0.5">Copier-coller pour votre négociation</p>
+          </div>
+          <button onClick={onClose} className="text-slate-400 hover:text-slate-600 text-2xl leading-none">×</button>
+        </div>
+        {ecart > 0 && (
+          <div className="px-5 py-3 bg-orange-50 border-b border-orange-100 shrink-0">
+            <p className="text-xs font-bold text-orange-700">
+              💡 Négociation suggérée : <span className="text-orange-800">{fmt(ecart)}</span> soit -{pctBaisse}% pour atteindre l&apos;équilibre
+            </p>
+          </div>
+        )}
+        <div className="overflow-y-auto flex-1 px-5 py-4">
+          <pre className="text-[11px] text-slate-600 font-mono leading-relaxed whitespace-pre-wrap bg-slate-50 border border-slate-100 rounded-xl p-4 select-all">
+            {texte}
+          </pre>
+        </div>
+        <div className="px-5 py-4 border-t border-slate-100 shrink-0">
+          <button onClick={copy}
+            className="w-full py-3 rounded-xl text-sm font-bold text-white transition-all active:scale-95"
+            style={{ background: copied ? "#10B981" : "linear-gradient(135deg, #0F172A, #185FA5)" }}>
+            {copied ? "✅ Copié dans le presse-papier !" : "📋 Copier l'argumentaire"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ════════════════════════════════════════
+   VEILLE FISCALE
+════════════════════════════════════════ */
+
+function VeilleFiscale() {
+  const [email,   setEmail]   = useState("");
+  const [done,    setDone]    = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  const submit = async (e) => {
+    e.preventDefault();
+    if (!email) return;
+    setLoading(true);
+    try {
+      if (sb) {
+        await sb.from("leads").upsert({
+          email, nom: "Alerte Veille Fiscale",
+          params: { source:"veille_fiscale" },
+          created_at: new Date().toISOString(),
+        });
+      }
+      setDone(true);
+    } catch { setDone(true); }
+    finally { setLoading(false); }
+  };
+
+  if (done) return (
+    <div className="rounded-2xl bg-green-50 border border-green-100 p-4 text-center">
+      <p className="text-sm font-bold text-green-700 mb-1">🔔 Alerte activée !</p>
+      <p className="text-xs text-green-600">Vous serez notifié si la Loi de Finances modifie les règles LMNP.</p>
+    </div>
+  );
+
+  return (
+    <div className="rounded-2xl p-4" style={{ background:"#0F172A" }}>
+      <div className="flex items-start gap-3 mb-3">
+        <span className="text-xl mt-0.5">🔔</span>
+        <div>
+          <p className="text-sm font-bold text-white">Alerte Veille Fiscale LMNP</p>
+          <p className="text-xs text-slate-400 mt-0.5 leading-relaxed">
+            Soyez alerté si la Loi de Finances modifie les amortissements, le plafond Micro-BIC ou les abattements LMNP.
+          </p>
+        </div>
+      </div>
+      <form onSubmit={submit} className="flex gap-2">
+        <input type="email" value={email} onChange={e => setEmail(e.target.value)}
+          placeholder="votre@email.fr" required
+          className="flex-1 bg-slate-800 border border-slate-600 rounded-xl px-3 py-2.5 text-xs text-white placeholder-slate-400 outline-none focus:border-blue-400 transition-colors" />
+        <button type="submit" disabled={loading || !email}
+          className="px-4 py-2.5 rounded-xl text-xs font-bold text-white bg-blue-600 hover:bg-blue-500 transition-colors disabled:opacity-50 whitespace-nowrap">
+          {loading ? "…" : "M'alerter"}
+        </button>
+      </form>
+    </div>
+  );
+}
+
+/* ════════════════════════════════════════
    STEPS
 ════════════════════════════════════════ */
 
+function PresetsBar({ onSelect }) {
+  return (
+    <div>
+      <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wide mb-2">
+        ⚡ Démarrer avec un profil type
+      </p>
+      <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1" style={{ scrollbarWidth:"none" }}>
+        {PRESETS.map(p => (
+          <button key={p.label} onClick={() => onSelect(p)}
+            className="shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white border border-slate-200 text-xs font-semibold text-slate-700 hover:border-blue-300 hover:bg-blue-50 active:scale-[.97] transition-all shadow-sm whitespace-nowrap">
+            <span>{p.icon}</span>
+            <span>{p.label}</span>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function StepProjet({ form, set }) {
+  const applyPreset = (p) =>
+    Object.entries(p)
+      .filter(([k]) => k !== "label" && k !== "icon")
+      .forEach(([k, v]) => set(k)(v));
   return (
     <div className="slide-up space-y-4">
+      <PresetsBar onSelect={applyPreset} />
       <Card>
         <SectionTitle icon="🏠" title="Votre bien immobilier" sub="Définissez les caractéristiques du bien" />
         <SelectField label="Type de bien" value={form.typeBien} onChange={set("typeBien")}
@@ -791,6 +1224,10 @@ function StepProjet({ form, set }) {
           min={0} max={30000} step={500} format={fmtK}
           help={LEXIQUE["Amortissement"]} />
 
+        <SliderField label="Part estimée du terrain" value={form.terrain ?? 15} onChange={set("terrain")}
+          min={5} max={40} step={1} format={n=>`${n} %`}
+          help="Le terrain est NON amortissable (art. 39 C CGI). En centre-ville : 20–35 %. En périphérie : 10–20 %. Par défaut : 15 %." />
+
         <div className="mt-4 rounded-xl bg-blue-50 border border-blue-100 p-3">
           <p className="text-xs font-semibold text-blue-700 mb-1">📊 Coût total de l&apos;opération</p>
           <p className="text-lg font-bold text-blue-800">
@@ -798,6 +1235,10 @@ function StepProjet({ form, set }) {
           </p>
           <p className="text-[10px] text-blue-500 mt-0.5">
             Prix {fmt(form.prix)} + Notaire {fmt(form.prix*form.notaire/100)} + Travaux {fmtK(form.travaux)} + Mobilier {fmtK(form.mobilier)}
+          </p>
+          <p className="text-[10px] text-amber-600 mt-1">
+            ⚠ Terrain non amortissable : {fmt(form.prix * (form.terrain ?? 15) / 100)} ({form.terrain ?? 15}%)
+            · Base amortissable immeuble : {fmt(form.prix * (1 - (form.terrain ?? 15) / 100))}
           </p>
         </div>
       </Card>
@@ -810,7 +1251,8 @@ function StepFinancement({ form, set }) {
   const mens    = capital > 0 && form.interet > 0
     ? Math.round((capital * (form.interet/100/12)) / (1 - Math.pow(1+form.interet/100/12, -form.dureeCredit*12)))
     : 0;
-  const ratioEndt = (mens / form.revenusMensuels * 100).toFixed(1);
+  const totalMens = mens + (+form.chargesCredit || 0);
+  const ratioEndt = (totalMens / (form.revenusMensuels || 1) * 100).toFixed(1);
   const ratioColor = +ratioEndt > 35 ? "#EF4444" : +ratioEndt > 30 ? "#F59E0B" : "#10B981";
 
   return (
@@ -855,9 +1297,16 @@ function StepFinancement({ form, set }) {
             <span className="text-lg font-bold" style={{ color:"#185FA5" }}>{fmt(mens)}/mois</span>
           </div>
           <div className="flex justify-between items-center mt-1">
-            <span className="text-xs text-slate-500">Taux d&apos;endettement</span>
+            <span className="text-xs text-slate-500">
+              Taux d&apos;endettement{(+form.chargesCredit||0)>0?" (crédits inclus)":""}
+            </span>
             <span className="text-sm font-bold" style={{ color:ratioColor }}>{ratioEndt} %</span>
           </div>
+          {(+form.chargesCredit||0)>0 && (
+            <p className="text-[10px] text-slate-400 mt-0.5">
+              Mensualité LMNP {fmt(mens)} + crédits existants {fmt(+form.chargesCredit)} = {fmt(totalMens)}/mois
+            </p>
+          )}
           {+ratioEndt > 35 && (
             <p className="text-[11px] mt-1.5" style={{ color:ratioColor }}>
               ⚠ Dépasse le seuil HCSF de 35 %. Augmentez l&apos;apport ou réduisez la durée.
@@ -1015,6 +1464,73 @@ function CashflowChart({ rows }) {
   );
 }
 
+/* ── Graphique Bouclier Fiscal ── */
+function BouclierFiscalChart({ rows }) {
+  // Première année où l'impôt devient significatif (> 200 €)
+  const finBouclierIdx = rows.findIndex(r => r.impot > 200);
+  const finBouclier    = finBouclierIdx >= 0 ? rows[finBouclierIdx].an : null;
+  const impotApres     = finBouclier ? rows.slice(finBouclierIdx).reduce((s,r) => s + r.impot, 0) : 0;
+
+  const data = rows.map(r => ({
+    an:               `A${r.an}`,
+    "Bouclier actif": r.impot <= 200 ? Math.max(0, r.loyers - r.charges) : 0,
+    "Impôt payé":     r.impot > 200 ? r.impot : 0,
+  }));
+
+  return (
+    <div>
+      {finBouclier ? (
+        <div className="rounded-xl bg-amber-50 border border-amber-200 p-3 mb-3">
+          <p className="text-xs font-bold text-amber-800">⏰ Fin du bouclier fiscal : Année {finBouclier}</p>
+          <p className="text-[11px] text-amber-700 mt-0.5 leading-relaxed">
+            À partir de l&apos;année {finBouclier}, les amortissements s&apos;épuisent et l&apos;impôt redevient exigible.
+            Montant total sur la période restante : <strong>{fmt(impotApres)}</strong>.
+            Anticipez une revente ou un refinancement avant cette date.
+          </p>
+        </div>
+      ) : (
+        <div className="rounded-xl bg-green-50 border border-green-100 p-3 mb-3">
+          <p className="text-xs font-bold text-green-700">🛡️ Bouclier fiscal actif sur toute la période</p>
+          <p className="text-[11px] text-green-600 mt-0.5">
+            Vos amortissements couvrent l&apos;intégralité de votre horizon de détention. Impôt = 0 € chaque année.
+          </p>
+        </div>
+      )}
+
+      <ResponsiveContainer width="100%" height={190}>
+        <BarChart data={data} margin={{ top:10, right:4, left:0, bottom:0 }}>
+          <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" />
+          <XAxis dataKey="an" tick={{ fontSize:10, fill:"#94A3B8" }} />
+          <YAxis tick={{ fontSize:10, fill:"#94A3B8" }} tickFormatter={v=>fmtK(v)} width={50} />
+          <RTooltip
+            formatter={(v,n) => [fmt(v), n]}
+            contentStyle={{ borderRadius:8, border:"1px solid #E2E8F0", fontSize:11 }}
+          />
+          {finBouclier && (
+            <ReferenceLine
+              x={`A${finBouclier}`} stroke="#F59E0B" strokeWidth={2} strokeDasharray="5 3"
+              label={{ value:"Fin bouclier", position:"top", fontSize:9, fill:"#D97706" }}
+            />
+          )}
+          <Bar dataKey="Bouclier actif" fill="#10B981" radius={[3,3,0,0]} name="🛡 Bouclier actif" stackId="a" />
+          <Bar dataKey="Impôt payé"     fill="#EF4444" radius={[3,3,0,0]} name="💸 Impôt payé"     stackId="a" />
+        </BarChart>
+      </ResponsiveContainer>
+
+      <div className="flex items-center justify-center gap-4 mt-1.5">
+        <div className="flex items-center gap-1.5">
+          <div className="w-3 h-3 rounded-sm bg-green-500" />
+          <span className="text-[10px] text-slate-500">Bouclier fiscal actif (0 € d&apos;impôt)</span>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <div className="w-3 h-3 rounded-sm bg-red-400" />
+          <span className="text-[10px] text-slate-500">Impôt dû</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /* ── Tableau de projection ── */
 function TableauProjection({ rows, horizon }) {
   const [open, setOpen] = useState(false);
@@ -1057,7 +1573,7 @@ function TableauProjection({ rows, horizon }) {
   );
 }
 
-function StepResultats({ form, results, comparaison, amort, onLead }) {
+function StepResultats({ form, results, comparaison, amort, onLead, onArgumentaire }) {
   if (!results) return null;
   const best = results[0]; // LMNP Réel
   const micro = results[1]; // Micro-BIC
@@ -1069,6 +1585,15 @@ function StepResultats({ form, results, comparaison, amort, onLead }) {
       {/* Verdict */}
       <FeuxBadge tri={best.tri} cashflowM={best.cashflowM} ratioEndt={best.ratioEndt} />
 
+      {/* Gain vs Location Nue */}
+      <GainVsNue results={results} />
+
+      {/* Score de bancabilité */}
+      <ScoreBancabilite
+        ratioEndt={best.ratioEndt} cashflowM={best.cashflowM} tri={best.tri}
+        apport={form.apport} prix={form.prix} rendBrut={best.rendBrut}
+      />
+
       {/* KPIs */}
       <div className="grid grid-cols-2 gap-3">
         <KPICard label="TRI sur la durée" value={`${best.tri} %`}
@@ -1076,11 +1601,11 @@ function StepResultats({ form, results, comparaison, amort, onLead }) {
           color={best.tri>=6?"#10B981":best.tri>=4?"#F59E0B":"#EF4444"}
           bg={best.tri>=6?"#ECFDF5":best.tri>=4?"#FFFBEB":"#FEF2F2"} />
         <KPICard label="Cash-flow mensuel" value={fmtK(best.cashflowM)}
-          sub="Après crédit et impôt" icon="💸"
+          sub="Après crédit, IR + prélèvements sociaux" icon="💸"
           color={best.cashflowM>=0?"#10B981":"#EF4444"}
           bg={best.cashflowM>=0?"#ECFDF5":"#FEF2F2"} />
         <KPICard label="Rendement net" value={`${best.rendNet.toFixed(2)} %`}
-          sub="Après charges" icon="🏠" color="#185FA5" bg="#EFF6FF" />
+          sub="(loyers − charges) / prix total achat" icon="🏠" color="#185FA5" bg="#EFF6FF" />
         <KPICard label="Taux d'endettement" value={`${best.ratioEndt} %`}
           sub={best.ratioEndt<=35?"✅ Règle HCSF OK":"⚠ Dépasse 35%"} icon="⚖️"
           color={best.ratioEndt<=35?"#10B981":"#EF4444"}
@@ -1125,6 +1650,13 @@ function StepResultats({ form, results, comparaison, amort, onLead }) {
         <CashflowChart rows={best.rows} />
       </Card>
 
+      {/* Bouclier fiscal */}
+      <Card>
+        <SectionTitle icon="🛡️" title="Bouclier fiscal LMNP"
+          sub="Années protégées par les amortissements — et quand l'impôt revient" />
+        <BouclierFiscalChart rows={best.rows} />
+      </Card>
+
       {/* Tableau */}
       <Card>
         <TableauProjection rows={best.rows} horizon={form.horizon} />
@@ -1158,6 +1690,24 @@ function StepResultats({ form, results, comparaison, amort, onLead }) {
         </div>
       </Card>
 
+      {/* Stress Test */}
+      <Card>
+        <SectionTitle icon="🧪" title="Mode Stress Test"
+          sub="Scénario dégradé : TF +15% · Vacance 2 mois/an" />
+        <StressTest form={form} results={results} />
+      </Card>
+
+      {/* Argumentaire vendeur */}
+      <button onClick={onArgumentaire}
+        className="w-full flex items-center justify-center gap-2 rounded-2xl py-3.5 px-4 text-sm font-bold text-white transition-all active:scale-95"
+        style={{ background:"linear-gradient(135deg,#1E3A5F,#185FA5)" }}>
+        📝 Générer l'argumentaire vendeur
+        <span className="text-blue-300 text-xs font-normal">CGI Art. 39 C · Négociation bancaire</span>
+      </button>
+
+      {/* Veille fiscale */}
+      <VeilleFiscale />
+
       {/* Social Proof */}
       <Card>
         <SocialProof />
@@ -1178,6 +1728,30 @@ function StepResultats({ form, results, comparaison, amort, onLead }) {
           </button>
           <p className="text-blue-300 text-[10px] mt-2">Gratuit · Reçu par email en quelques secondes</p>
         </div>
+      </div>
+
+      {/* CTA Courtier */}
+      <div className="rounded-2xl p-4 border border-emerald-200 bg-emerald-50">
+        <div className="flex items-start gap-3">
+          <span className="text-2xl">🤝</span>
+          <div className="flex-1">
+            <p className="text-sm font-bold text-emerald-800 mb-0.5">Optimisez votre taux de crédit</p>
+            <p className="text-xs text-emerald-700 mb-3">
+              Nos partenaires courtiers négocient les meilleures conditions pour financer votre projet LMNP.
+            </p>
+            <a href="https://www.pretto.fr" target="_blank" rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 bg-emerald-600 text-white text-xs font-bold px-4 py-2 rounded-xl hover:bg-emerald-700 transition-colors">
+              Prendre RDV avec un courtier →
+            </a>
+          </div>
+        </div>
+      </div>
+
+      {/* Trust footnotes */}
+      <div className="text-[10px] text-slate-400 text-center space-y-1 px-2 pb-4">
+        <p>⚖️ Calculs basés sur la doctrine fiscale LMNP · <strong>CGI Art. 39 C</strong> (amortissements) · <strong>CGI Art. 34</strong> (BIC)</p>
+        <p>📋 <strong>LF 2026</strong> · Plafond Micro-BIC 77 700 € · Abattement 50% maintenu</p>
+        <p>Ce simulateur est fourni à titre indicatif. Consultez un expert-comptable pour votre situation personnelle.</p>
       </div>
     </div>
   );
@@ -1308,7 +1882,7 @@ function LeadModal({ onClose, form, results }) {
   const [emailOk, setEmailOk] = useState(false); // l'API email a réussi
 
   const amort = useMemo(
-    () => calcAmortComposants(form.prix, form.notaire, form.mobilier, form.travaux),
+    () => calcAmortComposants(form.prix, form.notaire, form.mobilier, form.travaux, form.terrain ?? 15),
     [form]
   );
 
@@ -1686,15 +2260,27 @@ function FAQ() {
 
 export default function App() {
   // phase: "landing" | "quiz" | "sim"
-  const [phase,    setPhase]    = useState("landing");
-  const [step,     setStep]     = useState(0);
-  const [form,     setForm]     = useState(DEFAULTS);
-  const [user,     setUser]     = useState(null);
-  const [showAuth, setShowAuth] = useState(false);
-  const [showLead, setShowLead] = useState(false);
+  const [phase,           setPhase]           = useState("landing");
+  const [step,            setStep]            = useState(0);
+  const [form,            setForm]            = useState(DEFAULTS);
+  const [user,            setUser]            = useState(null);
+  const [showAuth,        setShowAuth]        = useState(false);
+  const [showLead,        setShowLead]        = useState(false);
+  const [showArgumentaire,setShowArgumentaire]= useState(false);
   const topRef = useRef(null);
 
   const set = (k) => (v) => setForm(f => ({ ...f, [k]: v }));
+
+  /* ── localStorage autosave ── */
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem("lmnp_form");
+      if (saved) setForm(f => ({ ...f, ...JSON.parse(saved) }));
+    } catch {}
+  }, []);
+  useEffect(() => {
+    try { localStorage.setItem("lmnp_form", JSON.stringify(form)); } catch {}
+  }, [form]);
 
   useEffect(() => {
     if (!sb) return;
@@ -1729,7 +2315,7 @@ export default function App() {
     return calcComparaison10ans(form);
   }, [form, step]);
 
-  const amort = useMemo(() => calcAmortComposants(form.prix, form.notaire, form.mobilier, form.travaux), [form]);
+  const amort = useMemo(() => calcAmortComposants(form.prix, form.notaire, form.mobilier, form.travaux, form.terrain ?? 15), [form]);
 
   const goNext = () => {
     if (step < 3) { setStep(s => s+1); topRef.current?.scrollIntoView({ behavior:"smooth" }); }
@@ -1819,7 +2405,8 @@ export default function App() {
         {step===2 && <StepExploitation form={form} set={set} />}
         {step===3 && results && (
           <StepResultats form={form} results={results} comparaison={comparaison}
-            amort={amort} onLead={() => setShowLead(true)} />
+            amort={amort} onLead={() => setShowLead(true)}
+            onArgumentaire={() => setShowArgumentaire(true)} />
         )}
 
         {/* FAQ on last step */}
@@ -1852,6 +2439,9 @@ export default function App() {
       {/* ── MODALS ── */}
       {showAuth && <AuthModal onAuth={u => { setUser(u); setShowAuth(false); }} onClose={() => setShowAuth(false)} />}
       {showLead && <LeadModal onClose={() => setShowLead(false)} form={form} results={results} />}
+      {showArgumentaire && results && (
+        <ArgumentaireModal form={form} results={results} onClose={() => setShowArgumentaire(false)} />
+      )}
     </div>
   );
 }
