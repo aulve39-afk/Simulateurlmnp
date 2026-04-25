@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Simulateur LMNP Expert — Dossier bancaire professionnel",
-  description: "Comparez LMNP, Location nue, SCI IS et SCI IR. Simulez votre investissement et générez un dossier bancaire complet en PDF.",
+  title: "Patrimoine Immo — Simulateur LMNP & Résidence Principale",
+  description: "Deux simulateurs pour tous vos projets immobiliers : investissement locatif LMNP (4 régimes fiscaux, dossier bancaire PDF) et achat résidence principale (PTZ, DPE, DVF, louer vs acheter).",
 };
 
 export default function RootLayout({
@@ -24,7 +24,7 @@ export default function RootLayout({
 }>) {
   return (
     <html
-      lang="en"
+      lang="fr"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">{children}</body>
