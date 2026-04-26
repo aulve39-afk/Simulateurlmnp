@@ -1,6 +1,12 @@
 "use client";
 import { useState, useMemo, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
+import { createClient } from "@supabase/supabase-js";
+
+/* ── Supabase guard ── */
+const _SU = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const _SK = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+const sb = _SU && _SK ? createClient(_SU, _SK) : null;
 import {
   LineChart, Line, AreaChart, Area, BarChart, Bar,
   XAxis, YAxis, CartesianGrid, Tooltip as RTooltip,
@@ -924,9 +930,111 @@ const TOOLS = [
   { id: "visite",  label: "Checklist Visite",   icon: "✅", color: "#7C3AED", bg: "#F5F3FF" },
 ];
 
+/* ════════════════════════════════════════
+   LEAD CAPTURE MODAL — RP
+════════════════════════════════════════ */
+function LeadModalRP({ onClose }) {
+  const [email, setEmail]   = useState("");
+  const [name,  setName]    = useState("");
+  const [sent,  setSent]    = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  const submit = async (e) => {
+    e.preventDefault();
+    if (!email) return;
+    setLoading(true);
+    try {
+      if (sb) {
+        await sb.from("leads").upsert({
+          email,
+          nom: name || null,
+          source: "rp",
+          created_at: new Date().toISOString(),
+        }, { onConflict: "email" });
+      }
+      // Pré-remplir l'email dans le simulateur LMNP si ouvert plus tard
+      try { localStorage.setItem("immopilote_email", email); } catch (_) {}
+    } catch (_) { /* silencieux */ }
+    setLoading(false);
+    setSent(true);
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center"
+      style={{ background: "rgba(7,7,26,0.85)", backdropFilter: "blur(6px)" }}>
+      <div className="w-full max-w-md rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl"
+        style={{ background: "#12122A", border: "1px solid rgba(124,58,237,0.3)" }}>
+        {!sent ? (
+          <>
+            <div className="text-center mb-5">
+              <div className="text-3xl mb-2">🏠</div>
+              <h2 className="text-base font-bold mb-1" style={{ color: "rgba(248,250,252,0.95)" }}>
+                Recevez votre analyse personnalisée
+              </h2>
+              <p className="text-xs" style={{ color: "rgba(248,250,252,0.45)" }}>
+                Récapitulatif de votre simulation + conseils primo-accédant par email.
+              </p>
+            </div>
+            <form onSubmit={submit} className="space-y-3">
+              <input value={name} onChange={e => setName(e.target.value)}
+                placeholder="Prénom (optionnel)"
+                className="w-full rounded-xl px-4 py-3 text-sm outline-none"
+                style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.12)", color: "#F8FAFC" }} />
+              <input type="email" value={email} onChange={e => setEmail(e.target.value)}
+                placeholder="Votre adresse email *" required
+                className="w-full rounded-xl px-4 py-3 text-sm outline-none"
+                style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.12)", color: "#F8FAFC" }} />
+              <button type="submit" disabled={loading || !email}
+                className="w-full py-3 rounded-xl text-sm font-bold text-white transition-opacity"
+                style={{ background: "linear-gradient(135deg, #059669, #0891b2)", opacity: loading || !email ? 0.6 : 1 }}>
+                {loading ? "⏳ Envoi…" : "Recevoir mon analyse →"}
+              </button>
+            </form>
+            <p className="text-[10px] text-center mt-3" style={{ color: "rgba(248,250,252,0.25)" }}>
+              Aucun spam · Désinscription en 1 clic
+            </p>
+            <button onClick={onClose} className="mt-3 w-full text-sm py-1"
+              style={{ color: "rgba(248,250,252,0.35)" }}>
+              Continuer sans email
+            </button>
+          </>
+        ) : (
+          <div className="text-center py-6">
+            <div className="text-4xl mb-3">✅</div>
+            <h2 className="text-base font-bold mb-2" style={{ color: "rgba(248,250,252,0.95)" }}>
+              Analyse enregistrée !
+            </h2>
+            <p className="text-sm mb-5" style={{ color: "rgba(248,250,252,0.5)" }}>
+              Vous recevrez vos résultats et conseils primo-accédant sous peu.
+            </p>
+            <div className="rounded-xl p-3 mb-4 text-left" style={{ background: "rgba(5,150,105,0.1)", border: "1px solid rgba(5,150,105,0.25)" }}>
+              <p className="text-[10px] font-bold mb-2" style={{ color: "rgba(52,211,153,0.9)" }}>📬 Ce que vous allez recevoir :</p>
+              {[
+                { j: "J+0",  txt: "Récap de votre simulation RP" },
+                { j: "J+1",  txt: "Guide : PTZ, DPE et pièges à éviter" },
+                { j: "J+3",  txt: "Comparatif meilleurs taux immobiliers" },
+              ].map(({ j, txt }) => (
+                <div key={j} className="flex items-center gap-2 mb-1">
+                  <span className="text-[9px] font-bold px-1.5 py-0.5 rounded" style={{ background: "rgba(5,150,105,0.3)", color: "#34D399" }}>{j}</span>
+                  <p className="text-[10px]" style={{ color: "rgba(248,250,252,0.55)" }}>{txt}</p>
+                </div>
+              ))}
+            </div>
+            <button onClick={onClose} className="w-full py-2.5 rounded-xl text-sm font-semibold"
+              style={{ border: "1px solid rgba(255,255,255,0.15)", color: "rgba(248,250,252,0.7)", background: "rgba(255,255,255,0.06)" }}>
+              Fermer
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export default function ResidencePrincipalePage() {
   const router = useRouter();
   const [activeTool, setActiveTool] = useState("louer");
+  const [showLead, setShowLead] = useState(false);
 
   const tool = TOOLS.find(t => t.id === activeTool);
 
@@ -994,11 +1102,38 @@ export default function ResidencePrincipalePage() {
           {activeTool === "visite" && <ChecklistVisite />}
         </Card>
 
+        {/* CTA Lead Capture RP */}
+        <div style={{
+          marginTop: 16, borderRadius: 20, overflow: "hidden",
+          background: "linear-gradient(135deg, #064E3B 0%, #059669 60%, #0891b2 100%)",
+        }}>
+          <div style={{ padding: "20px", textAlign: "center" }}>
+            <p style={{ fontSize: 24, marginBottom: 8 }}>📋</p>
+            <h3 style={{ color: "white", fontWeight: 800, fontSize: 14, marginBottom: 4 }}>
+              Recevez votre analyse primo-accédant
+            </h3>
+            <p style={{ color: "rgba(255,255,255,0.65)", fontSize: 11, marginBottom: 16 }}>
+              Récap PTZ, DPE, simulation louer vs acheter · Conseils personnalisés · Gratuit
+            </p>
+            <button onClick={() => setShowLead(true)}
+              style={{
+                width: "100%", background: "white", color: "#059669",
+                fontWeight: 800, fontSize: 13, padding: "12px 20px",
+                borderRadius: 12, border: "none", cursor: "pointer",
+              }}>
+              Recevoir mon analyse gratuitement →
+            </button>
+            <p style={{ color: "rgba(255,255,255,0.4)", fontSize: 10, marginTop: 8 }}>
+              Aucun spam · 0 engagement
+            </p>
+          </div>
+        </div>
+
         {/* Lien vers cycle LMNP */}
         <div
           onClick={() => router.push("/lmnp")}
           style={{
-            marginTop: 16, padding: "16px", borderRadius: 16,
+            marginTop: 12, padding: "16px", borderRadius: 16,
             background: "linear-gradient(135deg, #0F172A, #1e3a5f)",
             cursor: "pointer", display: "flex", alignItems: "center", gap: 12,
           }}>
@@ -1012,6 +1147,9 @@ export default function ResidencePrincipalePage() {
           <span style={{ color: "#93C5FD", fontSize: 18 }}>→</span>
         </div>
       </main>
+
+      {/* Modal lead capture */}
+      {showLead && <LeadModalRP onClose={() => setShowLead(false)} />}
     </div>
   );
 }

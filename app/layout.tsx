@@ -11,6 +11,10 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   title: "ImmoPilote — Simulateur LMNP & Résidence Principale",
   description: "Votre copilote pour l'achat immobilier. Simulateur LMNP (4 régimes fiscaux, dossier bancaire), achat résidence principale (PTZ, DPE, DVF, louer vs acheter). 100 % gratuit.",
+  icons: {
+    icon: "/favicon.svg",
+    shortcut: "/favicon.svg",
+  },
   openGraph: {
     title: "ImmoPilote — Simulateur immobilier gratuit",
     description: "Simulez votre investissement LMNP ou votre achat de résidence principale en 2 minutes. PTZ, DPE, DVF, 4 régimes fiscaux.",

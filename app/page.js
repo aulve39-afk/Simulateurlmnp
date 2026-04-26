@@ -1,7 +1,6 @@
-import { redirect } from "next/navigation";
-
-// La page d'accueil est servie par /public/immopilote.html via next.config.ts rewrite.
-// Ce fallback redirige au cas où le rewrite ne s'applique pas.
+// La page d'accueil est servie directement par /public/immopilote.html
+// via le rewrite beforeFiles dans next.config.ts.
+// Ce fichier ne doit jamais être rendu — le rewrite prend la priorité.
 export default function Home() {
-  redirect("/immopilote.html");
+  return null;
 }

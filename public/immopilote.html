@@ -3,7 +3,29 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>ImmoPilote — Votre copilote pour l'achat immobilier</title>
+<title>ImmoPilote — Simulateur LMNP & Résidence Principale gratuit</title>
+
+<!-- SEO -->
+<meta name="description" content="ImmoPilote : simulateur LMNP gratuit (4 régimes fiscaux, amortissements, TRI) et outils primo-accédant. Analysez votre investissement immobilier en 2 minutes."/>
+<meta name="robots" content="index, follow"/>
+<link rel="canonical" href="https://simulateur-lmnp-v2.vercel.app/"/>
+
+<!-- Open Graph -->
+<meta property="og:type" content="website"/>
+<meta property="og:url" content="https://simulateur-lmnp-v2.vercel.app/"/>
+<meta property="og:title" content="ImmoPilote — Simulateur LMNP & Résidence Principale gratuit"/>
+<meta property="og:description" content="Comparez les 4 régimes fiscaux LMNP, calculez votre TRI et cash-flow en 2 minutes. Outils gratuits pour investisseurs et primo-accédants."/>
+<meta property="og:site_name" content="ImmoPilote"/>
+<meta property="og:locale" content="fr_FR"/>
+
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:title" content="ImmoPilote — Simulateur LMNP gratuit"/>
+<meta name="twitter:description" content="TRI, cash-flow, 4 régimes fiscaux comparés. Analysez votre investissement LMNP en 2 minutes."/>
+
+<!-- Favicon -->
+<link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
+
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
 <style>
@@ -404,7 +426,7 @@ footer{background:var(--dark);padding:60px 24px 32px;border-top:1px solid rgba(2
     <a href="#comment" class="nav-link">Comment ça marche</a>
     <a href="#simulateurs" class="nav-link">Simulateurs</a>
     <a href="#avis" class="nav-link">Avis</a>
-    <a href="#contact" class="nav-cta">Commencer →</a>
+    <a href="#contact-form" class="nav-cta">Commencer →</a>
   </div>
 </nav>
 
@@ -714,15 +736,45 @@ footer{background:var(--dark);padding:60px 24px 32px;border-top:1px solid rgba(2
     <h2 class="cta-title">Prêt à acheter<br/><span class="gradient-text">avec toutes les clés ?</span></h2>
     <p class="cta-sub">Rejoignez des milliers d'acheteurs qui ont simulé, compris et décidé avec ImmoPilote.</p>
     <div class="cta-input-row">
-      <input class="cta-input" type="email" placeholder="Votre adresse email"/>
-      <button class="cta-btn">Commencer maintenant →</button>
+      <input id="cta-email-input" class="cta-input" type="email" placeholder="Votre adresse email"/>
+      <button class="cta-btn" onclick="ctaStart()">Commencer maintenant →</button>
     </div>
+    <p id="cta-confirm" style="display:none;color:#A78BFA;font-size:13px;margin-bottom:12px;">✅ Email enregistré — on vous prépare votre analyse !</p>
     <div class="cta-trust">
       <span class="trust-item"><span class="trust-icon">🔒</span> 100 % sécurisé</span>
       <span class="trust-item"><span class="trust-icon">📧</span> Pas de spam</span>
       <span class="trust-item"><span class="trust-icon">✓</span> Résultats immédiats</span>
       <span class="trust-item"><span class="trust-icon">🎁</span> Entièrement gratuit</span>
     </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact-form" style="background:#0D0D1F;padding:64px 24px;border-top:1px solid rgba(255,255,255,0.06)">
+  <div style="max-width:560px;margin:0 auto;text-align:center">
+    <div style="display:inline-flex;align-items:center;gap:8px;background:rgba(124,58,237,0.15);border:1px solid rgba(124,58,237,0.3);border-radius:999px;padding:6px 16px;margin-bottom:20px">
+      <span style="font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#A78BFA">Contact</span>
+    </div>
+    <h2 style="font-size:clamp(24px,5vw,36px);font-weight:800;color:white;margin-bottom:12px">Une question ? Écrivez-nous</h2>
+    <p style="color:rgba(255,255,255,0.45);font-size:15px;margin-bottom:36px">Partenariat, suggestion, problème technique — on répond sous 24h.</p>
+    <form id="contact-form-el" style="display:flex;flex-direction:column;gap:14px;text-align:left"
+      onsubmit="submitContact(event)">
+      <input type="text" id="cf-name" placeholder="Votre prénom" required
+        style="width:100%;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);border-radius:14px;padding:14px 18px;color:white;font-size:14px;outline:none;font-family:inherit"
+        onfocus="this.style.borderColor='rgba(124,58,237,0.5)'" onblur="this.style.borderColor='rgba(255,255,255,0.12)'"/>
+      <input type="email" id="cf-email" placeholder="Votre email *" required
+        style="width:100%;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);border-radius:14px;padding:14px 18px;color:white;font-size:14px;outline:none;font-family:inherit"
+        onfocus="this.style.borderColor='rgba(124,58,237,0.5)'" onblur="this.style.borderColor='rgba(255,255,255,0.12)'"/>
+      <textarea id="cf-message" placeholder="Votre message *" required rows="4"
+        style="width:100%;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);border-radius:14px;padding:14px 18px;color:white;font-size:14px;outline:none;resize:vertical;font-family:inherit"
+        onfocus="this.style.borderColor='rgba(124,58,237,0.5)'" onblur="this.style.borderColor='rgba(255,255,255,0.12)'"></textarea>
+      <button type="submit" id="cf-btn"
+        style="width:100%;background:linear-gradient(135deg,#7C3AED,#2563EB);color:white;font-weight:700;font-size:15px;padding:16px;border:none;border-radius:14px;cursor:pointer;font-family:inherit;transition:opacity 0.2s">
+        Envoyer le message →
+      </button>
+      <p id="cf-ok" style="display:none;text-align:center;color:#34D399;font-size:13px;font-weight:600">✅ Message envoyé ! On vous répond sous 24h.</p>
+      <p id="cf-err" style="display:none;text-align:center;color:#F87171;font-size:13px">❌ Erreur d'envoi. Écrivez-nous directement à <a href="mailto:aulve39@gmail.com" style="color:#A78BFA">aulve39@gmail.com</a></p>
+    </form>
   </div>
 </section>
 
@@ -844,6 +896,59 @@ const counterObs = new IntersectionObserver(entries => {
 }, { threshold: 0.3 });
 const numSection = document.querySelector('.numbers-inner');
 if (numSection) counterObs.observe(numSection);
+
+/* ── CTA email → redirect vers simulateur ── */
+function ctaStart() {
+  const email = document.getElementById('cta-email-input').value.trim();
+  if (!email || !email.includes('@')) {
+    document.getElementById('cta-email-input').focus();
+    return;
+  }
+  try { localStorage.setItem('immopilote_email', email); } catch(e) {}
+  document.getElementById('cta-confirm').style.display = 'block';
+  setTimeout(() => { window.location.href = '/lmnp'; }, 900);
+}
+document.getElementById('cta-email-input')?.addEventListener('keydown', e => {
+  if (e.key === 'Enter') ctaStart();
+});
+
+/* ── Formulaire de contact ── */
+async function submitContact(e) {
+  e.preventDefault();
+  const btn = document.getElementById('cf-btn');
+  const ok  = document.getElementById('cf-ok');
+  const err = document.getElementById('cf-err');
+  const name    = document.getElementById('cf-name').value.trim();
+  const email   = document.getElementById('cf-email').value.trim();
+  const message = document.getElementById('cf-message').value.trim();
+
+  btn.textContent = 'Envoi en cours…';
+  btn.style.opacity = '0.7';
+  btn.disabled = true;
+  ok.style.display = 'none';
+  err.style.display = 'none';
+
+  try {
+    const res = await fetch('https://formsubmit.co/ajax/aulve39@gmail.com', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify({ name, email, message, _subject: 'ImmoPilote — Message de contact' }),
+    });
+    const data = await res.json();
+    if (data.success === 'true' || data.success === true) {
+      ok.style.display = 'block';
+      document.getElementById('contact-form-el').reset();
+    } else {
+      err.style.display = 'block';
+    }
+  } catch (_) {
+    err.style.display = 'block';
+  } finally {
+    btn.textContent = 'Envoyer le message →';
+    btn.style.opacity = '1';
+    btn.disabled = false;
+  }
+}
 </script>
 </body>
 </html>
