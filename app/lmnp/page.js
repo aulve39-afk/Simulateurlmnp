@@ -1958,92 +1958,129 @@ function AlerteLF2026() {
 function AffiliationContextuelle({ results, form }) {
   const best = results?.[0];
   const tri  = best?.tri ?? 0;
-  const ratioEndt = +(best?.ratioEndt ?? 0);
   const capital   = form.prix + form.travaux + form.prix*(form.notaire/100) - form.apport;
   const tm        = form.interet/100/12;
   const n         = form.dureeCredit * 12;
   const mens      = capital > 0 && tm > 0
     ? Math.round((capital * tm) / (1 - Math.pow(1+tm, -n))) : 0;
 
-  // Sélectionner le message selon le profil
-  const showCourtier = tri >= 4;
+  const showCourtier  = tri >= 3;
   const showComptable = (form.travaux || 0) >= 15000;
   const triIsGreat    = tri >= 6;
+  const economie04    = mens ? Math.round(mens * 0.04) : null;
+
+  // Courtiers partenaires
+  const COURTIERS = [
+    {
+      name: "Pretto",
+      emoji: "🟣",
+      tag: "100% digital",
+      desc: "Simulation en 2 min, offre en 48h",
+      badge: triIsGreat ? "Recommandé" : null,
+      url: `https://www.pretto.fr?utm_source=simulateur-lmnp&utm_medium=affiliation&utm_content=tri-${tri}`,
+      color: "#7C3AED",
+    },
+    {
+      name: "MeilleurTaux",
+      emoji: "🔵",
+      tag: "Leader du marché",
+      desc: "200+ banques comparées",
+      badge: null,
+      url: `https://www.meilleurtaux.com?utm_source=simulateur-lmnp&utm_medium=affiliation`,
+      color: "#2563EB",
+    },
+    {
+      name: "CAFPI",
+      emoji: "🟢",
+      tag: "Spécialiste investisseurs",
+      desc: "Expertise locatif & LMNP",
+      badge: "Expert LMNP",
+      url: `https://www.cafpi.fr?utm_source=simulateur-lmnp&utm_medium=affiliation`,
+      color: "#059669",
+    },
+  ];
 
   if (!showCourtier && !showComptable) return null;
 
   return (
     <div className="space-y-3">
-      {/* CTA Courtier — contextuel TRI */}
+
+      {/* ── Bloc courtiers enrichi ── */}
       {showCourtier && (
-        <div className={`rounded-2xl p-4 border ${triIsGreat
-          ? "border-emerald-200 bg-emerald-50"
-          : "border-amber-200 bg-amber-50"}`}>
-          <div className="flex items-start gap-3">
-            <span className="text-2xl">{triIsGreat ? "🚀" : "⚡"}</span>
-            <div className="flex-1">
-              {triIsGreat ? (
-                <>
-                  <p className="text-sm font-bold text-emerald-800 mb-0.5">
-                    Ce projet est finançable — TRI {tri}%
-                  </p>
-                  <p className="text-xs text-emerald-700 mb-3">
-                    Avec un TRI de {tri}%, votre projet est solide. Un courtier peut vous obtenir un meilleur taux
-                    que les <strong>{form.interet}%</strong> actuellement simulés et améliorer encore votre cash-flow.
-                  </p>
-                </>
-              ) : (
-                <>
-                  <p className="text-sm font-bold text-amber-800 mb-0.5">
-                    Votre projet peut être optimisé — TRI {tri}%
-                  </p>
-                  <p className="text-xs text-amber-700 mb-3">
-                    Un courtier peut restructurer votre financement (taux, durée, différé) pour améliorer le cash-flow
-                    et passer votre TRI au-dessus de 6%.
-                  </p>
-                </>
-              )}
-              <div className="flex flex-wrap gap-2">
-                <a href={`https://www.pretto.fr?utm_source=simulateur-lmnp&utm_medium=cta-contextuel&utm_content=tri-${tri}`}
-                  target="_blank" rel="noopener noreferrer"
-                  className={`inline-flex items-center gap-1.5 text-white text-xs font-bold px-4 py-2 rounded-xl transition-colors ${
-                    triIsGreat
-                      ? "bg-emerald-600 hover:bg-emerald-700"
-                      : "bg-amber-600 hover:bg-amber-700"}`}>
-                  🏦 Comparer les offres de prêt →
-                </a>
-                <a href={`https://www.meilleurtaux.com?utm_source=simulateur-lmnp&utm_medium=cta-contextuel`}
-                  target="_blank" rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 bg-white border border-slate-200 text-slate-700 text-xs font-semibold px-3 py-2 rounded-xl hover:bg-slate-50 transition-colors">
-                  MeilleurTaux
-                </a>
-              </div>
-              <p className="text-[9px] text-slate-400 mt-2">Liens partenaires · Comparaison gratuite sans engagement</p>
+        <div className="rounded-2xl overflow-hidden" style={{ background:"rgba(255,255,255,0.05)", border:"1px solid rgba(124,58,237,0.25)" }}>
+          {/* Header contextuel */}
+          <div className="px-4 pt-4 pb-3">
+            <div className="flex items-center gap-2 mb-1">
+              <span className="text-xl">{triIsGreat ? "🚀" : "⚡"}</span>
+              <p className="text-sm font-bold" style={{ color:"rgba(248,250,252,0.95)" }}>
+                {triIsGreat
+                  ? `TRI ${tri}% — votre projet est finançable`
+                  : `TRI ${tri}% — optimisez votre financement`}
+              </p>
             </div>
+            <p className="text-xs leading-relaxed" style={{ color:"rgba(248,250,252,0.55)" }}>
+              {triIsGreat
+                ? `Avec ${form.interet}%, un courtier peut vous faire économiser${economie04 ? ` ~${economie04} €/mois` : " sur votre mensualité"} et booster encore votre TRI.`
+                : `Un courtier peut renégocier le taux, allonger la durée ou obtenir un différé pour améliorer votre cash-flow.`}
+            </p>
+          </div>
+
+          {/* Grille 3 courtiers */}
+          <div className="px-4 pb-4 space-y-2">
+            {COURTIERS.map(c => (
+              <a key={c.name}
+                href={c.url}
+                target="_blank" rel="noopener noreferrer"
+                className="flex items-center justify-between rounded-xl px-3 py-2.5 transition-all active:scale-98"
+                style={{ background:"rgba(255,255,255,0.06)", border:`1px solid rgba(255,255,255,0.08)` }}>
+                <div className="flex items-center gap-2.5">
+                  <span className="text-base">{c.emoji}</span>
+                  <div>
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-sm font-bold" style={{ color:"rgba(248,250,252,0.9)" }}>{c.name}</span>
+                      {c.badge && (
+                        <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full" style={{ background:`${c.color}25`, color:c.color }}>
+                          {c.badge}
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-[10px]" style={{ color:"rgba(248,250,252,0.4)" }}>{c.tag} · {c.desc}</p>
+                  </div>
+                </div>
+                <span className="text-xs font-bold shrink-0" style={{ color:c.color }}>Comparer →</span>
+              </a>
+            ))}
+          </div>
+
+          <div className="px-4 pb-3">
+            <p className="text-[9px] text-center" style={{ color:"rgba(248,250,252,0.25)" }}>
+              Liens partenaires · Comparaison 100% gratuite · Sans engagement
+            </p>
           </div>
         </div>
       )}
 
-      {/* CTA Comptable — contextuel travaux */}
+      {/* ── CTA Comptable — contextuel travaux ── */}
       {showComptable && (
-        <div className="rounded-2xl p-4 border border-blue-200 bg-blue-50">
+        <div className="rounded-2xl p-4" style={{ background:"rgba(124,58,237,0.08)", border:"1px solid rgba(124,58,237,0.2)" }}>
           <div className="flex items-start gap-3">
             <span className="text-2xl">🧮</span>
             <div className="flex-1">
-              <p className="text-sm font-bold text-blue-800 mb-0.5">
+              <p className="text-sm font-bold mb-0.5" style={{ color:"rgba(248,250,252,0.95)" }}>
                 {fmtK(form.travaux)} de travaux — maximisez vos amortissements
               </p>
-              <p className="text-xs text-blue-700 mb-3">
-                Avec ce volume de travaux, un expert-comptable spécialisé LMNP peut optimiser la ventilation
-                par composants et potentiellement <strong>augmenter votre déduction annuelle</strong>.
+              <p className="text-xs mb-3 leading-relaxed" style={{ color:"rgba(248,250,252,0.55)" }}>
+                Avec ce volume, un expert-comptable LMNP peut optimiser la ventilation par composants et
+                potentiellement <strong style={{ color:"#A78BFA" }}>augmenter vos déductions annuelles</strong>.
                 Premier mois souvent offert.
               </p>
               <a href="https://www.compta-lmnp.fr?utm_source=simulateur-lmnp&utm_medium=cta-travaux"
                 target="_blank" rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 bg-blue-600 text-white text-xs font-bold px-4 py-2 rounded-xl hover:bg-blue-700 transition-colors">
+                className="inline-flex items-center gap-1.5 text-white text-xs font-bold px-4 py-2 rounded-xl"
+                style={{ background:"linear-gradient(135deg, #7C3AED, #2563EB)" }}>
                 🧾 Trouver un comptable LMNP →
               </a>
-              <p className="text-[9px] text-slate-400 mt-2">Lien partenaire · Sans engagement</p>
+              <p className="text-[9px] mt-2" style={{ color:"rgba(248,250,252,0.25)" }}>Lien partenaire · Sans engagement</p>
             </div>
           </div>
         </div>
@@ -2512,7 +2549,7 @@ function StepResultats({ form, results, comparaison, amort, onLead, onArgumentai
       {/* Argumentaire vendeur */}
       <button onClick={onArgumentaire}
         className="w-full flex items-center justify-center gap-2 rounded-2xl py-3.5 px-4 text-sm font-bold text-white transition-all active:scale-95"
-        style={{ background:"linear-gradient(135deg,#1E3A5F,#185FA5)" }}>
+        style={{ background:"linear-gradient(135deg, #4C1D95, #7C3AED)" }}>
         📝 Générer l'argumentaire vendeur
         <span className="text-blue-300 text-xs font-normal">CGI Art. 39 C · Négociation bancaire</span>
       </button>
@@ -2527,7 +2564,7 @@ function StepResultats({ form, results, comparaison, amort, onLead, onArgumentai
 
       {/* CTA Lead Capture */}
       <div className="rounded-2xl overflow-hidden"
-        style={{ background:"linear-gradient(135deg, #0F172A 0%, #185FA5 100%)" }}>
+        style={{ background:"linear-gradient(135deg, #1a0533 0%, #4C1D95 60%, #7C3AED 100%)" }}>
         <div className="p-6 text-center">
           <p className="text-2xl mb-2">📄</p>
           <h3 className="text-white font-bold text-base mb-1">Rapport fiscal complet</h3>
@@ -2942,7 +2979,7 @@ function LeadModal({ onClose, form, results }) {
                 required className="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-blue-400 bg-slate-50" />
               <button type="submit" disabled={loading || !email}
                 className="w-full py-3 rounded-xl text-sm font-bold text-white transition-opacity"
-                style={{ background:"linear-gradient(135deg, #0F172A, #185FA5)", opacity: loading||!email ? 0.6 : 1 }}>
+                style={{ background:"linear-gradient(135deg, #7C3AED, #2563EB)", opacity: loading||!email ? 0.6 : 1 }}>
                 {loading ? "⏳ Génération en cours…" : "Recevoir mon rapport gratuit →"}
               </button>
             </form>
@@ -2971,6 +3008,28 @@ function LeadModal({ onClose, form, results }) {
               style={{ background:"linear-gradient(135deg, #7C3AED, #2563EB)" }}>
               ⬇ Télécharger le rapport (.html)
             </button>
+
+            {/* Timeline email séquence */}
+            {emailOk && (
+              <div className="text-left mb-3 rounded-xl p-3 mt-1" style={{ background:"rgba(124,58,237,0.10)", border:"1px solid rgba(124,58,237,0.2)" }}>
+                <p className="text-[10px] font-bold mb-2" style={{ color:"rgba(167,139,250,0.9)" }}>📬 Ce que vous allez recevoir :</p>
+                <div className="space-y-2">
+                  {[
+                    { j:"Maintenant", icon:"📊", txt:"Votre rapport fiscal complet (4 régimes comparés)" },
+                    { j:"J+1",        icon:"💡", txt:"3 astuces pour améliorer votre TRI" },
+                    { j:"J+3",        icon:"🏦", txt:"Offres de financement via nos courtiers partenaires" },
+                    { j:"J+7",        icon:"📈", txt:"Alerte : opportunités LMNP dans votre zone" },
+                  ].map(({ j, icon, txt }) => (
+                    <div key={j} className="flex items-start gap-2">
+                      <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-md shrink-0 mt-0.5" style={{ background:"rgba(124,58,237,0.25)", color:"#A78BFA" }}>{j}</span>
+                      <p className="text-[10px]" style={{ color:"rgba(248,250,252,0.65)" }}>{icon} {txt}</p>
+                    </div>
+                  ))}
+                </div>
+                <p className="text-[9px] mt-2" style={{ color:"rgba(248,250,252,0.3)" }}>Désabonnement en 1 clic · Aucun spam</p>
+              </div>
+            )}
+
             <button onClick={onClose} className="w-full py-2.5 rounded-xl text-sm font-semibold" style={{ border:"1px solid rgba(255,255,255,0.15)", color:"rgba(248,250,252,0.7)", background:"rgba(255,255,255,0.06)" }}>
               Fermer
             </button>
@@ -3316,7 +3375,7 @@ export default function App() {
   return (
     <div className="min-h-screen" style={{ background:"#07071A" }}>
       {/* ── HEADER ── */}
-      <header style={{ background:"linear-gradient(135deg, #0F172A 0%, #185FA5 100%)" }}
+      <header style={{ background:"linear-gradient(135deg, #1a0533 0%, #4C1D95 60%, #7C3AED 100%)" }}
         className="sticky top-0 z-40">
         <div className="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-2">
