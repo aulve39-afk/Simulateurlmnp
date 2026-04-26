@@ -1210,6 +1210,98 @@ function VeilleFiscale() {
 }
 
 /* ════════════════════════════════════════
+   WIDGET DVF (prix marché via API officielle)
+════════════════════════════════════════ */
+function DVFWidget({ adresse, prixSaisi, surface }) {
+  const [dvf, setDvf]         = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError]     = useState(null);
+
+  const query = adresse?.trim();
+  if (!query) return null;
+
+  const prixM2Saisi = surface > 0 ? Math.round(prixSaisi / surface) : 0;
+  const ecart = dvf?.medianPrixM2 ? Math.round(((prixM2Saisi - dvf.medianPrixM2) / dvf.medianPrixM2) * 100) : null;
+
+  const check = async () => {
+    setLoading(true);
+    setError(null);
+    setDvf(null);
+    try {
+      const res = await fetch(`/api/dvf?q=${encodeURIComponent(query)}`);
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error ?? "Erreur DVF");
+      setDvf(json);
+    } catch (e) {
+      setError(e.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="mt-2 rounded-xl border border-blue-100 bg-blue-50 p-3">
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-xs font-semibold text-blue-700">📊 Vérifier le prix du marché (DVF)</p>
+          <p className="text-[10px] text-blue-500 mt-0.5">Transactions réelles — Ministère de l&apos;Économie / data.gouv.fr</p>
+        </div>
+        <button onClick={check} disabled={loading}
+          className="text-xs font-bold px-3 py-1.5 rounded-lg transition-all"
+          style={{ background: loading ? "#CBD5E1" : "#1D4ED8", color: "white", border: "none", cursor: loading ? "not-allowed" : "pointer" }}>
+          {loading ? "⏳ Chargement…" : "Comparer"}
+        </button>
+      </div>
+
+      {error && (
+        <p className="mt-2 text-[10px] text-red-600 bg-red-50 rounded-lg px-2 py-1.5">{error}</p>
+      )}
+
+      {dvf && (
+        <div className="mt-3 space-y-2">
+          <div className="flex items-center gap-2">
+            <span className="text-[10px] font-semibold text-blue-700 uppercase tracking-wide">{dvf.commune}</span>
+            <span className="text-[9px] text-blue-400">· {dvf.nbTransactions} ventes · 2 dernières années</span>
+          </div>
+
+          {/* Comparaison prix */}
+          <div className="grid grid-cols-3 gap-2">
+            {[
+              { label:"Q1 (bas)", val: dvf.q1, col:"#059669" },
+              { label:"Médiane", val: dvf.medianPrixM2, col:"#1D4ED8" },
+              { label:"Q3 (haut)", val: dvf.q3, col:"#DC2626" },
+            ].map(({ label, val, col }) => (
+              <div key={label} className="rounded-lg bg-white border border-blue-100 px-2 py-1.5 text-center">
+                <p className="text-[9px] text-slate-500">{label}</p>
+                <p className="text-sm font-bold" style={{ color: col }}>{val?.toLocaleString("fr-FR")} €/m²</p>
+              </div>
+            ))}
+          </div>
+
+          {/* Prix saisi vs marché */}
+          {prixM2Saisi > 0 && ecart !== null && (
+            <div className={`rounded-lg px-3 py-2 text-xs font-semibold ${
+              Math.abs(ecart) <= 5 ? "bg-green-50 text-green-700 border border-green-200"
+              : ecart > 5 ? "bg-amber-50 text-amber-700 border border-amber-200"
+              : "bg-blue-50 text-blue-700 border border-blue-200"
+            }`}>
+              {ecart > 5
+                ? `⚠️ Votre prix (${prixM2Saisi.toLocaleString("fr-FR")} €/m²) est ${ecart} % au-dessus de la médiane du marché. Marge de négociation possible.`
+                : ecart < -5
+                ? `✅ Votre prix (${prixM2Saisi.toLocaleString("fr-FR")} €/m²) est ${Math.abs(ecart)} % sous la médiane — bonne affaire potentielle.`
+                : `✅ Votre prix (${prixM2Saisi.toLocaleString("fr-FR")} €/m²) est dans la fourchette du marché (±5 % de la médiane).`
+              }
+            </div>
+          )}
+
+          <p className="text-[9px] text-blue-400">Source : {dvf.source}</p>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ════════════════════════════════════════
    STEPS
 ════════════════════════════════════════ */
 
@@ -1332,6 +1424,8 @@ function StepProjet({ form, set }) {
           help={LEXIQUE["DPE"]} />
         <InputField label="Adresse (optionnel)" value={form.adresse} onChange={set("adresse")}
           help="Pour les données DVF de marché" />
+        {/* Widget DVF inline */}
+        <DVFWidget adresse={form.adresse} prixSaisi={form.prix} surface={form.surface} />
       </Card>
 
       <Card>

@@ -481,32 +481,83 @@ const PTZ_ZONES = {
 const QUOTITE_PTZ = { "A bis": 0.50, "A": 0.50, "B1": 0.40, "B2": 0.40, "C": 0.20 };
 
 function CalculateurPTZ() {
-  const [zone, setZone]       = useState("B1");
-  const [nbPersonnes, setNb]  = useState(2);
-  const [revenus, setRevenus] = useState(45000); // revenu fiscal n-2
-  const [prixAchat, setPrix]  = useState(250000);
-  const [neuf, setNeuf]       = useState(true);
+  const [zone, setZone]         = useState("B1");
+  const [nbPersonnes, setNb]    = useState(2);
+  const [revenus, setRevenus]   = useState(45000); // revenu fiscal n-2
+  const [prixAchat, setPrix]    = useState(250000);
+  const [neuf, setNeuf]         = useState(true);  // neuf ou ancien avec travaux
+  const [travaux, setTravaux]   = useState(60000); // travaux si ancien (condition 25%)
 
   const result = useMemo(() => {
     const plafond = PTZ_ZONES[zone]?.plafonds[Math.min(nbPersonnes - 1, 7)] ?? 0;
-    const eligible = revenus <= plafond;
+
+    // Eligibilité neuf/ancien : ancien PTZ disponible seulement en B2/C si travaux ≥ 25% coût total
+    const pctTravaux = prixAchat > 0 ? travaux / (prixAchat + travaux) : 0;
+    const eligibleType = neuf
+      ? true
+      : (zone === "B2" || zone === "C") && pctTravaux >= 0.25;
+
+    const eligibleRevenus = revenus <= plafond;
+    const eligible = eligibleRevenus && eligibleType;
+
     const quotite = QUOTITE_PTZ[zone] ?? 0;
-    const montantPTZ = eligible ? Math.round(prixAchat * quotite) : 0;
-    const maxPTZ = {
-      "A bis": 150000, "A": 150000, "B1": 110000, "B2": 88000, "C": 50000,
-    }[zone] ?? 0;
-    const ptzFinal = Math.min(montantPTZ, maxPTZ);
+
+    // Plafonds de coût d'opération par zone et nb de personnes (art. D. 31-10-9 CCH)
+    const plafondsCout = {
+      "A bis": [150000, 210000, 255000, 300000, 345000, 345000, 345000, 345000],
+      "A":     [150000, 210000, 255000, 300000, 345000, 345000, 345000, 345000],
+      "B1":    [135000, 189000, 230000, 270000, 311000, 311000, 311000, 311000],
+      "B2":    [110000, 154000, 187000, 220000, 253000, 253000, 253000, 253000],
+      "C":     [100000, 140000, 170000, 200000, 230000, 230000, 230000, 230000],
+    };
+    const plafondCout = plafondsCout[zone]?.[Math.min(nbPersonnes - 1, 7)] ?? 0;
+    const baseCalc    = Math.min(prixAchat, plafondCout);
+    const montantBrut = eligible ? Math.round(baseCalc * quotite) : 0;
+    const ptzFinal    = montantBrut;
     const creditComplementaire = prixAchat - ptzFinal;
-    return { eligible, plafond, quotite, montantPTZ: ptzFinal, creditComplementaire };
-  }, [zone, nbPersonnes, revenus, prixAchat, neuf]);
+
+    // Durée de différé selon tranche de revenus (art. R. 31-10-11)
+    const pctRevenu = plafond > 0 ? revenus / plafond : 1;
+    const differe   = pctRevenu <= 0.50 ? 15 : pctRevenu <= 0.75 ? 10 : 5;  // ans
+    const dureeRemb = 25 - differe; // durée de remboursement effective
+
+    // Raison d'inéligibilité
+    let raisonIneligible = "";
+    if (!eligibleRevenus) raisonIneligible = `Vos revenus (${fmt(revenus)}) dépassent le plafond de ${fmt(plafond)} pour ${nbPersonnes} pers. en zone ${zone}.`;
+    else if (!eligibleType && !neuf) raisonIneligible = `En ancien, le PTZ n'est disponible qu'en zones B2 et C avec des travaux représentant au moins 25 % du coût total. Ici : ${Math.round(pctTravaux * 100)} %.`;
+
+    return {
+      eligible, eligibleRevenus, eligibleType,
+      plafond, plafondCout, quotite,
+      montantPTZ: ptzFinal, creditComplementaire,
+      differe, dureeRemb, pctTravaux,
+      raisonIneligible,
+    };
+  }, [zone, nbPersonnes, revenus, prixAchat, neuf, travaux]);
 
   return (
     <div>
       <SectionBadge icon="🏦" label="Calculateur PTZ" color="#7C3AED" bg="#F5F3FF" />
       <h2 style={{ fontSize: 18, fontWeight: 800, color: "#F8FAFC", marginBottom: 6 }}>Prêt à Taux Zéro 2026</h2>
       <p style={{ fontSize: 13, color: "rgba(248,250,252,0.5)", marginBottom: 20, lineHeight: 1.6 }}>
-        Le PTZ finance jusqu'à 50% de votre achat sans intérêts. Vérifiez votre éligibilité.
+        Le PTZ finance jusqu&apos;à 50&nbsp;% de votre achat sans intérêts. Réservé aux primo-accédants sous conditions de revenus.
       </p>
+
+      {/* Toggle Neuf / Ancien */}
+      <div style={{ display:"flex", gap:8, marginBottom:16 }}>
+        {[["neuf","🏗️ Neuf","Toutes zones éligibles"],["ancien","🏚️ Ancien + travaux","Zones B2 & C · travaux ≥ 25%"]].map(([v,label,sub])=>(
+          <button key={v} onClick={() => setNeuf(v === "neuf")}
+            style={{
+              flex:1, borderRadius:12, padding:"10px 8px", border:"1.5px solid",
+              borderColor: neuf===(v==="neuf") ? "#7C3AED" : "rgba(255,255,255,0.1)",
+              background:  neuf===(v==="neuf") ? "rgba(124,58,237,0.18)" : "rgba(255,255,255,0.04)",
+              cursor:"pointer", textAlign:"center",
+            }}>
+            <div style={{ fontSize:13, fontWeight:700, color: neuf===(v==="neuf") ? "#C4B5FD" : "rgba(248,250,252,0.5)" }}>{label}</div>
+            <div style={{ fontSize:10, color:"rgba(248,250,252,0.3)", marginTop:2 }}>{sub}</div>
+          </button>
+        ))}
+      </div>
 
       <SelectInput
         label="Zone géographique"
@@ -515,62 +566,84 @@ function CalculateurPTZ() {
         options={Object.entries(PTZ_ZONES).map(([v, d]) => ({ v, l: d.label }))}
       />
 
-      <SliderInput label="Nombre de personnes dans le foyer" help="Détermine les plafonds de revenus PTZ. Plus le foyer est grand, plus les plafonds sont élevés — vous pouvez donc avoir des revenus plus importants tout en restant éligible." value={nbPersonnes} onChange={setNb}
+      <SliderInput label="Nombre de personnes dans le foyer" help="Détermine les plafonds de revenus PTZ. Plus le foyer est grand, plus les plafonds sont élevés." value={nbPersonnes} onChange={setNb}
         min={1} max={8} step={1} format={v => `${v} personne${v > 1 ? "s" : ""}`} color="#7C3AED" />
 
-      <SliderInput label="Revenu fiscal de référence (N-2)" help="Revenu net imposable de l'année N-2 (ligne 1BJ de votre avis d'imposition). C'est sur cette base que l'éligibilité PTZ est vérifiée." value={revenus} onChange={setRevenus}
+      <SliderInput label="Revenu fiscal de référence (N-2)" help="Ligne 1BJ de votre avis d'imposition de l'année N-2. C'est sur cette base que l'éligibilité PTZ est vérifiée." value={revenus} onChange={setRevenus}
         min={10000} max={200000} step={1000} color="#7C3AED" />
 
-      <SliderInput label="Prix d'achat du bien" help="Coût total de l'opération = prix FAI + frais de notaire + travaux. C'est sur cette base que le PTZ est calculé (selon les plafonds de coût d'opération par zone)." value={prixAchat} onChange={setPrix}
+      <SliderInput label="Prix total de l'opération" help="Prix FAI + frais de notaire + travaux. Le PTZ est plafonné selon votre zone et composition de foyer." value={prixAchat} onChange={setPrix}
         min={50000} max={800000} step={5000} color="#7C3AED" />
 
-      {/* Plafond de revenus */}
-      <div style={{
-        background: "rgba(124,58,237,0.12)", borderRadius: 12, padding: "12px 14px", marginBottom: 20,
-        display: "flex", justifyContent: "space-between", alignItems: "center",
-      }}>
-        <div>
-          <div style={{ fontSize: 12, color: "#7C3AED", fontWeight: 600 }}>Plafond de revenus zone {zone}</div>
-          <div style={{ fontSize: 11, color: "rgba(248,250,252,0.4)" }}>Pour {nbPersonnes} personne{nbPersonnes > 1 ? "s" : ""}</div>
+      {/* Travaux si ancien */}
+      {!neuf && (
+        <>
+          <SliderInput label="Montant des travaux" help="Les travaux doivent représenter ≥ 25 % du coût total (prix + travaux) pour ouvrir droit au PTZ en ancien." value={travaux} onChange={setTravaux}
+            min={0} max={200000} step={2500} color="#DC2626" />
+          <div style={{ fontSize:11, color: result.pctTravaux >= 0.25 ? "#4ADE80" : "#F87171",
+            background: result.pctTravaux >= 0.25 ? "rgba(74,222,128,0.08)" : "rgba(248,113,113,0.08)",
+            borderRadius:8, padding:"6px 10px", marginBottom:16 }}>
+            {result.pctTravaux >= 0.25
+              ? `✅ Travaux = ${Math.round(result.pctTravaux * 100)} % du coût total — condition PTZ remplie`
+              : `⚠️ Travaux = ${Math.round(result.pctTravaux * 100)} % du coût total — minimum 25 % requis pour le PTZ`}
+          </div>
+        </>
+      )}
+
+      {/* Plafonds info */}
+      <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:8, marginBottom:20 }}>
+        <div style={{ background:"rgba(124,58,237,0.12)", borderRadius:10, padding:"10px 12px" }}>
+          <div style={{ fontSize:10, color:"#A78BFA", fontWeight:600 }}>Plafond revenus zone {zone}</div>
+          <div style={{ fontSize:16, fontWeight:800, color:"#C4B5FD" }}>{fmt(result.plafond)}</div>
+          <div style={{ fontSize:9, color:"rgba(248,250,252,0.4)" }}>pour {nbPersonnes} personne{nbPersonnes>1?"s":""}</div>
         </div>
-        <div style={{ fontSize: 18, fontWeight: 800, color: "#7C3AED" }}>{fmt(result.plafond)}</div>
+        <div style={{ background:"rgba(124,58,237,0.08)", borderRadius:10, padding:"10px 12px" }}>
+          <div style={{ fontSize:10, color:"#A78BFA", fontWeight:600 }}>Plafond coût zone {zone}</div>
+          <div style={{ fontSize:16, fontWeight:800, color:"#C4B5FD" }}>{fmt(result.plafondCout)}</div>
+          <div style={{ fontSize:9, color:"rgba(248,250,252,0.4)" }}>base calcul PTZ</div>
+        </div>
       </div>
 
       {/* Résultat */}
       {result.eligible ? (
-        <div style={{
-          background: "linear-gradient(135deg, #4C1D95, #7C3AED)",
-          borderRadius: 16, padding: "20px", color: "white",
-        }}>
-          <div style={{ fontSize: 11, color: "rgba(255,255,255,0.6)", marginBottom: 4 }}>✅ Vous êtes éligible au PTZ !</div>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginTop: 12 }}>
-            <div style={{ background: "rgba(255,255,255,0.12)", borderRadius: 12, padding: 14 }}>
-              <div style={{ fontSize: 10, color: "rgba(255,255,255,0.6)", marginBottom: 4 }}>Montant PTZ</div>
-              <div style={{ fontSize: 22, fontWeight: 800 }}>{fmt(result.montantPTZ)}</div>
-              <div style={{ fontSize: 10, color: "rgba(255,255,255,0.5)" }}>{(result.quotite * 100).toFixed(0)}% du prix</div>
+        <div style={{ background:"linear-gradient(135deg, #4C1D95, #7C3AED)", borderRadius:16, padding:"20px", color:"white" }}>
+          <div style={{ fontSize:11, color:"rgba(255,255,255,0.7)", marginBottom:8 }}>✅ Vous êtes éligible au PTZ !</div>
+          <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10, marginBottom:12 }}>
+            <div style={{ background:"rgba(255,255,255,0.12)", borderRadius:12, padding:14 }}>
+              <div style={{ fontSize:10, color:"rgba(255,255,255,0.6)", marginBottom:4 }}>Montant PTZ</div>
+              <div style={{ fontSize:22, fontWeight:800 }}>{fmt(result.montantPTZ)}</div>
+              <div style={{ fontSize:10, color:"rgba(255,255,255,0.5)" }}>Quotité {(result.quotite*100).toFixed(0)} % — sans intérêts</div>
             </div>
-            <div style={{ background: "rgba(255,255,255,0.12)", borderRadius: 12, padding: 14 }}>
-              <div style={{ fontSize: 10, color: "rgba(255,255,255,0.6)", marginBottom: 4 }}>Crédit classique restant</div>
-              <div style={{ fontSize: 22, fontWeight: 800 }}>{fmt(result.creditComplementaire)}</div>
-              <div style={{ fontSize: 10, color: "rgba(255,255,255,0.5)" }}>À taux de marché</div>
+            <div style={{ background:"rgba(255,255,255,0.12)", borderRadius:12, padding:14 }}>
+              <div style={{ fontSize:10, color:"rgba(255,255,255,0.6)", marginBottom:4 }}>Crédit classique restant</div>
+              <div style={{ fontSize:22, fontWeight:800 }}>{fmt(result.creditComplementaire)}</div>
+              <div style={{ fontSize:10, color:"rgba(255,255,255,0.5)" }}>À taux de marché (~3.5 %)</div>
             </div>
           </div>
-          <div style={{ fontSize: 11, color: "rgba(255,255,255,0.6)", marginTop: 12, background: "rgba(255,255,255,0.08)", borderRadius: 10, padding: "8px 12px" }}>
-            💡 Le PTZ est remboursé en différé (pas de remboursement pendant les premières années selon revenus).
+          <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10 }}>
+            <div style={{ background:"rgba(255,255,255,0.08)", borderRadius:10, padding:"8px 12px" }}>
+              <div style={{ fontSize:10, color:"rgba(255,255,255,0.5)" }}>Différé remboursement PTZ</div>
+              <div style={{ fontSize:15, fontWeight:700 }}>{result.differe} ans</div>
+            </div>
+            <div style={{ background:"rgba(255,255,255,0.08)", borderRadius:10, padding:"8px 12px" }}>
+              <div style={{ fontSize:10, color:"rgba(255,255,255,0.5)" }}>Durée remboursement</div>
+              <div style={{ fontSize:15, fontWeight:700 }}>{result.dureeRemb} ans</div>
+            </div>
           </div>
+          <p style={{ fontSize:10, color:"rgba(255,255,255,0.45)", marginTop:10 }}>
+            ℹ️ Durée de différé basée sur vos revenus (tranche {Math.round(revenus/result.plafond*100)} % du plafond). Vérifiez les conditions exactes avec votre banque.
+          </p>
         </div>
       ) : (
-        <div style={{
-          background: "rgba(239,68,68,0.15)", border: "1px solid #FECACA",
-          borderRadius: 14, padding: "16px", textAlign: "center",
-        }}>
-          <div style={{ fontSize: 20, marginBottom: 8 }}>❌</div>
-          <div style={{ fontSize: 14, fontWeight: 700, color: "#DC2626", marginBottom: 4 }}>Non éligible au PTZ</div>
-          <div style={{ fontSize: 12, color: "rgba(248,250,252,0.4)" }}>
-            Vos revenus ({fmt(revenus)}) dépassent le plafond de {fmt(result.plafond)} pour votre zone et composition de foyer.
-          </div>
+        <div style={{ background:"rgba(239,68,68,0.12)", border:"1px solid rgba(239,68,68,0.3)", borderRadius:14, padding:"16px" }}>
+          <div style={{ fontSize:20, marginBottom:8, textAlign:"center" }}>❌</div>
+          <div style={{ fontSize:14, fontWeight:700, color:"#F87171", marginBottom:6, textAlign:"center" }}>Non éligible au PTZ</div>
+          <div style={{ fontSize:11, color:"rgba(248,250,252,0.5)", lineHeight:1.6 }}>{result.raisonIneligible}</div>
         </div>
       )}
+      <p style={{ fontSize:9, color:"rgba(248,250,252,0.25)", marginTop:10, lineHeight:1.5 }}>
+        ⚠️ Simulation indicative — LF 2025, art. D.31-10-2 à D.31-10-11 CCH. Confirmez l&apos;éligibilité avec votre établissement bancaire.
+      </p>
     </div>
   );
 }
@@ -591,36 +664,31 @@ function AssistantNegociation() {
   const [error, setError]     = useState(null);
 
   const prixM2 = surface > 0 ? Math.round(prixAffiche / surface) : 0;
-  const dvfPrixM2 = dvfData ? dvfData.prixMoyen : null;
+  const dvfPrixM2 = dvfData ? (dvfData.medianPrixM2 ?? dvfData.prixMoyen) : null;
   const ecart = dvfPrixM2 ? Math.round(((prixM2 - dvfPrixM2) / dvfPrixM2) * 100) : null;
   const negocPossible = ecart !== null && ecart > 3;
 
   const fetchDVF = async () => {
-    if (!codePostal || codePostal.length < 5) return;
+    const q = [codePostal, ville].filter(Boolean).join(" ").trim();
+    if (!q) return;
     setLoading(true);
     setError(null);
     try {
-      const url = `https://api.cquest.org/dvf?code_postal=${codePostal}&nature_mutation=Vente&type_local=Appartement&rows=20`;
-      const resp = await fetch(url);
-      if (!resp.ok) throw new Error("API DVF indisponible");
+      // API route Next.js → BAN géocodage + Etalab DVF officiel
+      const resp = await fetch(`/api/dvf?q=${encodeURIComponent(q)}`);
       const json = await resp.json();
-      const mutations = json.features ?? [];
-      const valid = mutations.filter(f => {
-        const p = f.properties;
-        return p.surface_reelle_bati > 20 && p.valeur_fonciere > 0;
+      if (!resp.ok) throw new Error(json.error ?? "API DVF indisponible");
+      setDvfData({
+        prixMoyen:     json.prixMoyen,
+        medianPrixM2:  json.medianPrixM2,
+        prixMin:       json.q1,
+        prixMax:       json.q3,
+        nbTransactions: json.nbTransactions,
+        recent:        json.recent ?? [],
+        commune:       json.commune,
+        source:        json.source,
+        dateMin:       json.dateMin,
       });
-      if (valid.length === 0) throw new Error("Pas de données pour ce code postal");
-      const prixM2List = valid.map(f => f.properties.valeur_fonciere / f.properties.surface_reelle_bati);
-      const prixMoyen = Math.round(prixM2List.reduce((a, b) => a + b, 0) / prixM2List.length);
-      const prixMin   = Math.round(Math.min(...prixM2List));
-      const prixMax   = Math.round(Math.max(...prixM2List));
-      const recent    = valid.slice(0, 5).map(f => ({
-        date: f.properties.date_mutation?.slice(0, 7) ?? "—",
-        surface: Math.round(f.properties.surface_reelle_bati),
-        prix: Math.round(f.properties.valeur_fonciere),
-        prixM2: Math.round(f.properties.valeur_fonciere / f.properties.surface_reelle_bati),
-      }));
-      setDvfData({ prixMoyen, prixMin, prixMax, nbTransactions: valid.length, recent });
     } catch (e) {
       setError(e.message);
     } finally {
