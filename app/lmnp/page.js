@@ -54,6 +54,7 @@ const STEPS = [
 /* ── Defaults ── */
 const DEFAULTS = {
   typeBien:"Appartement", surface:45, adresse:"", dpe:"C",
+  typeAcquisition:"ancien", // "ancien" ~8% | "neuf" ~2.5%
   prix:180000, notaire:8, travaux:12000, mobilier:6000, terrain:15,
   apport:30000, interet:3.45, dureeCredit:20, differe:0, typeDiffere:"partiel",
   loyer:850, charges:120, taxeFonciere:1200, vacance:5, revalorisation:1.5,
@@ -1338,8 +1339,27 @@ function StepProjet({ form, set }) {
         <SliderField label="Prix d'achat" value={form.prix} onChange={set("prix")}
           min={50000} max={800000} step={5000} format={fmt}
           help="Prix FAI hors frais de notaire" />
+        {/* Toggle Neuf / Ancien → pré-remplit le taux de notaire */}
+        <div className="mb-1">
+          <div className="flex items-center gap-2 mb-2">
+            <span className="text-xs font-medium text-slate-600">Type d&apos;acquisition</span>
+            <div className="flex rounded-lg overflow-hidden border border-slate-200 text-xs font-semibold">
+              {[["ancien","Ancien ~8%","#5B21B6","rgba(91,33,182,0.08)"],["neuf","Neuf ~2.5%","#065F46","rgba(6,95,70,0.08)"]].map(([val,label,col,bg])=>(
+                <button key={val} type="button"
+                  onClick={() => { set("typeAcquisition")(val); set("notaire")(val==="neuf" ? 2.5 : 8); }}
+                  style={form.typeAcquisition===val ? {background:bg, color:col, borderBottom:`2px solid ${col}`} : {background:"#fff",color:"#94a3b8"}}
+                  className="px-3 py-1.5 transition-all">
+                  {label}
+                </button>
+              ))}
+            </div>
+            <span className="text-[10px] text-slate-400">
+              {form.typeAcquisition==="neuf" ? "TVA 20% incluse, droits de mutation réduits" : "Droits de mutation 5,80% + émoluments"}
+            </span>
+          </div>
+        </div>
         <SliderField label="Frais de notaire" value={form.notaire} onChange={set("notaire")}
-          min={2} max={10} step={0.5} format={n=>`${n} %`}
+          min={1} max={10} step={0.5} format={n=>`${n} %`}
           help={LEXIQUE["Frais de notaire"]} />
         <SliderField label="Travaux" value={form.travaux} onChange={set("travaux")}
           min={0} max={100000} step={1000} format={fmtK}
@@ -1529,6 +1549,13 @@ function StepExploitation({ form, set }) {
         <SliderField label="Taux de vacance locative" value={form.vacance} onChange={set("vacance")}
           min={0} max={20} step={0.5} format={n=>`${n} %`}
           help="Temps sans locataire en pourcentage. 5% = ~18 jours/an." color="#F59E0B" />
+        {/* Impact vacance en €/an visible */}
+        {form.vacance > 0 && (
+          <p className="text-[10px] text-amber-600 -mt-1 px-1">
+            ↳ Manque à gagner : <strong>{Math.round(form.loyer * 12 * form.vacance / 100).toLocaleString("fr-FR")} €/an</strong>
+            {" "}({Math.round(form.vacance / 100 * 365)} jours sans locataire)
+          </p>
+        )}
         <SliderField label="Revalorisation annuelle des loyers" value={form.revalorisation} onChange={set("revalorisation")}
           min={0} max={4} step={0.1} format={n=>`${n.toFixed(1)} %`}
           help="IRL (Indice de Référence des Loyers). Historiquement ~1,5 % / an." />
