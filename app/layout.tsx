@@ -21,7 +21,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "ImmoVerdict — Simulateur immobilier gratuit",
     description: "Simulez votre investissement LMNP ou votre achat de résidence principale en 2 minutes. PTZ, DPE, DVF, 4 régimes fiscaux.",
-    url: "https://immoverdict.fr",
+    url: "https://immoverdict.com",
     siteName: "ImmoVerdict",
     locale: "fr_FR",
     type: "website",

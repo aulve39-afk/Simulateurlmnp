@@ -2483,7 +2483,7 @@ function downloadChecklist(form) {
     "Bail mobilité possible (1-10 mois, pratique pour étudiants)",
     "Comptable LMNP identifié (déclaration 2031 obligatoire au Réel)",
   ])}
-  <div class="footer">Généré par simulateur-lmnp.vercel.app · ${dateStr} · Fourni à titre indicatif, consultez un expert avant achat</div>
+  <div class="footer">Généré par immoverdict.com · ${dateStr} · Fourni à titre indicatif, consultez un expert avant achat</div>
 </div></body></html>`;
   const blob = new Blob([html], { type:"text/html" });
   const a = document.createElement("a");

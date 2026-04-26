@@ -18,7 +18,7 @@ export default function MentionsLegales() {
 
         {/* Éditeur */}
         <Section title="1. Éditeur du site">
-          <p>Le site <strong>ImmoVerdict</strong> (simulateur-lmnp-v2.vercel.app) est édité à titre personnel.</p>
+          <p>Le site <strong>ImmoVerdict</strong> (immoverdict.com) est édité à titre personnel.</p>
           <p style={{ marginTop:8 }}><strong>Responsable de publication :</strong> Alex Ulve — aulve39@gmail.com</p>
           <p style={{ marginTop:4 }}><strong>Statut :</strong> Particulier (site gratuit, sans activité commerciale principale)</p>
         </Section>

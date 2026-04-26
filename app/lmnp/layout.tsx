@@ -8,7 +8,7 @@ export const metadata: Metadata = {
     title: "Simulateur LMNP — 4 régimes fiscaux comparés | ImmoVerdict",
     description:
       "TRI, cash-flow, amortissements, dossier bancaire — tout pour analyser votre investissement LMNP en 2 minutes.",
-    url: "https://immoverdict.fr/lmnp",
+    url: "https://immoverdict.com/lmnp",
     siteName: "ImmoVerdict",
     locale: "fr_FR",
     type: "website",
@@ -29,7 +29,7 @@ export const metadata: Metadata = {
     images: ["/og-image.png"],
   },
   alternates: {
-    canonical: "https://immoverdict.fr/lmnp",
+    canonical: "https://immoverdict.com/lmnp",
   },
 };
 

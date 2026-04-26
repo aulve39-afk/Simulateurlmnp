@@ -8,7 +8,7 @@ export const metadata: Metadata = {
     title: "Simulateur Résidence Principale — PTZ, DPE, DVF | ImmoVerdict",
     description:
       "PTZ, DPE, DVF, louer vs acheter — tous vos outils primo-accédant en un seul endroit. Gratuit et sans inscription.",
-    url: "https://immoverdict.fr/rp",
+    url: "https://immoverdict.com/rp",
     siteName: "ImmoVerdict",
     locale: "fr_FR",
     type: "website",
@@ -29,7 +29,7 @@ export const metadata: Metadata = {
     images: ["/og-image.png"],
   },
   alternates: {
-    canonical: "https://immoverdict.fr/rp",
+    canonical: "https://immoverdict.com/rp",
   },
 };
 
