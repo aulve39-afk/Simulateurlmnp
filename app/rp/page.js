@@ -938,6 +938,7 @@ function LeadModalRP({ onClose }) {
   const [name,  setName]    = useState("");
   const [sent,  setSent]    = useState(false);
   const [loading, setLoading] = useState(false);
+  const [rgpd,  setRgpd]    = useState(false);
 
   const submit = async (e) => {
     e.preventDefault();
@@ -984,9 +985,18 @@ function LeadModalRP({ onClose }) {
                 placeholder="Votre adresse email *" required
                 className="w-full rounded-xl px-4 py-3 text-sm outline-none"
                 style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.12)", color: "#F8FAFC" }} />
-              <button type="submit" disabled={loading || !email}
+              <label className="flex items-start gap-2 cursor-pointer">
+                <input type="checkbox" checked={rgpd} onChange={e=>setRgpd(e.target.checked)}
+                  className="mt-0.5 flex-shrink-0 accent-emerald-500" />
+                <span className="text-[10px] leading-relaxed" style={{ color:"rgba(248,250,252,0.45)" }}>
+                  J'accepte de recevoir mon analyse et des communications d'ImmoPilote.
+                  Voir notre{" "}
+                  <a href="/mentions-legales" target="_blank" className="underline">politique de confidentialité</a>.
+                </span>
+              </label>
+              <button type="submit" disabled={loading || !email || !rgpd}
                 className="w-full py-3 rounded-xl text-sm font-bold text-white transition-opacity"
-                style={{ background: "linear-gradient(135deg, #059669, #0891b2)", opacity: loading || !email ? 0.6 : 1 }}>
+                style={{ background: "linear-gradient(135deg, #059669, #0891b2)", opacity: loading || !email || !rgpd ? 0.5 : 1 }}>
                 {loading ? "⏳ Envoi…" : "Recevoir mon analyse →"}
               </button>
             </form>
@@ -1146,6 +1156,16 @@ export default function ResidencePrincipalePage() {
           </div>
           <span style={{ color: "#93C5FD", fontSize: 18 }}>→</span>
         </div>
+      {/* Disclaimer légal */}
+      <div style={{ padding:"12px 16px 32px", textAlign:"center" }}>
+        <div style={{ borderRadius:12, border:"1px solid rgba(255,255,255,0.07)",
+          background:"rgba(255,255,255,0.03)", padding:"10px 14px",
+          fontSize:10, color:"rgba(255,255,255,0.35)", textAlign:"left", lineHeight:1.7 }}>
+          ⚠️ <strong style={{ color:"rgba(255,255,255,0.5)" }}>Avertissement :</strong> Les simulations ImmoPilote sont fournies à titre purement indicatif et ne constituent pas un conseil fiscal, juridique ou financier. Consultez un notaire ou un conseiller avant toute décision d'achat.{" "}
+          <a href="/mentions-legales" style={{ color:"rgba(167,139,250,0.7)", textDecoration:"underline" }}>Mentions légales</a>
+        </div>
+      </div>
+
       </main>
 
       {/* Modal lead capture */}

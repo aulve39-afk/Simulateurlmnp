@@ -59,6 +59,8 @@ const DEFAULTS = {
   loyer:850, charges:120, taxeFonciere:1200, vacance:5, revalorisation:1.5,
   tmi:30, revenusMensuels:4500, chargesCredit:0,
   horizon:20,
+  tourismeClass:false, // meublé tourisme classé → abattement Micro-BIC 71 %
+  cfe:200,             // Cotisation Foncière des Entreprises (€/an)
 };
 
 /* ── Presets de biens ── */
@@ -155,7 +157,7 @@ function runCalc(p, type="lmnp") {
   for (let yr=1; yr<=p.horizon; yr++) {
     const facReval  = Math.pow(1+(p.revalorisation/100), yr-1);
     const loyers    = p.loyer * 12 * facReval;
-    const charges   = p.charges * 12 + p.taxeFonciere;
+    const charges   = p.charges * 12 + p.taxeFonciere + (p.cfe || 200);
     const vacance   = loyers * (p.vacance/100);
     const loyersNets = loyers - vacance;
     const interets  = creditRows[yr-1]?.interets ?? 0;
@@ -174,8 +176,9 @@ function runCalc(p, type="lmnp") {
         impot = baseApresReport * (p.tmi/100 + PS_RATE);
       }
     } else if (type==="microbic") {
-      // Micro-BIC : abattement 50%, pas de déficit possible
-      const base = loyersNets * 0.50;
+      // Micro-BIC : abattement 50% (71% si meublé tourisme classé), pas de déficit possible
+      const abatt = p.tourismeClass ? 0.71 : 0.50;
+      const base = loyersNets * (1 - abatt);
       impot = Math.max(0, base) * (p.tmi/100 + PS_RATE);
     } else if (type==="nue") {
       const base = Math.max(0, loyersNets - charges - interets);
@@ -221,9 +224,11 @@ function runCalc(p, type="lmnp") {
   const ratioEndt   = totalMens / (p.revenusMensuels || 1) * 100;
 
   // TRI approché (Newton-Raphson simplifié)
+  // Prix de revente : revalorisation composée (Math.pow) × (1 - 5,5 % frais de cession)
+  const prixRevente = p.prix * Math.pow(1 + p.revalorisation/100, p.horizon) * 0.945;
   const fluxes = [-investTotal, ...rows.map((r,i) => {
     const rv = i===rows.length-1
-      ? r.cashflow + (p.prix*(1+p.revalorisation/100*p.horizon)) - (r.capRestant??0)
+      ? r.cashflow + prixRevente - (r.capRestant??0)
       : r.cashflow;
     return rv;
   })];
@@ -253,10 +258,11 @@ function calcComparaison10ans(p) {
   for (let yr=1; yr<=10; yr++) {
     const fac      = Math.pow(1+(p.revalorisation/100), yr-1);
     const loyers   = p.loyer * 12 * fac * (1 - p.vacance/100);
-    const charges  = p.charges * 12 + p.taxeFonciere;
+    const charges  = p.charges * 12 + p.taxeFonciere + (p.cfe || 200);
     const ints     = creditRows[yr-1]?.interets ?? 0;
-    // Micro-BIC : abattement 50%, IR+PS
-    const baseMicro  = loyers * 0.50;
+    // Micro-BIC : abattement 50% (71% si tourisme classé), IR+PS
+    const abatt      = p.tourismeClass ? 0.71 : 0.50;
+    const baseMicro  = loyers * (1 - abatt);
     const impotMicro = Math.round(Math.max(0, baseMicro) * (p.tmi/100 + PS_RATE));
     // Réel : déficit carry-forward, IR+PS
     const baseRaw    = loyers - charges - ints - amort.totalAnnuel;
@@ -1527,6 +1533,26 @@ function StepExploitation({ form, set }) {
           min={0} max={4} step={0.1} format={n=>`${n.toFixed(1)} %`}
           help="IRL (Indice de Référence des Loyers). Historiquement ~1,5 % / an." />
 
+        <div className="mt-3 flex items-center justify-between rounded-xl border border-slate-100 bg-slate-50 px-4 py-3">
+          <div>
+            <p className="text-xs font-semibold text-slate-700">Meublé tourisme classé ?</p>
+            <p className="text-[10px] text-slate-500">Abattement Micro-BIC 71 % (vs 50 % standard)</p>
+          </div>
+          <button
+            onClick={() => set("tourismeClass")(!form.tourismeClass)}
+            className="relative flex-shrink-0"
+            style={{ width:44, height:24, borderRadius:12, background: form.tourismeClass ? "#7C3AED" : "#CBD5E1",
+              transition:"background .2s", cursor:"pointer", border:"none" }}>
+            <span style={{ position:"absolute", top:3, left: form.tourismeClass ? 23 : 3,
+              width:18, height:18, borderRadius:9, background:"#fff",
+              transition:"left .2s", boxShadow:"0 1px 3px rgba(0,0,0,.2)" }} />
+          </button>
+        </div>
+
+        <SliderField label="CFE annuelle (Cotisation Foncière des Entreprises)" value={form.cfe} onChange={set("cfe")}
+          min={0} max={1500} step={50} format={fmt}
+          help="Taxe locale due par tout loueur meublé. Varie selon la commune (100–500 €/an en moyenne)." />
+
         <div className="mt-3 grid grid-cols-2 gap-3">
           <div className="rounded-xl bg-green-50 border border-green-100 p-3">
             <p className="text-[10px] text-green-600 font-semibold mb-0.5">Loyers nets / an</p>
@@ -2031,6 +2057,7 @@ function AffiliationContextuelle({ results, form }) {
               <a key={c.name}
                 href={c.url}
                 target="_blank" rel="noopener noreferrer"
+                onClick={() => { try { window.gtag?.("event","clic_courtier",{ courtier:c.name, tri, prix:form.prix }); } catch(_){} }}
                 className="flex items-center justify-between rounded-xl px-3 py-2.5 transition-all active:scale-98"
                 style={{ background:"rgba(255,255,255,0.06)", border:`1px solid rgba(255,255,255,0.08)` }}>
                 <div className="flex items-center gap-2.5">
@@ -2076,6 +2103,7 @@ function AffiliationContextuelle({ results, form }) {
               </p>
               <a href="https://www.compta-lmnp.fr?utm_source=simulateur-lmnp&utm_medium=cta-travaux"
                 target="_blank" rel="noopener noreferrer"
+                onClick={() => { try { window.gtag?.("event","clic_comptable",{ travaux:form.travaux }); } catch(_){} }}
                 className="inline-flex items-center gap-1.5 text-white text-xs font-bold px-4 py-2 rounded-xl"
                 style={{ background:"linear-gradient(135deg, #7C3AED, #2563EB)" }}>
                 🧾 Trouver un comptable LMNP →
@@ -2440,11 +2468,17 @@ function StepResultats({ form, results, comparaison, amort, onLead, onArgumentai
       <Card>
         <SectionTitle icon="⚔️" title="Micro-BIC vs Régime Réel"
           sub="Comparaison fiscale sur 10 ans" />
+        {form.loyer * 12 > 77700 && (
+          <div className="mb-3 rounded-xl px-3 py-2 text-[11px] font-semibold"
+            style={{ background:"rgba(239,68,68,0.08)", border:"1px solid rgba(239,68,68,0.25)", color:"#B91C1C" }}>
+            ⛔ Vos loyers annuels ({fmt(form.loyer * 12)}) dépassent le plafond Micro-BIC de 77 700 €. Le régime Réel est obligatoire — la comparaison Micro-BIC est affichée à titre indicatif uniquement.
+          </div>
+        )}
         <div className="grid grid-cols-2 gap-3 mb-4">
           <div className="rounded-xl bg-amber-50 border border-amber-100 p-3 text-center">
             <p className="text-[10px] text-amber-600 font-semibold">Impôt Micro-BIC an 1</p>
             <p className="text-lg font-bold text-amber-700">{fmt(micro.rows[0]?.impot)}</p>
-            <p className="text-[10px] text-amber-500">Abattement 50%</p>
+            <p className="text-[10px] text-amber-500">Abattement {form.tourismeClass ? "71" : "50"}%</p>
           </div>
           <div className="rounded-xl bg-blue-50 border border-blue-100 p-3 text-center">
             <p className="text-[10px] text-blue-600 font-semibold">Impôt Réel an 1</p>
@@ -2516,6 +2550,7 @@ function StepResultats({ form, results, comparaison, amort, onLead, onArgumentai
             const icons   = ["🥇","🥈","🏅","🏅"];
             const helpMap = [LEXIQUE["LMNP Réel"], LEXIQUE["Micro-BIC"], LEXIQUE["SCI IS"], LEXIQUE["SCI IR"]];
             const isWin   = i===0;
+            const isSciIS = r.type === "sciis";
             return (
               <div key={r.type} className={`rounded-xl p-3 border ${isWin?"bg-blue-50 border-blue-200":"bg-slate-50 border-slate-100"}`}>
                 <div className="flex items-center justify-between">
@@ -2533,6 +2568,12 @@ function StepResultats({ form, results, comparaison, amort, onLead, onArgumentai
                     <p className="text-[10px] text-slate-400">Rdt net {r.rendNet.toFixed(2)}%</p>
                   </div>
                 </div>
+                {isSciIS && (
+                  <p className="mt-1.5 text-[10px] rounded-lg px-2 py-1"
+                    style={{ background:"rgba(245,158,11,0.1)", color:"#B45309" }}>
+                    ⚠️ Cash perso après distribution = CF × 70 % (flat tax 30 % sur dividendes). Plus-value à la revente taxée à l'IS sans exonération durée.
+                  </p>
+                )}
               </div>
             );
           })}
@@ -2588,11 +2629,14 @@ function StepResultats({ form, results, comparaison, amort, onLead, onArgumentai
       {/* Références légales CGI */}
       <ReferencesLegales />
 
-      {/* Trust footnotes */}
+      {/* Trust footnotes + disclaimer légal */}
       <div className="text-[10px] text-slate-400 text-center space-y-1 px-2 pb-4">
         <p>⚖️ Calculs basés sur la doctrine fiscale LMNP · <strong>CGI Art. 39 C</strong> (amortissements) · <strong>CGI Art. 34</strong> (BIC)</p>
         <p>📋 <strong>LF 2026</strong> · Plafond Micro-BIC 77 700 € · Abattement 50% maintenu</p>
-        <p>Ce simulateur est fourni à titre indicatif. Consultez un expert-comptable pour votre situation personnelle.</p>
+        <div className="mt-2 rounded-xl border border-slate-100 bg-slate-50 px-3 py-2 text-left text-[10px] text-slate-500">
+          ⚠️ <strong>Avertissement :</strong> Les simulations ImmoPilote sont fournies à titre purement indicatif et ne constituent pas un conseil fiscal, comptable, juridique ou financier. Elles ne sauraient se substituer à l'avis d'un expert-comptable, d'un notaire ou d'un conseiller en gestion de patrimoine. L'éditeur décline toute responsabilité quant aux décisions prises sur la base de ces estimations.{" "}
+          <a href="/mentions-legales" className="underline">Mentions légales</a>
+        </div>
       </div>
     </div>
   );
@@ -2891,6 +2935,7 @@ function LeadModal({ onClose, form, results }) {
   const [sent,    setSent]    = useState(false);
   const [loading, setLoading] = useState(false);
   const [emailOk, setEmailOk] = useState(false); // l'API email a réussi
+  const [rgpd,    setRgpd]    = useState(false); // consentement RGPD
 
   const amort = useMemo(
     () => calcAmortComposants(form.prix, form.notaire, form.mobilier, form.travaux, form.terrain ?? 15),
@@ -2977,14 +3022,24 @@ function LeadModal({ onClose, form, results }) {
                 className="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-blue-400 bg-slate-50" />
               <input type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="Votre adresse email *"
                 required className="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-blue-400 bg-slate-50" />
-              <button type="submit" disabled={loading || !email}
+              <label className="flex items-start gap-2 cursor-pointer">
+                <input type="checkbox" checked={rgpd} onChange={e=>setRgpd(e.target.checked)}
+                  className="mt-0.5 flex-shrink-0 accent-violet-600" />
+                <span className="text-[10px] text-slate-500 leading-relaxed">
+                  J'accepte de recevoir mon rapport et des communications d'ImmoPilote.
+                  Données traitées conformément à notre{" "}
+                  <a href="/mentions-legales" target="_blank" className="underline">politique de confidentialité</a>.
+                  Désinscription possible à tout moment.
+                </span>
+              </label>
+              <button type="submit" disabled={loading || !email || !rgpd}
                 className="w-full py-3 rounded-xl text-sm font-bold text-white transition-opacity"
-                style={{ background:"linear-gradient(135deg, #7C3AED, #2563EB)", opacity: loading||!email ? 0.6 : 1 }}>
+                style={{ background:"linear-gradient(135deg, #7C3AED, #2563EB)", opacity: loading||!email||!rgpd ? 0.5 : 1 }}>
                 {loading ? "⏳ Génération en cours…" : "Recevoir mon rapport gratuit →"}
               </button>
             </form>
             <p className="text-[10px] text-slate-400 text-center mt-3">
-              Aucun spam. Données utilisées uniquement pour votre rapport.
+              Aucun spam. Désabonnement en un clic.
             </p>
             <button onClick={onClose} className="mt-3 w-full text-sm text-slate-400 hover:text-slate-600 py-1">
               Continuer sans rapport
