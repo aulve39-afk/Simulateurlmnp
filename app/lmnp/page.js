@@ -665,7 +665,7 @@ function LandingPage({ onStart }) {
 
       {/* How it works */}
       <div className="max-w-2xl mx-auto px-5 py-6">
-        <h2 className="text-center font-bold text-slate-800 mb-5 text-base">Comment ça fonctionne</h2>
+        <h2 className="text-center font-bold text-white mb-5 text-base">Comment ça fonctionne</h2>
         <div className="grid grid-cols-3 gap-3">
           {[
             { step:"1", icon:"🎯", title:"Profil",   desc:"2 questions pour adapter l'analyse" },
@@ -2755,7 +2755,7 @@ function StepResultats({ form, results, comparaison, amort, onLead, onArgumentai
         <p>⚖️ Calculs basés sur la doctrine fiscale LMNP · <strong>CGI Art. 39 C</strong> (amortissements) · <strong>CGI Art. 34</strong> (BIC)</p>
         <p>📋 <strong>LF 2026</strong> · Plafond Micro-BIC 77 700 € · Abattement 50% maintenu</p>
         <div className="mt-2 rounded-xl border border-slate-100 bg-slate-50 px-3 py-2 text-left text-[10px] text-slate-500">
-          ⚠️ <strong>Avertissement :</strong> Les simulations ImmoPilote sont fournies à titre purement indicatif et ne constituent pas un conseil fiscal, comptable, juridique ou financier. Elles ne sauraient se substituer à l'avis d'un expert-comptable, d'un notaire ou d'un conseiller en gestion de patrimoine. L'éditeur décline toute responsabilité quant aux décisions prises sur la base de ces estimations.{" "}
+          ⚠️ <strong>Avertissement :</strong> Les simulations ImmoVerdict sont fournies à titre purement indicatif et ne constituent pas un conseil fiscal, comptable, juridique ou financier. Elles ne sauraient se substituer à l'avis d'un expert-comptable, d'un notaire ou d'un conseiller en gestion de patrimoine. L'éditeur décline toute responsabilité quant aux décisions prises sur la base de ces estimations.{" "}
           <a href="/mentions-legales" className="underline">Mentions légales</a>
         </div>
       </div>
@@ -3147,7 +3147,7 @@ function LeadModal({ onClose, form, results }) {
                 <input type="checkbox" checked={rgpd} onChange={e=>setRgpd(e.target.checked)}
                   className="mt-0.5 flex-shrink-0 accent-violet-600" />
                 <span className="text-[10px] text-slate-500 leading-relaxed">
-                  J'accepte de recevoir mon rapport et des communications d'ImmoPilote.
+                  J'accepte de recevoir mon rapport et des communications d'ImmoVerdict.
                   Données traitées conformément à notre{" "}
                   <a href="/mentions-legales" target="_blank" className="underline">politique de confidentialité</a>.
                   Désinscription possible à tout moment.

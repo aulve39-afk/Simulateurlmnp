@@ -3,24 +3,28 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>ImmoPilote — Simulateur LMNP & Résidence Principale gratuit</title>
+<title>ImmoVerdict — Simulateur LMNP & Résidence Principale gratuit</title>
 
 <!-- SEO -->
-<meta name="description" content="ImmoPilote : simulateur LMNP gratuit (4 régimes fiscaux, amortissements, TRI) et outils primo-accédant. Analysez votre investissement immobilier en 2 minutes."/>
+<meta name="description" content="ImmoVerdict : simulateur LMNP gratuit (4 régimes fiscaux, amortissements, TRI) et outils primo-accédant. Analysez votre investissement immobilier en 2 minutes."/>
 <meta name="robots" content="index, follow"/>
-<link rel="canonical" href="https://simulateur-lmnp-v2.vercel.app/"/>
+<link rel="canonical" href="https://immoverdict.fr/"/>
 
 <!-- Open Graph -->
 <meta property="og:type" content="website"/>
-<meta property="og:url" content="https://simulateur-lmnp-v2.vercel.app/"/>
-<meta property="og:title" content="ImmoPilote — Simulateur LMNP & Résidence Principale gratuit"/>
+<meta property="og:url" content="https://immoverdict.fr/"/>
+<meta property="og:title" content="ImmoVerdict — Simulateur LMNP & Résidence Principale gratuit"/>
 <meta property="og:description" content="Comparez les 4 régimes fiscaux LMNP, calculez votre TRI et cash-flow en 2 minutes. Outils gratuits pour investisseurs et primo-accédants."/>
-<meta property="og:site_name" content="ImmoPilote"/>
+<meta property="og:site_name" content="ImmoVerdict"/>
 <meta property="og:locale" content="fr_FR"/>
+<meta property="og:image" content="https://immoverdict.fr/og-image.png"/>
+<meta property="og:image:width" content="1200"/>
+<meta property="og:image:height" content="630"/>
+<meta name="twitter:image" content="https://immoverdict.fr/og-image.png"/>
 
 <!-- Twitter Card -->
 <meta name="twitter:card" content="summary_large_image"/>
-<meta name="twitter:title" content="ImmoPilote — Simulateur LMNP gratuit"/>
+<meta name="twitter:title" content="ImmoVerdict — Simulateur LMNP gratuit"/>
 <meta name="twitter:description" content="TRI, cash-flow, 4 régimes fiscaux comparés. Analysez votre investissement LMNP en 2 minutes."/>
 
 <!-- Favicon -->
@@ -404,12 +408,37 @@ footer{background:var(--dark);padding:60px 24px 32px;border-top:1px solid rgba(2
 /* ── RESPONSIVE ── */
 @media(max-width:768px){
   .nav-links{display:none}
+  .hamburger{display:flex}
   .float-card{display:none}
   .feature-row{grid-template-columns:1fr}
   .feature-row.reverse{direction:ltr}
   .steps::before{display:none}
   .footer-top{grid-template-columns:1fr 1fr}
   .hero-content{padding:0 8px}
+}
+
+/* ── Hamburger mobile ── */
+.hamburger{display:none;flex-direction:column;justify-content:center;gap:5px;
+  width:36px;height:36px;background:none;border:none;cursor:pointer;padding:4px;z-index:200}
+.hamburger span{display:block;width:22px;height:2px;background:rgba(255,255,255,.8);
+  border-radius:2px;transition:all .25s}
+.hamburger.open span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+.hamburger.open span:nth-child(2){opacity:0}
+.hamburger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+.mobile-menu{display:none;position:fixed;inset:0;background:rgba(7,7,26,.97);
+  z-index:150;flex-direction:column;align-items:center;justify-content:center;gap:24px;
+  padding:60px 24px}
+.mobile-menu.open{display:flex}
+.mobile-menu a{color:rgba(255,255,255,.85);font-size:20px;font-weight:600;
+  text-decoration:none;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.08);width:100%;text-align:center}
+.mobile-menu a:hover{color:#A78BFA}
+.mobile-menu .nav-cta{border-bottom:none;background:linear-gradient(135deg,#7C3AED,#A78BFA);
+  color:white;border-radius:12px;padding:14px 28px;width:auto;margin-top:12px}
+
+/* ── prefers-reduced-motion ── */
+@media(prefers-reduced-motion:reduce){
+  *{animation-duration:.01ms!important;animation-iteration-count:1!important;
+    transition-duration:.01ms!important;scroll-behavior:auto!important}
 }
 </style>
 </head>
@@ -419,7 +448,7 @@ footer{background:var(--dark);padding:60px 24px 32px;border-top:1px solid rgba(2
 <nav>
   <div class="nav-logo">
     <div class="nav-logo-icon">🏛️</div>
-    <div class="nav-logo-text">Immo<span>Pilote</span></div>
+    <div class="nav-logo-text">Immo<span>Verdict</span></div>
   </div>
   <div class="nav-links">
     <a href="#services" class="nav-link">Services</a>
@@ -428,7 +457,19 @@ footer{background:var(--dark);padding:60px 24px 32px;border-top:1px solid rgba(2
     <a href="#avis" class="nav-link">Avis</a>
     <a href="#contact-form" class="nav-cta">Commencer →</a>
   </div>
+  <button class="hamburger" id="hamburger-btn" aria-label="Ouvrir le menu" aria-expanded="false">
+    <span></span><span></span><span></span>
+  </button>
 </nav>
+<!-- Overlay menu mobile -->
+<div class="mobile-menu" id="mobile-menu" role="dialog" aria-label="Navigation principale">
+  <a href="#services" onclick="closeMobileMenu()">Services</a>
+  <a href="#comment" onclick="closeMobileMenu()">Comment ça marche</a>
+  <a href="#simulateurs" onclick="closeMobileMenu()">Simulateurs</a>
+  <a href="#avis" onclick="closeMobileMenu()">Avis</a>
+  <a href="/lmnp" class="nav-cta" onclick="closeMobileMenu()">Simulateur LMNP →</a>
+  <a href="/rp" class="nav-cta" style="background:linear-gradient(135deg,#0891b2,#7C3AED)" onclick="closeMobileMenu()">Résidence Principale →</a>
+</div>
 
 <!-- HERO -->
 <section id="hero">
@@ -734,11 +775,12 @@ footer{background:var(--dark);padding:60px 24px 32px;border-top:1px solid rgba(2
   <div class="cta-inner reveal">
     <div class="cta-badge">🚀 Démarrez gratuitement · Aucune CB requise</div>
     <h2 class="cta-title">Prêt à acheter<br/><span class="gradient-text">avec toutes les clés ?</span></h2>
-    <p class="cta-sub">Rejoignez des milliers d'acheteurs qui ont simulé, compris et décidé avec ImmoPilote.</p>
+    <p class="cta-sub">Rejoignez des milliers d'acheteurs qui ont simulé, compris et décidé avec ImmoVerdict.</p>
     <div class="cta-input-row">
       <input id="cta-email-input" class="cta-input" type="email" placeholder="Votre adresse email"/>
       <button class="cta-btn" onclick="ctaStart()">Commencer maintenant →</button>
     </div>
+    <p id="cta-error" style="display:none;color:#F87171;font-size:13px;margin-bottom:8px;">⚠️ Merci de saisir une adresse email valide.</p>
     <p id="cta-confirm" style="display:none;color:#A78BFA;font-size:13px;margin-bottom:12px;">✅ Email enregistré — on vous prépare votre analyse !</p>
     <div class="cta-trust">
       <span class="trust-item"><span class="trust-icon">🔒</span> 100 % sécurisé</span>
@@ -785,7 +827,7 @@ footer{background:var(--dark);padding:60px 24px 32px;border-top:1px solid rgba(2
       <div class="footer-brand">
         <div class="nav-logo" style="margin-bottom:0">
           <div class="nav-logo-icon">🏛️</div>
-          <div class="nav-logo-text">Immo<span>Pilote</span></div>
+          <div class="nav-logo-text">Immo<span>Verdict</span></div>
         </div>
         <p>Votre copilote pour tous vos projets immobiliers. Simulateurs, données de marché et accompagnement personnalisé.</p>
       </div>
@@ -820,7 +862,7 @@ footer{background:var(--dark);padding:60px 24px 32px;border-top:1px solid rgba(2
       </div>
     </div>
     <div class="footer-bottom">
-      <span class="footer-copy">© 2026 ImmoPilote · Outil pédagogique, pas de conseil fiscal personnalisé</span>
+      <span class="footer-copy">© 2026 ImmoVerdict · Outil pédagogique, pas de conseil fiscal personnalisé</span>
       <div class="footer-legal">
         <a href="/mentions-legales">Mentions légales</a>
         <a href="/mentions-legales#4">Confidentialité</a>
@@ -900,12 +942,18 @@ if (numSection) counterObs.observe(numSection);
 /* ── CTA email → redirect vers simulateur ── */
 function ctaStart() {
   const email = document.getElementById('cta-email-input').value.trim();
-  if (!email || !email.includes('@')) {
+  const errEl  = document.getElementById('cta-error');
+  const okEl   = document.getElementById('cta-confirm');
+  const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  if (!emailOk) {
+    errEl.style.display = 'block';
+    okEl.style.display  = 'none';
     document.getElementById('cta-email-input').focus();
     return;
   }
-  try { localStorage.setItem('immopilote_email', email); } catch(e) {}
-  document.getElementById('cta-confirm').style.display = 'block';
+  errEl.style.display = 'none';
+  try { localStorage.setItem('immoverdict_email', email); } catch(e) {}
+  okEl.style.display = 'block';
   setTimeout(() => { window.location.href = '/lmnp'; }, 900);
 }
 document.getElementById('cta-email-input')?.addEventListener('keydown', e => {
@@ -932,7 +980,7 @@ async function submitContact(e) {
     const res = await fetch('https://formsubmit.co/ajax/aulve39@gmail.com', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-      body: JSON.stringify({ name, email, message, _subject: 'ImmoPilote — Message de contact' }),
+      body: JSON.stringify({ name, email, message, _subject: 'ImmoVerdict — Message de contact' }),
     });
     const data = await res.json();
     if (data.success === 'true' || data.success === true) {
@@ -949,6 +997,23 @@ async function submitContact(e) {
     btn.disabled = false;
   }
 }
+
+/* ── Menu hamburger mobile ── */
+const hamburgerBtn = document.getElementById('hamburger-btn');
+const mobileMenu   = document.getElementById('mobile-menu');
+function closeMobileMenu(){
+  hamburgerBtn.classList.remove('open');
+  mobileMenu.classList.remove('open');
+  hamburgerBtn.setAttribute('aria-expanded','false');
+  document.body.style.overflow='';
+}
+hamburgerBtn?.addEventListener('click', () => {
+  const isOpen = mobileMenu.classList.toggle('open');
+  hamburgerBtn.classList.toggle('open');
+  hamburgerBtn.setAttribute('aria-expanded', isOpen);
+  document.body.style.overflow = isOpen ? 'hidden' : '';
+});
+document.addEventListener('keydown', e => { if(e.key==='Escape') closeMobileMenu(); });
 </script>
 </body>
 </html>

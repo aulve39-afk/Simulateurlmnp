@@ -8,29 +8,30 @@ const GA_ID = process.env.NEXT_PUBLIC_GA_ID ?? "";
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  maximumScale: 1,
   themeColor: "#07071A",
 };
 
 export const metadata: Metadata = {
-  title: "ImmoPilote — Simulateur LMNP & Résidence Principale",
+  title: "ImmoVerdict — Simulateur LMNP & Résidence Principale",
   description: "Votre copilote pour l'achat immobilier. Simulateur LMNP (4 régimes fiscaux, dossier bancaire), achat résidence principale (PTZ, DPE, DVF, louer vs acheter). 100 % gratuit.",
   icons: {
     icon: "/favicon.svg",
     shortcut: "/favicon.svg",
   },
   openGraph: {
-    title: "ImmoPilote — Simulateur immobilier gratuit",
+    title: "ImmoVerdict — Simulateur immobilier gratuit",
     description: "Simulez votre investissement LMNP ou votre achat de résidence principale en 2 minutes. PTZ, DPE, DVF, 4 régimes fiscaux.",
-    url: "https://simulateur-lmnp-v2.vercel.app",
-    siteName: "ImmoPilote",
+    url: "https://immoverdict.fr",
+    siteName: "ImmoVerdict",
     locale: "fr_FR",
     type: "website",
+    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "ImmoVerdict — Simulateur immobilier gratuit" }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "ImmoPilote — Simulateur immobilier gratuit",
+    title: "ImmoVerdict — Simulateur immobilier gratuit",
     description: "LMNP, PTZ, DPE, DVF — tous vos outils immobiliers en un seul endroit.",
+    images: ["/og-image.png"],
   },
   robots: { index: true, follow: true },
 };

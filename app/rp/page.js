@@ -1022,7 +1022,7 @@ function LeadModalRP({ onClose }) {
         }, { onConflict: "email" });
       }
       // Pré-remplir l'email dans le simulateur LMNP si ouvert plus tard
-      try { localStorage.setItem("immopilote_email", email); } catch (_) {}
+      try { localStorage.setItem("immoverdict_email", email); } catch (_) {}
     } catch (_) { /* silencieux */ }
     setLoading(false);
     setSent(true);
@@ -1057,7 +1057,7 @@ function LeadModalRP({ onClose }) {
                 <input type="checkbox" checked={rgpd} onChange={e=>setRgpd(e.target.checked)}
                   className="mt-0.5 flex-shrink-0 accent-emerald-500" />
                 <span className="text-[10px] leading-relaxed" style={{ color:"rgba(248,250,252,0.45)" }}>
-                  J'accepte de recevoir mon analyse et des communications d'ImmoPilote.
+                  J'accepte de recevoir mon analyse et des communications d'ImmoVerdict.
                   Voir notre{" "}
                   <a href="/mentions-legales" target="_blank" className="underline">politique de confidentialité</a>.
                 </span>
@@ -1158,7 +1158,7 @@ export default function ResidencePrincipalePage() {
                   padding: "6px 12px", borderRadius: 10, whiteSpace: "nowrap",
                   fontSize: 12, fontWeight: 700, cursor: "pointer", border: "none",
                   background: activeTool === t.id ? "rgba(124,58,237,0.7)" : "rgba(255,255,255,0.1)",
-                  color: activeTool === t.id ? "#059669" : "rgba(255,255,255,0.85)",
+                  color: activeTool === t.id ? "#ffffff" : "rgba(255,255,255,0.85)",
                   transition: "all 0.15s",
                   flexShrink: 0,
                 }}>
@@ -1229,7 +1229,7 @@ export default function ResidencePrincipalePage() {
         <div style={{ borderRadius:12, border:"1px solid rgba(255,255,255,0.07)",
           background:"rgba(255,255,255,0.03)", padding:"10px 14px",
           fontSize:10, color:"rgba(255,255,255,0.35)", textAlign:"left", lineHeight:1.7 }}>
-          ⚠️ <strong style={{ color:"rgba(255,255,255,0.5)" }}>Avertissement :</strong> Les simulations ImmoPilote sont fournies à titre purement indicatif et ne constituent pas un conseil fiscal, juridique ou financier. Consultez un notaire ou un conseiller avant toute décision d'achat.{" "}
+          ⚠️ <strong style={{ color:"rgba(255,255,255,0.5)" }}>Avertissement :</strong> Les simulations ImmoVerdict sont fournies à titre purement indicatif et ne constituent pas un conseil fiscal, juridique ou financier. Consultez un notaire ou un conseiller avant toute décision d'achat.{" "}
           <a href="/mentions-legales" style={{ color:"rgba(167,139,250,0.7)", textDecoration:"underline" }}>Mentions légales</a>
         </div>
       </div>

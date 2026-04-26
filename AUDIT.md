@@ -1,4 +1,4 @@
-# Audit multi-casquettes — ImmoPilote
+# Audit multi-casquettes — ImmoVerdict
 _Analysé le 2026-04-26 · simulateur-lmnp-v2.vercel.app_
 
 ---
@@ -155,7 +155,7 @@ La séquence affichée (J+0, J+1, J+3, J+7) n'existe que dans l'UI. **La mécani
 
 Contenu manquant dans la séquence :
 - **J+14** : "Avez-vous passé votre simulation à un courtier ?" (relance affiliation)
-- **J+30** : "ImmoPilote évolue — voici les nouvelles fonctionnalités" (engagement long terme)
+- **J+30** : "ImmoVerdict évolue — voici les nouvelles fonctionnalités" (engagement long terme)
 
 ---
 
@@ -224,7 +224,7 @@ Contenu manquant dans la séquence :
 
 | Point | Risque | Action |
 |-------|--------|--------|
-| Formulaire lead sans case à cocher de consentement explicite | 🔴 CNIL amende | Ajouter checkbox "J'accepte de recevoir des communications d'ImmoPilote" |
+| Formulaire lead sans case à cocher de consentement explicite | 🔴 CNIL amende | Ajouter checkbox "J'accepte de recevoir des communications d'ImmoVerdict" |
 | Pas de politique de confidentialité | 🔴 Obligatoire | Page `/mentions-legales` avec responsable traitement, finalité, durée conservation, droit d'accès/suppression |
 | Cookies (localStorage utilisé) | 🟠 À préciser | Techniquement hors directive cookies, mais à mentionner |
 | Liens affiliés non déclarés | 🟠 Pratique illégale (ASA) | Mention "lien partenaire" sur les CTA courtiers |
@@ -264,4 +264,4 @@ Absentes. Obligatoires en France pour tout site web (éditeur, hébergeur, conta
 
 ---
 
-_Audit généré automatiquement par ImmoPilote Cowork session — 2026-04-26_
+_Audit généré automatiquement par ImmoVerdict Cowork session — 2026-04-26_

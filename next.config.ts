@@ -12,7 +12,7 @@ const nextConfig: NextConfig = {
       beforeFiles: [
         {
           source: "/",
-          destination: "/immopilote.html",
+          destination: "/immoverdict.html",
         },
       ],
     };

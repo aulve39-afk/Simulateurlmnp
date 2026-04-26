@@ -18,7 +18,7 @@ export default function MentionsLegales() {
 
         {/* Éditeur */}
         <Section title="1. Éditeur du site">
-          <p>Le site <strong>ImmoPilote</strong> (simulateur-lmnp-v2.vercel.app) est édité à titre personnel.</p>
+          <p>Le site <strong>ImmoVerdict</strong> (simulateur-lmnp-v2.vercel.app) est édité à titre personnel.</p>
           <p style={{ marginTop:8 }}><strong>Responsable de publication :</strong> Alex Ulve — aulve39@gmail.com</p>
           <p style={{ marginTop:4 }}><strong>Statut :</strong> Particulier (site gratuit, sans activité commerciale principale)</p>
         </Section>
@@ -32,7 +32,7 @@ export default function MentionsLegales() {
 
         {/* Nature du service */}
         <Section title="3. Nature du service">
-          <p>ImmoPilote est un outil de simulation immobilière <strong>gratuit</strong> destiné à aider les investisseurs et primo-accédants à estimer la rentabilité de leurs projets.</p>
+          <p>ImmoVerdict est un outil de simulation immobilière <strong>gratuit</strong> destiné à aider les investisseurs et primo-accédants à estimer la rentabilité de leurs projets.</p>
           <p style={{ marginTop:8 }}>Les simulations fournies sont <strong>purement indicatives</strong> et ne constituent en aucun cas un conseil fiscal, comptable, juridique ou financier. Elles ne remplacent pas l'avis d'un expert-comptable, d'un notaire ou d'un conseiller en gestion de patrimoine.</p>
           <p style={{ marginTop:8 }}>L'éditeur décline toute responsabilité quant aux décisions d'investissement prises sur la base des simulations affichées.</p>
         </Section>
@@ -54,7 +54,7 @@ export default function MentionsLegales() {
           <SubSection title="4.3 Finalité du traitement">
             <ul style={{ paddingLeft:20, lineHeight:2 }}>
               <li>Envoi du rapport de simulation personnalisé</li>
-              <li>Communications informatives sur les outils ImmoPilote</li>
+              <li>Communications informatives sur les outils ImmoVerdict</li>
               <li>Mise en relation avec des partenaires (courtiers, experts-comptables) <strong>uniquement si vous y avez consenti</strong></li>
             </ul>
           </SubSection>
@@ -87,19 +87,19 @@ export default function MentionsLegales() {
             <p style={{ marginTop:8 }}>Si vous estimez que vos droits ne sont pas respectés, vous pouvez adresser une réclamation à la <strong>CNIL</strong> : <a href="https://www.cnil.fr" style={{ color:"#A78BFA" }}>www.cnil.fr</a></p>
           </SubSection>
           <SubSection title="4.8 Cookies et stockage local">
-            <p>ImmoPilote n'utilise pas de cookies publicitaires ou de traceurs tiers. Le site utilise uniquement le <strong>localStorage</strong> du navigateur pour mémoriser votre adresse email entre les pages de simulation. Cette donnée reste sur votre appareil et n'est pas transmise sans votre action.</p>
+            <p>ImmoVerdict n'utilise pas de cookies publicitaires ou de traceurs tiers. Le site utilise uniquement le <strong>localStorage</strong> du navigateur pour mémoriser votre adresse email entre les pages de simulation. Cette donnée reste sur votre appareil et n'est pas transmise sans votre action.</p>
           </SubSection>
         </Section>
 
         {/* Liens affiliés */}
         <Section title="5. Liens partenaires (affiliation)">
-          <p>Certains liens présents sur ImmoPilote (vers Pretto, MeilleurTaux, CAFPI, compta-lmnp.fr) sont des <strong>liens de partenariat</strong>. Si vous cliquez et souscrivez un service, ImmoPilote peut percevoir une commission sans surcoût pour vous.</p>
+          <p>Certains liens présents sur ImmoVerdict (vers Pretto, MeilleurTaux, CAFPI, compta-lmnp.fr) sont des <strong>liens de partenariat</strong>. Si vous cliquez et souscrivez un service, ImmoVerdict peut percevoir une commission sans surcoût pour vous.</p>
           <p style={{ marginTop:8 }}>Cette relation commerciale n'influence pas l'indépendance des simulations ou des comparaisons affichées.</p>
         </Section>
 
         {/* Propriété intellectuelle */}
         <Section title="6. Propriété intellectuelle">
-          <p>Le code source, les textes, les graphiques et l'ensemble des contenus d'ImmoPilote sont la propriété de l'éditeur. Toute reproduction, même partielle, est interdite sans autorisation écrite préalable.</p>
+          <p>Le code source, les textes, les graphiques et l'ensemble des contenus d'ImmoVerdict sont la propriété de l'éditeur. Toute reproduction, même partielle, est interdite sans autorisation écrite préalable.</p>
         </Section>
 
         {/* Contact */}
