@@ -310,9 +310,9 @@ function feuxTricolores(tri, cashflowM, ratioEndt) {
   if (tri >= 6) score+=2; else if (tri >= 4) score+=1;
   if (cashflowM >= 0) score+=2; else if (cashflowM >= -100) score+=1;
   if (ratioEndt <= 33) score+=2; else if (ratioEndt <= 35) score+=1;
-  if (score >= 5) return { color:"#10B981", bg:"#ECFDF5", border:"#A7F3D0", label:"Excellent", emoji:"🟢" };
-  if (score >= 3) return { color:"#F59E0B", bg:"#FFFBEB", border:"#FDE68A", label:"Acceptable", emoji:"🟡" };
-  return     { color:"#EF4444", bg:"#FEF2F2", border:"#FECACA", label:"Risqué",    emoji:"🔴" };
+  if (score >= 5) return { color:"#10B981", bg:"rgba(16,185,129,0.15)", border:"rgba(16,185,129,0.4)", label:"Excellent", emoji:"🟢" };
+  if (score >= 3) return { color:"#F59E0B", bg:"rgba(245,158,11,0.12)", border:"rgba(245,158,11,0.4)", label:"Acceptable", emoji:"🟡" };
+  return     { color:"#EF4444", bg:"rgba(239,68,68,0.15)", border:"rgba(239,68,68,0.4)", label:"Risqué",    emoji:"🔴" };
 }
 
 /* ════════════════════════════════════════
@@ -404,7 +404,7 @@ function SelectField({ label, value, onChange, options, help }) {
   );
 }
 
-function KPICard({ label, value, sub, color="#185FA5", bg="#EFF6FF", icon, help }) {
+function KPICard({ label, value, sub, color="#A78BFA", bg="rgba(124,58,237,0.12)", icon, help }) {
   return (
     <div className="rounded-2xl p-4 border" style={{ background:bg, borderColor:color+"33" }}>
       <div className="flex items-start justify-between mb-1">
@@ -475,7 +475,7 @@ function ScoreBancabilite({ ratioEndt, cashflowM, tri, apport, prix, rendBrut })
 
   const scoreColor = score >= 75 ? "#10B981" : score >= 55 ? "#F59E0B" : score >= 40 ? "#FB923C" : "#EF4444";
   const scoreLabel = score >= 75 ? "Très bancable" : score >= 55 ? "Bancable" : score >= 40 ? "Dossier fragile" : "Difficile à financer";
-  const scoreBg    = score >= 75 ? "#ECFDF5"     : score >= 55 ? "#FFFBEB"    : score >= 40 ? "#FFF7ED"         : "#FEF2F2";
+  const scoreBg    = score >= 75 ? "rgba(16,185,129,0.15)" : score >= 55 ? "rgba(245,158,11,0.12)" : score >= 40 ? "rgba(249,115,22,0.12)" : "rgba(239,68,68,0.15)";
 
   return (
     <div className="rounded-2xl border p-4" style={{ background:scoreBg, borderColor:scoreColor+"33" }}>
@@ -566,7 +566,7 @@ function GainVsNue({ results }) {
 function LandingPage({ onStart }) {
   const router = useRouter();
   return (
-    <div className="min-h-screen flex flex-col" style={{ background:"#F1F5F9" }}>
+    <div className="min-h-screen flex flex-col" style={{ background:"#07071A" }}>
       {/* Hero */}
       <div style={{ background:"linear-gradient(135deg, #0F172A 0%, #1e3a5f 60%, #185FA5 100%)" }}
         className="relative overflow-hidden">
@@ -641,7 +641,7 @@ function LandingPage({ onStart }) {
         </div>
 
         {/* Wave */}
-        <div style={{ height:32, background:"#F1F5F9", borderRadius:"50% 50% 0 0 / 100% 100% 0 0", marginTop:-1 }} />
+        <div style={{ height:32, background:"#07071A", borderRadius:"50% 50% 0 0 / 100% 100% 0 0", marginTop:-1 }} />
       </div>
 
       {/* Trust bar */}
@@ -781,7 +781,7 @@ function OnboardingQuiz({ onComplete }) {
   const pct = Math.round((step / QUIZ_QUESTIONS.length) * 100);
 
   return (
-    <div className="min-h-screen flex flex-col" style={{ background:"#F1F5F9" }}>
+    <div className="min-h-screen flex flex-col" style={{ background:"#07071A" }}>
       {/* Header */}
       <div style={{ background:"linear-gradient(135deg, #0F172A 0%, #185FA5 100%)" }} className="px-5 pt-5 pb-6">
         <div className="max-w-2xl mx-auto">
@@ -831,7 +831,7 @@ function AffiliationBanner({ taux, mensualite }) {
   const [dismissed, setDismissed] = useState(false);
   if (dismissed || taux < 3.3) return null;
   return (
-    <div className="rounded-2xl border border-amber-200 overflow-hidden" style={{ background:"#FFFBEB" }}>
+    <div className="rounded-2xl border border-amber-200 overflow-hidden" style={{ background:"rgba(245,158,11,0.08)" }}>
       <div className="p-4">
         <div className="flex items-start justify-between gap-2 mb-2">
           <div className="flex items-center gap-2">
@@ -2333,21 +2333,21 @@ function StepResultats({ form, results, comparaison, amort, onLead, onArgumentai
           sub="Taux de rendement interne" icon="📈"
           help={LEXIQUE["TRI"]}
           color={best.tri>=6?"#10B981":best.tri>=4?"#F59E0B":"#EF4444"}
-          bg={best.tri>=6?"#ECFDF5":best.tri>=4?"#FFFBEB":"#FEF2F2"} />
+          bg={best.tri>=6?"rgba(16,185,129,0.15)":best.tri>=4?"rgba(245,158,11,0.12)":"rgba(239,68,68,0.15)"} />
         <KPICard label="Cash-flow mensuel" value={fmtK(best.cashflowM)}
           sub="Après crédit, IR + prélèvements sociaux" icon="💸"
           help={LEXIQUE["Cash-flow"]}
           color={best.cashflowM>=0?"#10B981":"#EF4444"}
-          bg={best.cashflowM>=0?"#ECFDF5":"#FEF2F2"} />
+          bg={best.cashflowM>=0?"rgba(16,185,129,0.15)":"rgba(239,68,68,0.15)"} />
         <KPICard label="Rendement net" value={`${best.rendNet.toFixed(2)} %`}
           sub="(loyers − charges) / prix total achat" icon="🏠"
           help={LEXIQUE["Rendement net"]}
-          color="#185FA5" bg="#EFF6FF" />
+          color="#A78BFA" bg="rgba(124,58,237,0.12)" />
         <KPICard label="Taux d'endettement" value={`${best.ratioEndt} %`}
           sub={best.ratioEndt<=35?"✅ Règle HCSF OK":"⚠ Dépasse 35%"} icon="⚖️"
           help={LEXIQUE["Ratio d'endettement"]}
           color={best.ratioEndt<=35?"#10B981":"#EF4444"}
-          bg={best.ratioEndt<=35?"#ECFDF5":"#FEF2F2"} />
+          bg={best.ratioEndt<=35?"rgba(16,185,129,0.15)":"rgba(239,68,68,0.15)"} />
       </div>
 
       {/* ─── Économie fiscale LMNP — l'argument n°1 ─── */}
@@ -2358,7 +2358,7 @@ function StepResultats({ form, results, comparaison, amort, onLead, onArgumentai
         const tmiLabel   = form.tmi === 0 ? "Non imposable" : `${form.tmi} %`;
         return (
           <div className="rounded-2xl overflow-hidden border border-emerald-200"
-            style={{ background:"linear-gradient(135deg,#ECFDF5 0%,#D1FAE5 100%)" }}>
+            style={{ background:"linear-gradient(135deg,rgba(16,185,129,0.18) 0%,rgba(5,150,105,0.12) 100%)" }}>
             <div className="px-4 pt-4 pb-1 flex items-center gap-2">
               <span className="text-xl">🛡️</span>
               <div>
@@ -3314,7 +3314,7 @@ export default function App() {
 
   /* ── Simulateur ── */
   return (
-    <div className="min-h-screen" style={{ background:"#F1F5F9" }}>
+    <div className="min-h-screen" style={{ background:"#07071A" }}>
       {/* ── HEADER ── */}
       <header style={{ background:"linear-gradient(135deg, #0F172A 0%, #185FA5 100%)" }}
         className="sticky top-0 z-40">

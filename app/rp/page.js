@@ -49,7 +49,7 @@ function Tip({ text }) {
 function Card({ children, style = {} }) {
   return (
     <div style={{
-      background: "white", borderRadius: 20, border: "1px solid #E2E8F0",
+      background: "rgba(255,255,255,0.06)", borderRadius: 20, border: "1px solid rgba(255,255,255,0.1)",
       boxShadow: "0 2px 8px rgba(0,0,0,0.04)", padding: 20, ...style,
     }}>
       {children}
@@ -74,7 +74,7 @@ function SliderInput({ label, value, onChange, min, max, step = 1, format = fmt,
   return (
     <div style={{ marginBottom: 16 }}>
       <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
-        <span style={{ fontSize: 13, fontWeight: 600, color: "#334155", display:"flex", alignItems:"center" }}>
+        <span style={{ fontSize: 13, fontWeight: 600, color: "rgba(248,250,252,0.8)", display:"flex", alignItems:"center" }}>
           {label}{help && <Tip text={help} />}
         </span>
         <span style={{ fontSize: 13, fontWeight: 700, color }}>{format(value)}</span>
@@ -88,8 +88,8 @@ function SliderInput({ label, value, onChange, min, max, step = 1, format = fmt,
         }}
       />
       <div style={{ display: "flex", justifyContent: "space-between", marginTop: 3 }}>
-        <span style={{ fontSize: 10, color: "#94A3B8" }}>{format(min)}</span>
-        <span style={{ fontSize: 10, color: "#94A3B8" }}>{format(max)}</span>
+        <span style={{ fontSize: 10, color: "rgba(248,250,252,0.4)" }}>{format(min)}</span>
+        <span style={{ fontSize: 10, color: "rgba(248,250,252,0.4)" }}>{format(max)}</span>
       </div>
     </div>
   );
@@ -98,11 +98,11 @@ function SliderInput({ label, value, onChange, min, max, step = 1, format = fmt,
 function SelectInput({ label, value, onChange, options }) {
   return (
     <div style={{ marginBottom: 16 }}>
-      <label style={{ display: "block", fontSize: 13, fontWeight: 600, color: "#334155", marginBottom: 6 }}>{label}</label>
+      <label style={{ display: "block", fontSize: 13, fontWeight: 600, color: "rgba(248,250,252,0.8)", marginBottom: 6 }}>{label}</label>
       <select value={value} onChange={e => onChange(e.target.value)}
         style={{
-          width: "100%", border: "1.5px solid #E2E8F0", borderRadius: 12,
-          background: "#F8FAFC", padding: "10px 14px", fontSize: 13, color: "#0F172A",
+          width: "100%", border: "1.5px solid rgba(255,255,255,0.1)", borderRadius: 12,
+          background: "rgba(255,255,255,0.05)", padding: "10px 14px", fontSize: 13, color: "#F8FAFC",
           outline: "none",
         }}>
         {options.map(o => <option key={o.v} value={o.v}>{o.l}</option>)}
@@ -114,15 +114,15 @@ function SelectInput({ label, value, onChange, options }) {
 function NumInput({ label, value, onChange, suffix = "" }) {
   return (
     <div style={{ marginBottom: 16 }}>
-      <label style={{ display: "block", fontSize: 13, fontWeight: 600, color: "#334155", marginBottom: 6 }}>{label}</label>
+      <label style={{ display: "block", fontSize: 13, fontWeight: 600, color: "rgba(248,250,252,0.8)", marginBottom: 6 }}>{label}</label>
       <div style={{
         display: "flex", alignItems: "center",
-        border: "1.5px solid #E2E8F0", borderRadius: 12, background: "#F8FAFC",
+        border: "1.5px solid rgba(255,255,255,0.1)", borderRadius: 12, background: "rgba(255,255,255,0.05)",
       }}>
         <input type="number" value={value} onChange={e => onChange(+e.target.value)}
-          style={{ flex: 1, background: "transparent", padding: "10px 14px", fontSize: 13, color: "#0F172A", outline: "none", border: "none" }}
+          style={{ flex: 1, background: "transparent", padding: "10px 14px", fontSize: 13, color: "#F8FAFC", outline: "none", border: "none" }}
         />
-        {suffix && <span style={{ paddingRight: 12, fontSize: 12, color: "#94A3B8", fontWeight: 600 }}>{suffix}</span>}
+        {suffix && <span style={{ paddingRight: 12, fontSize: 12, color: "rgba(248,250,252,0.4)", fontWeight: 600 }}>{suffix}</span>}
       </div>
     </div>
   );
@@ -135,7 +135,7 @@ function KPIBox({ label, value, sub, color = "#185FA5", bg = "#EFF6FF", help }) 
         {label}{help && <Tip text={help} />}
       </div>
       <div style={{ fontSize: 22, fontWeight: 800, color, lineHeight: 1 }}>{value}</div>
-      {sub && <div style={{ fontSize: 10, color: "#94A3B8", marginTop: 4 }}>{sub}</div>}
+      {sub && <div style={{ fontSize: 10, color: "rgba(248,250,252,0.4)", marginTop: 4 }}>{sub}</div>}
     </div>
   );
 }
@@ -212,8 +212,8 @@ function LoueurVsAcheteur() {
   return (
     <div>
       <SectionBadge icon="🏠" label="Louer vs Acheter" color="#185FA5" bg="#EFF6FF" />
-      <h2 style={{ fontSize: 18, fontWeight: 800, color: "#0F172A", marginBottom: 6 }}>Comparer sur {horizon} ans</h2>
-      <p style={{ fontSize: 13, color: "#64748B", marginBottom: 20, lineHeight: 1.6 }}>
+      <h2 style={{ fontSize: 18, fontWeight: 800, color: "#F8FAFC", marginBottom: 6 }}>Comparer sur {horizon} ans</h2>
+      <p style={{ fontSize: 13, color: "rgba(248,250,252,0.5)", marginBottom: 20, lineHeight: 1.6 }}>
         Simulez la différence de patrimoine net entre acheter votre résidence et rester locataire.
       </p>
 
@@ -246,7 +246,7 @@ function LoueurVsAcheteur() {
               ? `Acheter est plus rentable de ${fmt(avantage)} sur ${horizon} ans`
               : `Louer conserve ${fmt(Math.abs(avantage))} de plus sur ${horizon} ans`}
           </div>
-          <div style={{ fontSize: 11, color: "#64748B", marginTop: 2 }}>
+          <div style={{ fontSize: 11, color: "rgba(248,250,252,0.5)", marginTop: 2 }}>
             Propriétaire : {fmt(derniere["Propriétaire"])} · Locataire : {fmt(derniere["Locataire"])}
           </div>
         </div>
@@ -361,22 +361,22 @@ function AnalyseurDPE() {
   return (
     <div>
       <SectionBadge icon="🌿" label="Analyse DPE & Budget Travaux" color="#059669" bg="#ECFDF5" />
-      <h2 style={{ fontSize: 18, fontWeight: 800, color: "#0F172A", marginBottom: 6 }}>Évaluer le coût énergétique</h2>
-      <p style={{ fontSize: 13, color: "#64748B", marginBottom: 20, lineHeight: 1.6 }}>
+      <h2 style={{ fontSize: 18, fontWeight: 800, color: "#F8FAFC", marginBottom: 6 }}>Évaluer le coût énergétique</h2>
+      <p style={{ fontSize: 13, color: "rgba(248,250,252,0.5)", marginBottom: 20, lineHeight: 1.6 }}>
         Saisissez la classe DPE du bien et sélectionnez les travaux envisagés pour estimer le budget rénovation.
       </p>
 
       {/* Sélecteur DPE */}
       <div style={{ marginBottom: 20 }}>
-        <div style={{ fontSize: 13, fontWeight: 600, color: "#334155", marginBottom: 10 }}>Classe DPE actuelle</div>
+        <div style={{ fontSize: 13, fontWeight: 600, color: "rgba(248,250,252,0.8)", marginBottom: 10 }}>Classe DPE actuelle</div>
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
           {Object.entries(DPE_DATA).map(([cls, d]) => (
             <button key={cls} onClick={() => setDpe(cls)}
               style={{
                 width: 44, height: 44, borderRadius: 10, fontWeight: 800, fontSize: 15,
-                background: dpe === cls ? d.color : "#F8FAFC",
+                background: dpe === cls ? d.color : "rgba(255,255,255,0.06)",
                 color: dpe === cls ? "white" : d.color,
-                border: `2px solid ${dpe === cls ? d.color : "#E2E8F0"}`,
+                border: `2px solid ${dpe === cls ? d.color : "rgba(255,255,255,0.1)"}`,
                 cursor: "pointer", transition: "all 0.15s",
               }}>
               {cls}
@@ -398,7 +398,7 @@ function AnalyseurDPE() {
           }}>{dpe}</div>
           <div>
             <div style={{ fontSize: 14, fontWeight: 700, color: info.color }}>{info.label}</div>
-            <div style={{ fontSize: 11, color: "#64748B", marginTop: 2 }}>{info.conseil}</div>
+            <div style={{ fontSize: 11, color: "rgba(248,250,252,0.5)", marginTop: 2 }}>{info.conseil}</div>
           </div>
         </div>
       </div>
@@ -408,14 +408,14 @@ function AnalyseurDPE() {
       <SliderInput label="Nombre de fenêtres" value={nbFenetres} onChange={setNbFenetres} min={1} max={20} step={1} format={v => `${v} fenêtres`} color="#059669" />
 
       {/* Checklist travaux */}
-      <div style={{ fontSize: 13, fontWeight: 600, color: "#334155", marginBottom: 10 }}>Travaux envisagés</div>
+      <div style={{ fontSize: 13, fontWeight: 600, color: "rgba(248,250,252,0.8)", marginBottom: 10 }}>Travaux envisagés</div>
       <div style={{ display: "grid", gap: 8, marginBottom: 20 }}>
         {travauxItems.map(t => (
           <label key={t.key} style={{
             display: "flex", alignItems: "center", justifyContent: "space-between",
             padding: "12px 14px", borderRadius: 12, cursor: "pointer",
-            background: travaux[t.key] ? "#ECFDF5" : "#F8FAFC",
-            border: `1.5px solid ${travaux[t.key] ? "#A7F3D0" : "#E2E8F0"}`,
+            background: travaux[t.key] ? "rgba(16,185,129,0.15)" : "rgba(255,255,255,0.05)",
+            border: `1.5px solid ${travaux[t.key] ? "rgba(16,185,129,0.4)" : "rgba(255,255,255,0.1)"}`,
             transition: "all 0.15s",
           }}>
             <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
@@ -424,7 +424,7 @@ function AnalyseurDPE() {
                 style={{ width: 16, height: 16, accentColor: "#059669" }}
               />
               <span style={{ fontSize: 13 }}>{t.icon}</span>
-              <span style={{ fontSize: 13, fontWeight: 500, color: "#334155" }}>{t.label}</span>
+              <span style={{ fontSize: 13, fontWeight: 500, color: "rgba(248,250,252,0.8)" }}>{t.label}</span>
             </div>
             <span style={{ fontSize: 13, fontWeight: 700, color: "#059669" }}>{fmt(t.cout)}</span>
           </label>
@@ -497,8 +497,8 @@ function CalculateurPTZ() {
   return (
     <div>
       <SectionBadge icon="🏦" label="Calculateur PTZ" color="#7C3AED" bg="#F5F3FF" />
-      <h2 style={{ fontSize: 18, fontWeight: 800, color: "#0F172A", marginBottom: 6 }}>Prêt à Taux Zéro 2026</h2>
-      <p style={{ fontSize: 13, color: "#64748B", marginBottom: 20, lineHeight: 1.6 }}>
+      <h2 style={{ fontSize: 18, fontWeight: 800, color: "#F8FAFC", marginBottom: 6 }}>Prêt à Taux Zéro 2026</h2>
+      <p style={{ fontSize: 13, color: "rgba(248,250,252,0.5)", marginBottom: 20, lineHeight: 1.6 }}>
         Le PTZ finance jusqu'à 50% de votre achat sans intérêts. Vérifiez votre éligibilité.
       </p>
 
@@ -520,12 +520,12 @@ function CalculateurPTZ() {
 
       {/* Plafond de revenus */}
       <div style={{
-        background: "#F5F3FF", borderRadius: 12, padding: "12px 14px", marginBottom: 20,
+        background: "rgba(124,58,237,0.12)", borderRadius: 12, padding: "12px 14px", marginBottom: 20,
         display: "flex", justifyContent: "space-between", alignItems: "center",
       }}>
         <div>
           <div style={{ fontSize: 12, color: "#7C3AED", fontWeight: 600 }}>Plafond de revenus zone {zone}</div>
-          <div style={{ fontSize: 11, color: "#94A3B8" }}>Pour {nbPersonnes} personne{nbPersonnes > 1 ? "s" : ""}</div>
+          <div style={{ fontSize: 11, color: "rgba(248,250,252,0.4)" }}>Pour {nbPersonnes} personne{nbPersonnes > 1 ? "s" : ""}</div>
         </div>
         <div style={{ fontSize: 18, fontWeight: 800, color: "#7C3AED" }}>{fmt(result.plafond)}</div>
       </div>
@@ -555,12 +555,12 @@ function CalculateurPTZ() {
         </div>
       ) : (
         <div style={{
-          background: "#FEF2F2", border: "1px solid #FECACA",
+          background: "rgba(239,68,68,0.15)", border: "1px solid #FECACA",
           borderRadius: 14, padding: "16px", textAlign: "center",
         }}>
           <div style={{ fontSize: 20, marginBottom: 8 }}>❌</div>
           <div style={{ fontSize: 14, fontWeight: 700, color: "#DC2626", marginBottom: 4 }}>Non éligible au PTZ</div>
-          <div style={{ fontSize: 12, color: "#94A3B8" }}>
+          <div style={{ fontSize: 12, color: "rgba(248,250,252,0.4)" }}>
             Vos revenus ({fmt(revenus)}) dépassent le plafond de {fmt(result.plafond)} pour votre zone et composition de foyer.
           </div>
         </div>
@@ -645,17 +645,17 @@ function AssistantNegociation() {
   return (
     <div>
       <SectionBadge icon="📍" label="DVF & Négociation" color="#DC2626" bg="#FEF2F2" />
-      <h2 style={{ fontSize: 18, fontWeight: 800, color: "#0F172A", marginBottom: 6 }}>Négocier avec les données réelles</h2>
-      <p style={{ fontSize: 13, color: "#64748B", marginBottom: 20, lineHeight: 1.6 }}>
+      <h2 style={{ fontSize: 18, fontWeight: 800, color: "#F8FAFC", marginBottom: 6 }}>Négocier avec les données réelles</h2>
+      <p style={{ fontSize: 13, color: "rgba(248,250,252,0.5)", marginBottom: 20, lineHeight: 1.6 }}>
         Comparez le prix affiché aux transactions réelles (DVF) et générez un argumentaire de négociation.
       </p>
 
       {/* Recherche DVF */}
       <div style={{
-        background: "#F8FAFC", borderRadius: 14, padding: "16px",
-        marginBottom: 20, border: "1px solid #E2E8F0",
+        background: "rgba(255,255,255,0.05)", borderRadius: 14, padding: "16px",
+        marginBottom: 20, border: "1px solid rgba(255,255,255,0.1)",
       }}>
-        <div style={{ fontSize: 13, fontWeight: 700, color: "#334155", marginBottom: 12 }}>
+        <div style={{ fontSize: 13, fontWeight: 700, color: "rgba(248,250,252,0.8)", marginBottom: 12 }}>
           📊 Rechercher les prix du marché
         </div>
         <div style={{ display: "flex", gap: 8 }}>
@@ -664,7 +664,7 @@ function AssistantNegociation() {
             value={codePostal}
             onChange={e => setCodePostal(e.target.value)}
             style={{
-              flex: 1, border: "1.5px solid #E2E8F0", borderRadius: 10,
+              flex: 1, border: "1.5px solid rgba(255,255,255,0.1)", borderRadius: 10,
               padding: "10px 12px", fontSize: 13, outline: "none",
             }}
           />
@@ -685,21 +685,21 @@ function AssistantNegociation() {
         <div style={{ marginBottom: 20 }}>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 8, marginBottom: 12 }}>
             <KPIBox label="Prix moyen" value={`${dvfData.prixMoyen} €/m²`} sub={`${dvfData.nbTransactions} ventes`} color="#DC2626" bg="#FEF2F2" help={LEXIQUE_RP["DVF"]} />
-            <KPIBox label="Prix min" value={`${dvfData.prixMin} €/m²`} sub="Marché" color="#64748B" bg="#F8FAFC" help="Prix le plus bas constaté parmi les ventes DVF dans ce code postal. Peut correspondre à un logement atypique ou dégradé." />
-            <KPIBox label="Prix max" value={`${dvfData.prixMax} €/m²`} sub="Marché" color="#64748B" bg="#F8FAFC" help="Prix le plus élevé constaté. Peut correspondre à un bien d'exception, refait à neuf ou très bien situé." />
+            <KPIBox label="Prix min" value={`${dvfData.prixMin} €/m²`} sub="Marché" color="#64748B" bg="rgba(255,255,255,0.06)" help="Prix le plus bas constaté parmi les ventes DVF dans ce code postal. Peut correspondre à un logement atypique ou dégradé." />
+            <KPIBox label="Prix max" value={`${dvfData.prixMax} €/m²`} sub="Marché" color="#64748B" bg="rgba(255,255,255,0.06)" help="Prix le plus élevé constaté. Peut correspondre à un bien d'exception, refait à neuf ou très bien situé." />
           </div>
           {/* Transactions récentes */}
-          <div style={{ background: "#F8FAFC", borderRadius: 12, padding: 12 }}>
-            <div style={{ fontSize: 12, fontWeight: 700, color: "#334155", marginBottom: 8 }}>Dernières transactions</div>
+          <div style={{ background: "rgba(255,255,255,0.05)", borderRadius: 12, padding: 12 }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: "rgba(248,250,252,0.8)", marginBottom: 8 }}>Dernières transactions</div>
             {dvfData.recent.map((t, i) => (
               <div key={i} style={{
                 display: "flex", justifyContent: "space-between", alignItems: "center",
                 padding: "6px 0", borderBottom: i < dvfData.recent.length - 1 ? "1px solid #E2E8F0" : "none",
               }}>
-                <span style={{ fontSize: 11, color: "#64748B" }}>{t.date} · {t.surface}m²</span>
+                <span style={{ fontSize: 11, color: "rgba(248,250,252,0.5)" }}>{t.date} · {t.surface}m²</span>
                 <div style={{ textAlign: "right" }}>
-                  <div style={{ fontSize: 12, fontWeight: 700, color: "#0F172A" }}>{fmt(t.prix)}</div>
-                  <div style={{ fontSize: 10, color: "#94A3B8" }}>{t.prixM2} €/m²</div>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: "#F8FAFC" }}>{fmt(t.prix)}</div>
+                  <div style={{ fontSize: 10, color: "rgba(248,250,252,0.4)" }}>{t.prixM2} €/m²</div>
                 </div>
               </div>
             ))}
@@ -727,7 +727,7 @@ function AssistantNegociation() {
             bg={ecart !== null && ecart > 3 ? "#FEF2F2" : "#ECFDF5"}
           />
         ) : (
-          <KPIBox label="Prix marché" value="—" sub="Recherchez un code postal" color="#94A3B8" bg="#F8FAFC" />
+          <KPIBox label="Prix marché" value="—" sub="Recherchez un code postal" color="#94A3B8" bg="rgba(255,255,255,0.06)" />
         )}
       </div>
 
@@ -818,23 +818,23 @@ function ChecklistVisite() {
   return (
     <div>
       <SectionBadge icon="✅" label="Checklist de visite" color="#7C3AED" bg="#F5F3FF" />
-      <h2 style={{ fontSize: 18, fontWeight: 800, color: "#0F172A", marginBottom: 6 }}>Ne rien oublier lors de la visite</h2>
-      <p style={{ fontSize: 13, color: "#64748B", marginBottom: 16, lineHeight: 1.6 }}>
+      <h2 style={{ fontSize: 18, fontWeight: 800, color: "#F8FAFC", marginBottom: 6 }}>Ne rien oublier lors de la visite</h2>
+      <p style={{ fontSize: 13, color: "rgba(248,250,252,0.5)", marginBottom: 16, lineHeight: 1.6 }}>
         Vérifiez chaque point pendant votre visite. Les points critiques sont à examiner en priorité.
       </p>
 
       {/* Progression */}
       <div style={{
-        background: "#F5F3FF", borderRadius: 14, padding: "14px 16px", marginBottom: 20,
+        background: "rgba(124,58,237,0.12)", borderRadius: 14, padding: "14px 16px", marginBottom: 20,
         display: "flex", justifyContent: "space-between", alignItems: "center",
       }}>
         <div>
           <div style={{ fontSize: 14, fontWeight: 800, color: "#7C3AED" }}>{done}/{total} points vérifiés</div>
-          <div style={{ fontSize: 11, color: "#94A3B8" }}>{critiquesOk}/{critiquesTotal} points critiques</div>
+          <div style={{ fontSize: 11, color: "rgba(248,250,252,0.4)" }}>{critiquesOk}/{critiquesTotal} points critiques</div>
         </div>
         <div style={{ width: 60, height: 60, position: "relative" }}>
           <svg viewBox="0 0 36 36" style={{ transform: "rotate(-90deg)" }}>
-            <circle cx="18" cy="18" r="15.9" fill="none" stroke="#E2E8F0" strokeWidth="3" />
+            <circle cx="18" cy="18" r="15.9" fill="none" stroke="rgba(255,255,255,0.15)" strokeWidth="3" />
             <circle cx="18" cy="18" r="15.9" fill="none" stroke="#7C3AED" strokeWidth="3"
               strokeDasharray={`${(done / total) * 100} 100`} strokeLinecap="round" />
           </svg>
@@ -848,7 +848,7 @@ function ChecklistVisite() {
       {/* Items par catégorie */}
       {cats.map(cat => (
         <div key={cat} style={{ marginBottom: 20 }}>
-          <div style={{ fontSize: 12, fontWeight: 700, color: "#94A3B8", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 10 }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: "rgba(248,250,252,0.4)", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 10 }}>
             {cat}
           </div>
           <div style={{ display: "grid", gap: 8 }}>
@@ -857,8 +857,8 @@ function ChecklistVisite() {
                 <label style={{
                   display: "flex", alignItems: "center", gap: 12,
                   padding: "12px 14px", borderRadius: 12, cursor: "pointer",
-                  background: checked[item.id] ? "#F5F3FF" : "#F8FAFC",
-                  border: `1.5px solid ${checked[item.id] ? "#C4B5FD" : "#E2E8F0"}`,
+                  background: checked[item.id] ? "rgba(124,58,237,0.15)" : "rgba(255,255,255,0.05)",
+                  border: `1.5px solid ${checked[item.id] ? "rgba(196,181,253,0.6)" : "rgba(255,255,255,0.1)"}`,
                   transition: "all 0.15s",
                 }}>
                   <input type="checkbox" checked={!!checked[item.id]} onChange={() => toggle(item.id)}
@@ -892,7 +892,7 @@ function ChecklistVisite() {
                     style={{
                       width: "100%", marginTop: 4, padding: "8px 12px", borderRadius: 10,
                       border: "1.5px solid #C4B5FD", fontSize: 12, resize: "vertical",
-                      minHeight: 60, outline: "none", background: "#FDFBFF", boxSizing: "border-box",
+                      minHeight: 60, outline: "none", background: "rgba(255,255,255,0.06)", boxSizing: "border-box",
                     }}
                   />
                 )}
@@ -904,8 +904,8 @@ function ChecklistVisite() {
 
       <button onClick={reset} style={{
         width: "100%", padding: "12px", borderRadius: 12,
-        border: "1.5px solid #E2E8F0", background: "#F8FAFC",
-        fontSize: 13, fontWeight: 600, color: "#94A3B8", cursor: "pointer",
+        border: "1.5px solid rgba(255,255,255,0.1)", background: "rgba(255,255,255,0.05)",
+        fontSize: 13, fontWeight: 600, color: "rgba(248,250,252,0.4)", cursor: "pointer",
       }}>
         🗑️ Réinitialiser la checklist
       </button>
@@ -931,7 +931,7 @@ export default function ResidencePrincipalePage() {
   const tool = TOOLS.find(t => t.id === activeTool);
 
   return (
-    <div className="min-h-screen" style={{ background: "#F1F5F9" }}>
+    <div className="min-h-screen" style={{ background: "#07071A" }}>
       {/* ── HEADER ── */}
       <header style={{
         background: "linear-gradient(135deg, #064E3B 0%, #059669 100%)",
@@ -971,7 +971,7 @@ export default function ResidencePrincipalePage() {
                   display: "flex", alignItems: "center", gap: 5,
                   padding: "6px 12px", borderRadius: 10, whiteSpace: "nowrap",
                   fontSize: 12, fontWeight: 700, cursor: "pointer", border: "none",
-                  background: activeTool === t.id ? "white" : "rgba(255,255,255,0.15)",
+                  background: activeTool === t.id ? "rgba(124,58,237,0.7)" : "rgba(255,255,255,0.1)",
                   color: activeTool === t.id ? "#059669" : "rgba(255,255,255,0.85)",
                   transition: "all 0.15s",
                   flexShrink: 0,
