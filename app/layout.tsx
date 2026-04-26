@@ -1,33 +1,38 @@
-import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  themeColor: "#07071A",
+};
 
 export const metadata: Metadata = {
-  title: "Patrimoine Immo — Simulateur LMNP & Résidence Principale",
-  description: "Deux simulateurs pour tous vos projets immobiliers : investissement locatif LMNP (4 régimes fiscaux, dossier bancaire PDF) et achat résidence principale (PTZ, DPE, DVF, louer vs acheter).",
+  title: "ImmoPilote — Simulateur LMNP & Résidence Principale",
+  description: "Votre copilote pour l'achat immobilier. Simulateur LMNP (4 régimes fiscaux, dossier bancaire), achat résidence principale (PTZ, DPE, DVF, louer vs acheter). 100 % gratuit.",
+  openGraph: {
+    title: "ImmoPilote — Simulateur immobilier gratuit",
+    description: "Simulez votre investissement LMNP ou votre achat de résidence principale en 2 minutes. PTZ, DPE, DVF, 4 régimes fiscaux.",
+    url: "https://simulateur-lmnp-v2.vercel.app",
+    siteName: "ImmoPilote",
+    locale: "fr_FR",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "ImmoPilote — Simulateur immobilier gratuit",
+    description: "LMNP, PTZ, DPE, DVF — tous vos outils immobiliers en un seul endroit.",
+  },
+  robots: { index: true, follow: true },
 };
 
 export default function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+}: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html
-      lang="fr"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
-    >
-      <body className="min-h-full flex flex-col">{children}</body>
+    <html lang="fr" className="h-full">
+      <body className="min-h-full flex flex-col antialiased">{children}</body>
     </html>
   );
 }

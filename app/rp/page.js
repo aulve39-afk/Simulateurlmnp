@@ -57,7 +57,7 @@ function Card({ children, style = {} }) {
   );
 }
 
-function SectionBadge({ icon, label, color = "#185FA5", bg = "#EFF6FF" }) {
+function SectionBadge({ icon, label, color = "#A78BFA", bg = "rgba(124,58,237,0.12)" }) {
   return (
     <div style={{
       display: "inline-flex", alignItems: "center", gap: 6,
@@ -69,7 +69,7 @@ function SectionBadge({ icon, label, color = "#185FA5", bg = "#EFF6FF" }) {
   );
 }
 
-function SliderInput({ label, value, onChange, min, max, step = 1, format = fmt, color = "#185FA5", help }) {
+function SliderInput({ label, value, onChange, min, max, step = 1, format = fmt, color = "#A78BFA", help }) {
   const pct = Math.round(((value - min) / (max - min)) * 100);
   return (
     <div style={{ marginBottom: 16 }}>
@@ -128,7 +128,7 @@ function NumInput({ label, value, onChange, suffix = "" }) {
   );
 }
 
-function KPIBox({ label, value, sub, color = "#185FA5", bg = "#EFF6FF", help }) {
+function KPIBox({ label, value, sub, color = "#A78BFA", bg = "rgba(124,58,237,0.12)", help }) {
   return (
     <div style={{ background: bg, borderRadius: 14, padding: "16px 14px", textAlign: "center" }}>
       <div style={{ fontSize: 9, fontWeight: 700, color, textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 4, display:"flex", alignItems:"center", justifyContent:"center", gap:2 }}>
@@ -211,7 +211,7 @@ function LoueurVsAcheteur() {
 
   return (
     <div>
-      <SectionBadge icon="🏠" label="Louer vs Acheter" color="#185FA5" bg="#EFF6FF" />
+      <SectionBadge icon="🏠" label="Louer vs Acheter" color="#A78BFA" bg="rgba(124,58,237,0.12)" />
       <h2 style={{ fontSize: 18, fontWeight: 800, color: "#F8FAFC", marginBottom: 6 }}>Comparer sur {horizon} ans</h2>
       <p style={{ fontSize: 13, color: "rgba(248,250,252,0.5)", marginBottom: 20, lineHeight: 1.6 }}>
         Simulez la différence de patrimoine net entre acheter votre résidence et rester locataire.
@@ -222,7 +222,7 @@ function LoueurVsAcheteur() {
           label="Coût mensuel proprio"
           value={fmt(coutProprio)}
           sub="Mensualité + charges + TF"
-          color="#185FA5" bg="#EFF6FF"
+          color="#A78BFA" bg="rgba(124,58,237,0.12)"
         />
         <KPIBox
           label={`Patrimoine net A${horizon}`}
@@ -258,8 +258,8 @@ function LoueurVsAcheteur() {
           <AreaChart data={data.rows} margin={{ top: 4, right: 4, left: -10, bottom: 0 }}>
             <defs>
               <linearGradient id="gProprio" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#185FA5" stopOpacity={0.2} />
-                <stop offset="95%" stopColor="#185FA5" stopOpacity={0} />
+                <stop offset="5%" stopColor="#7C3AED" stopOpacity={0.2} />
+                <stop offset="95%" stopColor="#7C3AED" stopOpacity={0} />
               </linearGradient>
               <linearGradient id="gLoc" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="5%" stopColor="#059669" stopOpacity={0.15} />
@@ -270,7 +270,7 @@ function LoueurVsAcheteur() {
             <XAxis dataKey="an" tick={{ fontSize: 10, fill: "#94A3B8" }} />
             <YAxis tickFormatter={v => `${Math.round(v / 1000)}k`} tick={{ fontSize: 10, fill: "#94A3B8" }} />
             <RTooltip formatter={(v, n) => [fmt(v), n]} contentStyle={{ borderRadius: 10, fontSize: 12 }} />
-            <Area type="monotone" dataKey="Propriétaire" stroke="#185FA5" strokeWidth={2} fill="url(#gProprio)" />
+            <Area type="monotone" dataKey="Propriétaire" stroke="#7C3AED" strokeWidth={2} fill="url(#gProprio)" />
             <Area type="monotone" dataKey="Locataire" stroke="#059669" strokeWidth={2} fill="url(#gLoc)" />
           </AreaChart>
         </ResponsiveContainer>
@@ -278,16 +278,16 @@ function LoueurVsAcheteur() {
 
       {/* Paramètres */}
       <details style={{ marginTop: 8 }}>
-        <summary style={{ fontSize: 13, fontWeight: 700, color: "#185FA5", cursor: "pointer", listStyle: "none", padding: "8px 0" }}>
+        <summary style={{ fontSize: 13, fontWeight: 700, color: "#A78BFA", cursor: "pointer", listStyle: "none", padding: "8px 0" }}>
           ⚙️ Modifier les paramètres
         </summary>
         <div style={{ paddingTop: 16 }}>
-          <SliderInput label="Prix du bien" value={prix} onChange={setPrix} min={80000} max={800000} step={5000} color="#185FA5" />
-          <SliderInput label="Apport" value={apport} onChange={setApport} min={0} max={200000} step={1000} color="#185FA5" help="Somme apportée de votre poche. Recommandé : 10% minimum. Plus l'apport est élevé, meilleur est le taux et moins vous payez d'intérêts." />
-          <SliderInput label="Loyer actuel (si locataire)" value={loyer_loc} onChange={setLoyerLoc} min={300} max={3500} step={50} color="#185FA5" help="Votre loyer mensuel actuel. Sert à calculer ce que vous économisez (ou dépensez de plus) en achetant vs en restant locataire." />
-          <SliderInput label="Taux du crédit" value={taux} onChange={setTaux} min={1} max={6} step={0.05} format={v => `${v.toFixed(2)} %`} color="#185FA5" help="Taux nominal hors assurance. Comparez les offres de plusieurs banques ou passez par un courtier pour obtenir les meilleures conditions." />
-          <SliderInput label="Durée du crédit (ans)" value={duree} onChange={setDuree} min={10} max={25} step={1} format={v => `${v} ans`} color="#185FA5" help="Durée standard : 20–25 ans. Une durée plus longue réduit la mensualité mais augmente le coût total des intérêts." />
-          <SliderInput label="Horizon de comparaison (ans)" value={horizon} onChange={setHorizon} min={5} max={25} step={1} format={v => `${v} ans`} color="#185FA5" help="Nombre d'années pendant lesquelles vous comparez louer vs acheter. En dessous de 5 ans, louer est souvent plus rentable (frais de notaire non amortis)." />
+          <SliderInput label="Prix du bien" value={prix} onChange={setPrix} min={80000} max={800000} step={5000} color="#A78BFA" />
+          <SliderInput label="Apport" value={apport} onChange={setApport} min={0} max={200000} step={1000} color="#A78BFA" help="Somme apportée de votre poche. Recommandé : 10% minimum. Plus l'apport est élevé, meilleur est le taux et moins vous payez d'intérêts." />
+          <SliderInput label="Loyer actuel (si locataire)" value={loyer_loc} onChange={setLoyerLoc} min={300} max={3500} step={50} color="#A78BFA" help="Votre loyer mensuel actuel. Sert à calculer ce que vous économisez (ou dépensez de plus) en achetant vs en restant locataire." />
+          <SliderInput label="Taux du crédit" value={taux} onChange={setTaux} min={1} max={6} step={0.05} format={v => `${v.toFixed(2)} %`} color="#A78BFA" help="Taux nominal hors assurance. Comparez les offres de plusieurs banques ou passez par un courtier pour obtenir les meilleures conditions." />
+          <SliderInput label="Durée du crédit (ans)" value={duree} onChange={setDuree} min={10} max={25} step={1} format={v => `${v} ans`} color="#A78BFA" help="Durée standard : 20–25 ans. Une durée plus longue réduit la mensualité mais augmente le coût total des intérêts." />
+          <SliderInput label="Horizon de comparaison (ans)" value={horizon} onChange={setHorizon} min={5} max={25} step={1} format={v => `${v} ans`} color="#A78BFA" help="Nombre d'années pendant lesquelles vous comparez louer vs acheter. En dessous de 5 ans, louer est souvent plus rentable (frais de notaire non amortis)." />
           <SliderInput label="Revalorisation annuelle du bien" value={revalo} onChange={setRevalo} min={0} max={5} step={0.1} format={v => `${v.toFixed(1)} %/an`} color="#059669" help={LEXIQUE_RP["Revalo immobilière"]} />
           <SliderInput label="Rendement placement locataire" value={rendLocatif} onChange={setRendLocatif} min={0} max={8} step={0.1} format={v => `${v.toFixed(1)} %/an`} color="#059669" help="Rendement annuel du placement financier dans lequel le locataire investit la différence (apport + charges de propriété). Ex : 4% pour un PEA actions." />
         </div>
@@ -917,7 +917,7 @@ function ChecklistVisite() {
    PAGE PRINCIPALE
 ══════════════════════════════════════ */
 const TOOLS = [
-  { id: "louer",   label: "Louer vs Acheter",  icon: "🏠", color: "#185FA5", bg: "#EFF6FF" },
+  { id: "louer",   label: "Louer vs Acheter",  icon: "🏠", color: "#A78BFA", bg: "rgba(124,58,237,0.12)" },
   { id: "dpe",     label: "DPE & Travaux",      icon: "🌿", color: "#059669", bg: "#ECFDF5" },
   { id: "ptz",     label: "PTZ",                icon: "🏦", color: "#7C3AED", bg: "#F5F3FF" },
   { id: "dvf",     label: "Négociation DVF",    icon: "📍", color: "#DC2626", bg: "#FEF2F2" },

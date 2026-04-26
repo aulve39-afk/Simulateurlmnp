@@ -351,7 +351,7 @@ function SectionTitle({ icon, title, sub }) {
   );
 }
 
-function SliderField({ label, value, onChange, min, max, step=1, format=fmt, help, color="#185FA5" }) {
+function SliderField({ label, value, onChange, min, max, step=1, format=fmt, help, color="#A78BFA" }) {
   const pct = Math.round(((value-min)/(max-min))*100);
   return (
     <div className="mb-5">
@@ -568,7 +568,7 @@ function LandingPage({ onStart }) {
   return (
     <div className="min-h-screen flex flex-col" style={{ background:"#07071A" }}>
       {/* Hero */}
-      <div style={{ background:"linear-gradient(135deg, #0F172A 0%, #1e3a5f 60%, #185FA5 100%)" }}
+      <div style={{ background:"linear-gradient(135deg, #1a0533 0%, #2d1b69 50%, #1e3a8a 100%)" }}
         className="relative overflow-hidden">
         {/* Back to hub + Badge */}
         <div className="absolute top-4 left-4">
@@ -714,7 +714,7 @@ function LandingPage({ onStart }) {
       <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-100 px-5 py-3 shadow-lg pb-safe">
         <button onClick={onStart}
           className="w-full max-w-2xl mx-auto block py-3.5 rounded-xl text-sm font-extrabold text-white"
-          style={{ background:"linear-gradient(135deg, #185FA5, #1e40af)" }}>
+          style={{ background:"linear-gradient(135deg, #7C3AED, #2563EB)" }}>
           Commencer la simulation →
         </button>
       </div>
@@ -783,7 +783,7 @@ function OnboardingQuiz({ onComplete }) {
   return (
     <div className="min-h-screen flex flex-col" style={{ background:"#07071A" }}>
       {/* Header */}
-      <div style={{ background:"linear-gradient(135deg, #0F172A 0%, #185FA5 100%)" }} className="px-5 pt-5 pb-6">
+      <div style={{ background:"linear-gradient(135deg, #1a0533 0%, #3730a3 100%)" }} className="px-5 pt-5 pb-6">
         <div className="max-w-2xl mx-auto">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
@@ -890,7 +890,7 @@ function ReverseCalculator({ form }) {
           </div>
           <input type="range" min={-200} max={600} step={25} value={target}
             onChange={e => setTarget(+e.target.value)}
-            style={{ background:`linear-gradient(to right, #185FA5 ${Math.round(((target+200)/800)*100)}%, #E2E8F0 ${Math.round(((target+200)/800)*100)}%)` }}
+            style={{ background:`linear-gradient(to right, #7C3AED ${Math.round(((target+200)/800)*100)}%, #E2E8F0 ${Math.round(((target+200)/800)*100)}%)` }}
           />
           <div className="flex justify-between mt-1">
             <span className="text-[10px] text-slate-400">-200 €</span>
@@ -954,7 +954,7 @@ const TESTIMONIALS = [
     rating: 5,
     text: "Le calculateur inversé m'a évité de surpayer. Le bien était à 195 000 € mais pour mon objectif de 150 €/mois de cashflow, le prix max était 178 000 €. J'ai négocié à 180 000 €.",
     kpi: "–15 000 € négociés",
-    kpiColor: "#185FA5",
+    kpiColor: "#A78BFA",
   },
   {
     name: "Marc & Julie D.",
@@ -1136,7 +1136,7 @@ Simulation : loyer ${fmt(form.loyer)}/mois · apport ${fmt(form.apport)} · cré
         <div className="px-5 py-4 border-t border-slate-100 shrink-0">
           <button onClick={copy}
             className="w-full py-3 rounded-xl text-sm font-bold text-white transition-all active:scale-95"
-            style={{ background: copied ? "#10B981" : "linear-gradient(135deg, #0F172A, #185FA5)" }}>
+            style={{ background: copied ? "#10B981" : "linear-gradient(135deg, #1a0533, #7C3AED)" }}>
             {copied ? "✅ Copié dans le presse-papier !" : "📋 Copier l'argumentaire"}
           </button>
         </div>
@@ -1365,7 +1365,7 @@ function StepProjet({ form, set }) {
         {/* Checklist de visite */}
         <button onClick={() => downloadChecklist(form)}
           className="mt-3 w-full flex items-center justify-center gap-2 rounded-xl py-2.5 text-sm font-semibold text-white transition-all active:scale-95 hover:opacity-90"
-          style={{ background:"linear-gradient(135deg,#185FA5,#1e40af)" }}>
+          style={{ background:"linear-gradient(135deg,#7C3AED,#2563EB)" }}>
           📋 Télécharger ma checklist de visite
           <span className="text-blue-200 text-[10px] font-normal">6 sections · 40 points</span>
         </button>
@@ -1425,7 +1425,7 @@ function StepFinancement({ form, set }) {
         <div className="rounded-xl p-3 border mt-2" style={{ background: ratioColor+"11", borderColor: ratioColor+"44" }}>
           <div className="flex justify-between items-center">
             <span className="text-sm font-semibold text-slate-700">Mensualité estimée</span>
-            <span className="text-lg font-bold" style={{ color:"#185FA5" }}>{fmt(mens)}/mois</span>
+            <span className="text-lg font-bold" style={{ color:"#A78BFA" }}>{fmt(mens)}/mois</span>
           </div>
           <div className="flex justify-between items-center mt-1">
             <span className="text-xs text-slate-500">
@@ -1470,7 +1470,7 @@ function StepFinancement({ form, set }) {
             <p className="text-xs font-semibold text-slate-600 mb-2">📊 Répartition de vos revenus mensuels</p>
             <div className="flex h-5 rounded-lg overflow-hidden w-full mb-2.5 bg-green-100">
               {mens > 0 && (
-                <div style={{ width:`${Math.min(mens/form.revenusMensuels*100,100).toFixed(1)}%`, background:"#185FA5", transition:"width .4s" }}
+                <div style={{ width:`${Math.min(mens/form.revenusMensuels*100,100).toFixed(1)}%`, background:"#7C3AED", transition:"width .4s" }}
                   title={`Crédit LMNP : ${fmt(mens)}`} />
               )}
               {(+form.chargesCredit||0) > 0 && (
@@ -1581,7 +1581,7 @@ function MicroVsReelChart({ data }) {
           <YAxis tick={{ fontSize:10, fill:"#94A3B8" }} tickFormatter={v=>fmtK(v)} width={50} />
           <RTooltip formatter={(v,n) => [fmt(v), n]} labelStyle={{ fontSize:11 }} contentStyle={{ borderRadius:8, border:"1px solid #E2E8F0", fontSize:11 }} />
           <Bar dataKey="Micro-BIC" fill="#FBBF24" radius={[3,3,0,0]} />
-          <Bar dataKey="Régime Réel" fill="#185FA5" radius={[3,3,0,0]} />
+          <Bar dataKey="Régime Réel" fill="#7C3AED" radius={[3,3,0,0]} />
         </BarChart>
       </ResponsiveContainer>
       {breakEven > 0 && (
@@ -1632,8 +1632,8 @@ function CashflowChart({ rows }) {
       <AreaChart data={data} margin={{ top:0, right:0, left:0, bottom:0 }}>
         <defs>
           <linearGradient id="cfGrad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="5%" stopColor="#185FA5" stopOpacity={0.15}/>
-            <stop offset="95%" stopColor="#185FA5" stopOpacity={0}/>
+            <stop offset="5%" stopColor="#7C3AED" stopOpacity={0.15}/>
+            <stop offset="95%" stopColor="#7C3AED" stopOpacity={0}/>
           </linearGradient>
         </defs>
         <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" />
@@ -1641,7 +1641,7 @@ function CashflowChart({ rows }) {
         <YAxis tick={{ fontSize:10, fill:"#94A3B8" }} tickFormatter={v=>fmtK(v)} width={50} />
         <RTooltip formatter={(v,n) => [fmt(v), n]} contentStyle={{ borderRadius:8, border:"1px solid #E2E8F0", fontSize:11 }} />
         <ReferenceLine y={0} stroke="#E2E8F0" strokeWidth={1.5} />
-        <Area type="monotone" dataKey="Cash-flow" stroke="#185FA5" strokeWidth={2} fill="url(#cfGrad)" dot={{ r:3, fill:"#185FA5" }} />
+        <Area type="monotone" dataKey="Cash-flow" stroke="#7C3AED" strokeWidth={2} fill="url(#cfGrad)" dot={{ r:3, fill:"#7C3AED" }} />
       </AreaChart>
     </ResponsiveContainer>
   );
@@ -1768,7 +1768,7 @@ function PatrimoineChart({ rows, form }) {
           <Area  type="monotone" dataKey="patrimoineNet" name="💚 Patrimoine net"
             stroke="#10B981" fill="url(#gradPatrimoine)" strokeWidth={2} />
           <Line  type="monotone" dataKey="valeurBien"    name="🏠 Valeur du bien"
-            stroke="#185FA5" strokeWidth={2} dot={false} strokeDasharray="5 3" />
+            stroke="#7C3AED" strokeWidth={2} dot={false} strokeDasharray="5 3" />
           <Line  type="monotone" dataKey="detteRestante" name="🔴 Dette restante"
             stroke="#EF4444" strokeWidth={2} dot={false} strokeDasharray="3 2" />
         </AreaChart>
@@ -2142,7 +2142,7 @@ function AchatVsEpargneChart({ rows, form }) {
             <ReferenceLine x={`A${breakEven}`} stroke="#10B981" strokeDasharray="4 4"
               label={{ value:"Break-even", position:"insideTopLeft", fill:"#10B981", fontSize:10 }} />
           )}
-          <Line type="monotone" dataKey="achat"   stroke="#185FA5" strokeWidth={2.5} dot={false} />
+          <Line type="monotone" dataKey="achat"   stroke="#7C3AED" strokeWidth={2.5} dot={false} />
           <Line type="monotone" dataKey="epargne" stroke="#F59E0B" strokeWidth={2}   dot={false} strokeDasharray="5 5" />
         </LineChart>
       </ResponsiveContainer>
@@ -2185,7 +2185,7 @@ function PlusValueLatente({ form }) {
   };
 
   const rows = scenarios.map(calcScenario);
-  const colors = ["#6366F1","#185FA5","#10B981"];
+  const colors = ["#7C3AED","#2563EB","#10B981"];
 
   return (
     <div className="space-y-3">
@@ -2968,10 +2968,10 @@ function LeadModal({ onClose, form, results }) {
             <button
               onClick={() => downloadReport(form, results, amort, name)}
               className="w-full py-3 rounded-xl text-sm font-bold text-white mb-3"
-              style={{ background:"linear-gradient(135deg, #185FA5, #1e40af)" }}>
+              style={{ background:"linear-gradient(135deg, #7C3AED, #2563EB)" }}>
               ⬇ Télécharger le rapport (.html)
             </button>
-            <button onClick={onClose} className="w-full py-2.5 rounded-xl text-sm font-semibold border border-slate-200 text-slate-600 hover:bg-slate-50">
+            <button onClick={onClose} className="w-full py-2.5 rounded-xl text-sm font-semibold" style={{ border:"1px solid rgba(255,255,255,0.15)", color:"rgba(248,250,252,0.7)", background:"rgba(255,255,255,0.06)" }}>
               Fermer
             </button>
             {emailOk && (
@@ -3398,7 +3398,7 @@ export default function App() {
           {step < 3 ? (
             <button onClick={goNext} disabled={!canNext}
               className="flex-1 py-3 rounded-xl text-sm font-bold text-white transition-opacity disabled:opacity-50"
-              style={{ background:"linear-gradient(135deg, #185FA5, #1e40af)" }}>
+              style={{ background:"linear-gradient(135deg, #7C3AED, #2563EB)" }}>
               {step===2 ? "📊 Voir mes résultats →" : "Continuer →"}
             </button>
           ) : (
