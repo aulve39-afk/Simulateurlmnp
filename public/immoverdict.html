@@ -94,7 +94,7 @@ nav{
 /* ── HERO ── */
 #hero{
   min-height:100vh;display:flex;align-items:center;justify-content:center;
-  position:relative;overflow:hidden;padding:120px 24px 80px;
+  position:relative;overflow:hidden;padding:100px 24px 60px;
 }
 .hero-bg{
   position:absolute;inset:0;
@@ -136,7 +136,7 @@ h1{
 }
 .hero-desc{
   color:rgba(255,255,255,.55);font-size:clamp(1rem,2.5vw,1.2rem);
-  max-width:560px;margin:0 auto 40px;animation:slideUp 1s .2s ease both;
+  max-width:560px;margin:0 auto 28px;animation:slideUp 1s .2s ease both;
 }
 .hero-buttons{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;animation:slideUp 1.1s .3s ease both}
 .btn-primary{
@@ -155,7 +155,7 @@ h1{
 
 .hero-stats{
   display:flex;gap:12px;justify-content:center;flex-wrap:wrap;
-  margin-top:52px;animation:slideUp 1.2s .4s ease both;
+  margin-top:36px;animation:slideUp 1.2s .4s ease both;
 }
 .stat-pill{
   background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);
@@ -199,7 +199,7 @@ h1{
 .number-accent{display:inline-block;width:24px;height:3px;border-radius:2px;margin:12px auto;background:linear-gradient(90deg,var(--purple),var(--blue))}
 
 /* ── SERVICES ── */
-.section{padding:100px 24px}
+.section{padding:72px 24px}
 .section-inner{max-width:1080px;margin:0 auto}
 .section-label{
   display:inline-flex;align-items:center;gap:6px;
@@ -208,7 +208,7 @@ h1{
 }
 .section-label::before{content:'';display:block;width:20px;height:2px;background:var(--purple-light);border-radius:1px}
 .section-title{font-size:clamp(2rem,4vw,2.8rem);font-weight:900;letter-spacing:-1px;margin-bottom:16px;line-height:1.1}
-.section-sub{color:rgba(255,255,255,.5);font-size:1.05rem;max-width:540px;margin-bottom:60px}
+.section-sub{color:rgba(255,255,255,.5);font-size:1.05rem;max-width:540px;margin-bottom:40px}
 
 .services-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px}
 .service-card{
@@ -260,7 +260,7 @@ h1{
 .service-link:hover{gap:12px}
 
 /* ── HOW IT WORKS ── */
-.how-section{padding:100px 24px;background:var(--dark3)}
+.how-section{padding:72px 24px;background:var(--dark3)}
 .steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:0;position:relative}
 .steps::before{
   content:'';position:absolute;top:56px;left:15%;right:15%;height:2px;
@@ -322,7 +322,7 @@ h1{
 .kpi-sub{font-size:10px;color:rgba(255,255,255,.35);margin-top:2px}
 
 /* ── TESTIMONIALS ── */
-.testi-section{padding:100px 24px;background:var(--dark2)}
+.testi-section{padding:72px 24px;background:var(--dark2)}
 .testi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;margin-top:60px}
 .testi-card{
   background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);
@@ -556,27 +556,6 @@ footer{background:var(--dark);padding:60px 24px 32px;border-top:1px solid rgba(2
   </div>
 </div>
 
-<!-- NUMBERS -->
-<div class="numbers-section">
-  <div class="numbers-inner reveal">
-    <div class="number-block">
-      <div class="number-value">18 700 €</div>
-      <div class="number-accent"></div>
-      <div class="number-label">économie fiscale moyenne sur 10 ans<br/>LMNP Réel vs Micro-BIC</div>
-    </div>
-    <div class="number-block">
-      <div class="number-value">35 %</div>
-      <div class="number-accent"></div>
-      <div class="number-label">taux d'endettement max<br/>règle HCSF — simulé en temps réel</div>
-    </div>
-    <div class="number-block">
-      <div class="number-value">5 outils</div>
-      <div class="number-accent"></div>
-      <div class="number-label">pour les primo-accédants<br/>PTZ, DPE, DVF, Louer vs Acheter</div>
-    </div>
-  </div>
-</div>
-
 <!-- SERVICES -->
 <section class="section" id="services">
   <div class="section-inner">
@@ -659,75 +638,6 @@ footer{background:var(--dark);padding:60px 24px 32px;border-top:1px solid rgba(2
         <p>Téléchargez votre dossier bancaire PDF, utilisez l'argumentaire vendeur et prenez votre décision avec confiance.</p>
       </div>
     </div>
-  </div>
-</section>
-
-<!-- FEATURES ALTERNÉES -->
-<section class="section" id="simulateurs">
-  <div class="section-inner">
-
-    <div class="feature-row reveal">
-      <div class="feature-text">
-        <div class="feature-label">Simulateur LMNP</div>
-        <h2 class="feature-h">Votre impôt à zéro. Légalement.</h2>
-        <p class="feature-p">Le bouclier fiscal LMNP permet d'annuler l'imposition de vos revenus locatifs pendant 10 à 15 ans grâce aux amortissements par composants. Notre simulateur calcule exactement combien vous économisez.</p>
-        <div class="feature-chips">
-          <span class="chip">✦ Amortissements CGI Art. 39 C</span>
-          <span class="chip">✦ 4 régimes comparés</span>
-          <span class="chip">✦ TRI & cash-flow</span>
-          <span class="chip">✦ PDF bancaire inclus</span>
-        </div>
-      </div>
-      <div class="feature-visual">
-        <div class="mock-screen">
-          <div class="mock-header"><div class="mock-dot"></div><div class="mock-dot"></div><div class="mock-dot"></div></div>
-          <div class="mock-bar purple"></div>
-          <div class="mock-bar gray"></div>
-          <div class="mock-bar blue"></div>
-          <div style="margin-top:18px">
-            <div class="mock-row"><span class="mock-row-label">Amortissements / an</span><span class="mock-row-val">9 240 €</span></div>
-            <div class="mock-row"><span class="mock-row-label">Économie IR / an</span><span class="mock-row-val">2 772 €</span></div>
-            <div class="mock-row"><span class="mock-row-label">Cash-flow mensuel</span><span class="mock-row-val mock-val-green">+186 €</span></div>
-            <div class="mock-row"><span class="mock-row-label">TRI sur 20 ans</span><span class="mock-row-val mock-val-green">7,4 %</span></div>
-          </div>
-          <div class="kpi-grid">
-            <div class="kpi"><div class="kpi-num">🟢</div><div class="kpi-sub">Très bancable · 82/100</div></div>
-            <div class="kpi"><div class="kpi-num">15 ans</div><div class="kpi-sub">Bouclier fiscal actif</div></div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="feature-row reverse reveal">
-      <div class="feature-text">
-        <div class="feature-label">Primo-accédant</div>
-        <h2 class="feature-h">Acheter au bon prix, au bon moment.</h2>
-        <p class="feature-p">Notre assistant DVF interroge les données officielles de transactions pour vous donner le prix de marché réel dans votre code postal. Plus de doute sur si le vendeur vous surestime.</p>
-        <div class="feature-chips">
-          <span class="chip">✦ Prix DVF live</span>
-          <span class="chip">✦ PTZ 2026 officiel</span>
-          <span class="chip">✦ Louer vs Acheter</span>
-          <span class="chip">✦ Checklist 15 points</span>
-        </div>
-      </div>
-      <div class="feature-visual">
-        <div class="mock-screen">
-          <div class="mock-header"><div class="mock-dot"></div><div class="mock-dot"></div><div class="mock-dot"></div></div>
-          <div style="text-align:center;margin-bottom:16px">
-            <div style="font-size:11px;color:rgba(255,255,255,.35);margin-bottom:4px">PRIX DU MARCHÉ · LYON 3e</div>
-            <div style="font-size:28px;font-weight:900;color:#F87171">4 280 €/m²</div>
-            <div style="font-size:11px;color:rgba(255,255,255,.35)">Moyenne · 48 transactions DVF</div>
-          </div>
-          <div class="mock-row"><span class="mock-row-label">Votre bien (72 m²)</span><span class="mock-row-val">335 000 €</span></div>
-          <div class="mock-row"><span class="mock-row-label">Prix marché estimé</span><span class="mock-row-val mock-val-green">308 160 €</span></div>
-          <div class="mock-row"><span class="mock-row-label">💡 Offre suggérée</span><span class="mock-row-val" style="color:#FBBF24">315 000 €</span></div>
-          <div style="margin-top:12px;background:rgba(5,150,105,.12);border:1px solid rgba(5,150,105,.2);border-radius:10px;padding:10px;font-size:11px;color:rgba(255,255,255,.6)">
-            Ce bien est estimé 8,5 % au-dessus du marché. Marge de négociation identifiée.
-          </div>
-        </div>
-      </div>
-    </div>
-
   </div>
 </section>
 
