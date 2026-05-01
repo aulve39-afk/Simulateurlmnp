@@ -1207,6 +1207,60 @@ export default function ResidencePrincipalePage() {
           </div>
         </div>
 
+        {/* ── Affiliés courtiers — primo-accédants ── */}
+        <div style={{
+          marginTop: 12, borderRadius: 16, overflow: "hidden",
+          background: "rgba(255,255,255,0.04)",
+          border: "1px solid rgba(124,58,237,0.25)",
+        }}>
+          <div style={{ padding: "16px 16px 0" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
+              <span style={{ fontSize: 18 }}>⚡</span>
+              <p style={{ fontSize: 13, fontWeight: 700, color: "rgba(248,250,252,0.95)", margin: 0 }}>
+                Obtenez le meilleur taux pour votre projet
+              </p>
+            </div>
+            <p style={{ fontSize: 11, color: "rgba(248,250,252,0.5)", marginBottom: 12, lineHeight: 1.6 }}>
+              Comparez gratuitement les offres de 200+ banques — sans engagement, réponse en 48h.
+            </p>
+          </div>
+          <div style={{ padding: "0 16px 16px", display: "flex", flexDirection: "column", gap: 8 }}>
+            {[
+              { name:"Pretto",       emoji:"🟣", tag:"100% digital",              desc:"Offre en 48h",           badge:"Recommandé", color:"#7C3AED", url:"https://www.pretto.fr?utm_source=immoverdict&utm_medium=affiliation&utm_campaign=rp-courtier" },
+              { name:"MeilleurTaux", emoji:"🔵", tag:"200+ banques comparées",     desc:"Leader du marché",       badge:null,         color:"#2563EB", url:"https://www.meilleurtaux.com?utm_source=immoverdict&utm_medium=affiliation&utm_campaign=rp-courtier" },
+              { name:"CAFPI",        emoji:"🟢", tag:"Spécialiste primo-accédants",desc:"Expert PTZ & primo",     badge:"Expert PTZ", color:"#059669", url:"https://www.cafpi.fr?utm_source=immoverdict&utm_medium=affiliation&utm_campaign=rp-courtier" },
+            ].map(c => (
+              <a key={c.name} href={c.url} target="_blank" rel="noopener noreferrer"
+                onClick={() => { try { window.gtag?.("event","clic_courtier",{ courtier:c.name, page:"rp" }); } catch(_){} }}
+                style={{
+                  display: "flex", alignItems: "center", justifyContent: "space-between",
+                  borderRadius: 12, padding: "10px 12px",
+                  background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)",
+                  textDecoration: "none",
+                }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                  <span style={{ fontSize: 16 }}>{c.emoji}</span>
+                  <div>
+                    <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                      <span style={{ fontSize: 13, fontWeight: 700, color: "rgba(248,250,252,0.9)" }}>{c.name}</span>
+                      {c.badge && (
+                        <span style={{ fontSize: 9, fontWeight: 700, padding: "2px 6px", borderRadius: 20, background: c.color+"22", color: c.color }}>
+                          {c.badge}
+                        </span>
+                      )}
+                    </div>
+                    <p style={{ fontSize: 10, color: "rgba(248,250,252,0.4)", margin: 0 }}>{c.tag} · {c.desc}</p>
+                  </div>
+                </div>
+                <span style={{ fontSize: 12, fontWeight: 700, color: c.color }}>Comparer →</span>
+              </a>
+            ))}
+            <p style={{ fontSize: 9, textAlign: "center", color: "rgba(248,250,252,0.2)", margin: "4px 0 0" }}>
+              Liens partenaires · Comparaison 100% gratuite · Sans engagement
+            </p>
+          </div>
+        </div>
+
         {/* Lien vers cycle LMNP */}
         <div
           onClick={() => router.push("/lmnp")}

@@ -852,12 +852,16 @@ function AffiliationBanner({ taux, mensualite }) {
           {mensualite ? <strong className="text-green-700"> ~{Math.round(mensualite * 0.04)} €/mois</strong> : " plusieurs dizaines d'euros/mois"}.
         </p>
         <div className="grid grid-cols-2 gap-2">
-          <a href="https://www.pretto.fr?utm_source=immoverdict&utm_medium=banner" target="_blank" rel="noopener noreferrer"
+          <a href={`https://www.pretto.fr?utm_source=immoverdict&utm_medium=banner&utm_campaign=lmnp-taux&utm_content=taux-${taux}`}
+            target="_blank" rel="noopener noreferrer"
+            onClick={() => { try { window.gtag?.("event","clic_affiliation",{ partner:"Pretto", source:"banner", taux }); } catch(_){} }}
             className="flex items-center justify-center gap-1.5 bg-white border border-amber-200 rounded-xl py-2.5 text-xs font-bold text-amber-800 hover:bg-amber-50 transition-colors">
             <span>🏦</span> Pretto
             <span className="text-[9px] bg-amber-100 text-amber-600 px-1 rounded">Partenaire</span>
           </a>
-          <a href="https://www.meilleurtaux.com?utm_source=immoverdict&utm_medium=banner" target="_blank" rel="noopener noreferrer"
+          <a href={`https://www.meilleurtaux.com?utm_source=immoverdict&utm_medium=banner&utm_campaign=lmnp-taux&utm_content=taux-${taux}`}
+            target="_blank" rel="noopener noreferrer"
+            onClick={() => { try { window.gtag?.("event","clic_affiliation",{ partner:"MeilleurTaux", source:"banner", taux }); } catch(_){} }}
             className="flex items-center justify-center gap-1.5 bg-white border border-amber-200 rounded-xl py-2.5 text-xs font-bold text-amber-800 hover:bg-amber-50 transition-colors">
             <span>📊</span> MeilleurTaux
             <span className="text-[9px] bg-amber-100 text-amber-600 px-1 rounded">Partenaire</span>
@@ -2133,7 +2137,7 @@ function AffiliationContextuelle({ results, form }) {
       tag: "Leader du marché",
       desc: "200+ banques comparées",
       badge: null,
-      url: `https://www.meilleurtaux.com?utm_source=immoverdict&utm_medium=affiliation`,
+      url: `https://www.meilleurtaux.com?utm_source=immoverdict&utm_medium=affiliation&utm_content=tri-${tri}`,
       color: "#2563EB",
     },
     {
