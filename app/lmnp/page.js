@@ -2492,6 +2492,163 @@ function downloadChecklist(form) {
   a.click();
 }
 
+/* ════════════════════════════════════════
+   VERDICT SCORE LMNP (0-100)
+════════════════════════════════════════ */
+
+function VerdictScore({ form, results }) {
+  const best = results?.[0];
+  if (!best) return null;
+
+  const { tri, cashflowM, rendBrut, ratioEndt, rows } = best;
+
+  // Durée du bouclier fiscal
+  const finBouclierIdx = rows.findIndex(r => r.impot > 200);
+  const bouclierAns    = finBouclierIdx >= 0 ? (rows[finBouclierIdx].an - 1) : form.horizon;
+
+  let score = 0;
+  const dims = [];
+
+  // 1. Rendement brut (20 pts)
+  const rendPts = rendBrut >= 7 ? 20 : rendBrut >= 5.5 ? 15 : rendBrut >= 4 ? 10 : 3;
+  score += rendPts;
+  dims.push({
+    label: "Rendement brut",
+    val: `${rendBrut}%`,
+    pts: rendPts, max: 20,
+    ok: rendBrut >= 5.5, warn: rendBrut >= 4 && rendBrut < 5.5,
+    levier: rendBrut < 5.5 ? "Augmentez le loyer ou négociez le prix d'achat" : null,
+  });
+
+  // 2. TRI global (20 pts)
+  const triPts = tri >= 8 ? 20 : tri >= 6 ? 16 : tri >= 4 ? 10 : 3;
+  score += triPts;
+  dims.push({
+    label: "TRI global",
+    val: `${tri}%`,
+    pts: triPts, max: 20,
+    ok: tri >= 6, warn: tri >= 4 && tri < 6,
+    levier: tri < 6 ? "Allongez la durée de détention ou augmentez le loyer" : null,
+  });
+
+  // 3. Cash-flow mensuel (20 pts)
+  const cfPts = cashflowM >= 200 ? 20 : cashflowM >= 50 ? 16 : cashflowM >= 0 ? 12 : cashflowM >= -100 ? 6 : 0;
+  score += cfPts;
+  dims.push({
+    label: "Cash-flow mensuel",
+    val: `${cashflowM >= 0 ? "+" : ""}${cashflowM}€/mois`,
+    pts: cfPts, max: 20,
+    ok: cashflowM >= 50, warn: cashflowM >= -100 && cashflowM < 50,
+    levier: cashflowM < 0 ? "Augmentez l'apport ou négociez un meilleur taux" : null,
+  });
+
+  // 4. Protection fiscale — bouclier (20 pts)
+  const bouclierPts = bouclierAns >= form.horizon ? 20 : bouclierAns >= 10 ? 15 : bouclierAns >= 5 ? 10 : 5;
+  score += bouclierPts;
+  dims.push({
+    label: "Bouclier fiscal",
+    val: bouclierAns >= form.horizon ? "Toute la période" : `${bouclierAns} ans`,
+    pts: bouclierPts, max: 20,
+    ok: bouclierAns >= form.horizon || bouclierAns >= 10,
+    warn: bouclierAns >= 5 && bouclierAns < 10,
+    levier: bouclierAns < form.horizon ? "Ajoutez mobilier ou travaux pour allonger la protection" : null,
+  });
+
+  // 5. DPE & risque locatif (10 pts)
+  const dpe    = form.dpe ?? "C";
+  const dpePts = ["A","B"].includes(dpe) ? 10 : ["C","D"].includes(dpe) ? 8 : dpe === "E" ? 5 : 0;
+  score += dpePts;
+  dims.push({
+    label: "DPE & conformité",
+    val: `DPE ${dpe}`,
+    pts: dpePts, max: 10,
+    ok: ["A","B","C"].includes(dpe), warn: dpe === "D" || dpe === "E",
+    levier: ["E","F","G"].includes(dpe) ? "Travaux d'isolation indispensables avant location" : null,
+  });
+
+  // 6. Ratio d'endettement (10 pts)
+  const endtPts = ratioEndt <= 28 ? 10 : ratioEndt <= 33 ? 7 : ratioEndt <= 35 ? 4 : 0;
+  score += endtPts;
+  dims.push({
+    label: "Taux d'endettement",
+    val: `${ratioEndt}%`,
+    pts: endtPts, max: 10,
+    ok: ratioEndt <= 33, warn: ratioEndt > 33 && ratioEndt <= 35,
+    levier: ratioEndt > 35 ? "Augmentez l'apport ou réduisez la durée du crédit" : null,
+  });
+
+  const scoreColor = score >= 80 ? "#10B981" : score >= 65 ? "#F59E0B" : score >= 50 ? "#FB923C" : "#EF4444";
+  const scoreBg    = score >= 80 ? "rgba(16,185,129,0.1)" : score >= 65 ? "rgba(245,158,11,0.08)" : score >= 50 ? "rgba(249,115,22,0.08)" : "rgba(239,68,68,0.1)";
+  const scoreLabel = score >= 80 ? "Investissement solide" : score >= 65 ? "Bon investissement" : score >= 50 ? "À consolider" : "À optimiser";
+  const scoreEmoji = score >= 80 ? "🏆" : score >= 65 ? "✅" : score >= 50 ? "⚠️" : "🔴";
+
+  const leviers = dims.filter(d => d.levier).slice(0, 3);
+
+  return (
+    <div className="rounded-2xl border p-4" style={{ background: scoreBg, borderColor: scoreColor + "44" }}>
+      {/* En-tête */}
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center gap-2">
+          <span className="text-2xl">{scoreEmoji}</span>
+          <div>
+            <p className="text-sm font-bold text-slate-800">Verdict Score LMNP</p>
+            <p className="text-[11px] text-slate-500">Qualité globale · 6 dimensions · 100 pts</p>
+          </div>
+        </div>
+        <div className="text-right">
+          <p className="text-4xl font-extrabold leading-none" style={{ color: scoreColor }}>{score}</p>
+          <p className="text-[10px] font-bold mt-0.5" style={{ color: scoreColor }}>/100 · {scoreLabel}</p>
+        </div>
+      </div>
+
+      {/* Barre globale */}
+      <div className="h-2.5 bg-slate-100 rounded-full mb-4 overflow-hidden">
+        <div className="h-2.5 rounded-full transition-all duration-700"
+          style={{ width: `${score}%`, background: `linear-gradient(to right, ${scoreColor}99, ${scoreColor})` }} />
+      </div>
+
+      {/* Grille des 6 dimensions */}
+      <div className="space-y-2 mb-4">
+        {dims.map(d => (
+          <div key={d.label} className="flex items-center gap-2">
+            <div className="text-[10px] text-slate-500 shrink-0" style={{ width: 108 }}>{d.label}</div>
+            <div className="flex-1 bg-white/70 rounded-full h-1.5 overflow-hidden">
+              <div className="h-1.5 rounded-full transition-all duration-500"
+                style={{
+                  width: `${(d.pts / d.max) * 100}%`,
+                  background: d.ok ? "#10B981" : d.warn ? "#F59E0B" : "#EF4444",
+                }} />
+            </div>
+            <span className="text-[10px] font-semibold text-slate-700 shrink-0" style={{ minWidth: 72, textAlign:"right" }}>{d.val}</span>
+            <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full shrink-0 ${
+              d.ok ? "bg-green-100 text-green-700" : d.warn ? "bg-amber-100 text-amber-700" : "bg-red-100 text-red-600"
+            }`}>{d.pts}/{d.max}</span>
+          </div>
+        ))}
+      </div>
+
+      {/* Leviers d'amélioration */}
+      {leviers.length > 0 && (
+        <div className="rounded-xl p-3" style={{ background: "rgba(255,255,255,0.6)", border: "1px solid rgba(255,255,255,0.9)" }}>
+          <p className="text-[10px] font-bold text-slate-600 mb-1.5">💡 Leviers pour améliorer le score</p>
+          {leviers.map(l => (
+            <p key={l.label} className="text-[10px] text-slate-600 flex items-start gap-1.5 mb-0.5 last:mb-0">
+              <span className="text-amber-500 shrink-0 mt-0.5">→</span>
+              <span><strong>{l.label} :</strong> {l.levier}</span>
+            </p>
+          ))}
+        </div>
+      )}
+
+      {score >= 80 && (
+        <p className="text-[10px] text-green-700 font-semibold mt-2.5 text-center">
+          ✅ Projet de haute qualité — présentez-le à votre banque ou courtier en confiance.
+        </p>
+      )}
+    </div>
+  );
+}
+
 function StepResultats({ form, results, comparaison, amort, onLead, onArgumentaire }) {
   if (!results) return null;
   const best = results[0]; // LMNP Réel
@@ -2503,6 +2660,9 @@ function StepResultats({ form, results, comparaison, amort, onLead, onArgumentai
     <div className="slide-up space-y-4">
       {/* Verdict */}
       <FeuxBadge tri={best.tri} cashflowM={best.cashflowM} ratioEndt={best.ratioEndt} />
+
+      {/* Verdict Score LMNP */}
+      <VerdictScore form={form} results={results} />
 
       {/* Gain vs Location Nue */}
       <GainVsNue results={results} />
