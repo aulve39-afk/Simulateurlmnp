@@ -15,7 +15,7 @@
   margin-top: 2.5rem;
   margin-bottom: 1rem;
   padding-bottom: 0.5rem;
-  border-bottom: 1px solid rgba(139,92,246,0.3);
+  border-bottom: 1px solid rgba(249,115,22,0.25);
 }
 .prose-article h3 {
   color: rgba(248,250,252,0.95);
@@ -28,11 +28,11 @@
   margin-bottom: 1rem;
 }
 .prose-article a {
-  color: #a78bfa;
+  color: #F97316;
   text-decoration: underline;
   text-underline-offset: 3px;
 }
-.prose-article a:hover { color: #c4b5fd; }
+.prose-article a:hover { color: #FB923C; }
 .prose-article strong { color: #fff; font-weight: 600; }
 .prose-article em { color: rgba(248,250,252,0.65); }
 .prose-article ul {
@@ -47,11 +47,11 @@
 }
 .prose-article li { margin-bottom: 0.35rem; }
 .prose-article blockquote {
-  border-left: 3px solid #7c3aed;
+  border-left: 3px solid #F97316;
   padding: 0.75rem 1.25rem;
   margin: 1.5rem 0;
-  background: rgba(124,58,237,0.1);
-  border-radius: 0 8px 8px 0;
+  background: rgba(249,115,22,0.08);
+  border-radius: 0 4px 4px 0;
   color: rgba(248,250,252,0.75);
   font-style: italic;
 }
@@ -69,7 +69,7 @@
   display: block;
 }
 .prose-article thead th {
-  background: rgba(124,58,237,0.25);
+  background: rgba(249,115,22,0.15);
   color: #fff;
   padding: 0.6rem 0.9rem;
   text-align: left;
@@ -85,11 +85,11 @@
   vertical-align: top;
 }
 .prose-article code {
-  background: rgba(255,255,255,0.08);
+  background: rgba(249,115,22,0.1);
   padding: 0.15rem 0.4rem;
   border-radius: 4px;
   font-size: 0.88em;
-  color: #c4b5fd;
+  color: #FB923C;
 }
 .prose-article pre {
   background: rgba(0,0,0,0.4);
@@ -108,22 +108,22 @@
    DARK THEME — ImmoPilote Design System
 ════════════════════════════════════════ */
 :root {
-  --background: #07071A;
-  --foreground: #F8FAFC;
-  --primary: #7C3AED;
-  --primary-light: rgba(124,58,237,0.15);
-  --success: #10B981;
-  --warning: #F59E0B;
-  --danger: #EF4444;
-  --card-bg: rgba(255,255,255,0.055);
-  --card-border: rgba(255,255,255,0.1);
-  --input-bg: rgba(255,255,255,0.07);
+  --background: #0C0C10;
+  --foreground: #F0EBE0;
+  --primary: #F97316;
+  --primary-light: rgba(249,115,22,0.12);
+  --success: #4ADE80;
+  --warning: #FBBF24;
+  --danger: #F87171;
+  --card-bg: rgba(255,255,255,0.04);
+  --card-border: rgba(240,235,224,0.08);
+  --input-bg: rgba(255,255,255,0.06);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", system-ui, sans-serif;
+  font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   min-height: 100vh;
 }
@@ -135,14 +135,14 @@ body {
 .bg-slate-50        { background: rgba(255,255,255,0.04)   !important; }
 .bg-slate-100       { background: rgba(255,255,255,0.07)   !important; }
 .bg-slate-200       { background: rgba(255,255,255,0.1)    !important; }
-.bg-blue-50         { background: rgba(124,58,237,0.12)    !important; }
-.bg-green-50        { background: rgba(16,185,129,0.12)    !important; }
-.bg-emerald-50      { background: rgba(16,185,129,0.12)    !important; }
-.bg-amber-50        { background: rgba(245,158,11,0.12)    !important; }
-.bg-red-50          { background: rgba(239,68,68,0.12)     !important; }
-.bg-orange-50       { background: rgba(249,115,22,0.12)    !important; }
-.bg-purple-50       { background: rgba(124,58,237,0.12)    !important; }
-.bg-blue-100        { background: rgba(124,58,237,0.18)    !important; }
+.bg-blue-50         { background: rgba(249,115,22,0.1)     !important; }
+.bg-green-50        { background: rgba(74,222,128,0.1)     !important; }
+.bg-emerald-50      { background: rgba(74,222,128,0.1)     !important; }
+.bg-amber-50        { background: rgba(251,191,36,0.1)     !important; }
+.bg-red-50          { background: rgba(248,113,113,0.1)    !important; }
+.bg-orange-50       { background: rgba(249,115,22,0.1)     !important; }
+.bg-purple-50       { background: rgba(249,115,22,0.1)     !important; }
+.bg-blue-100        { background: rgba(249,115,22,0.15)    !important; }
 .bg-slate-800       { background: rgba(10,10,30,0.9)       !important; }
 .bg-slate-900       { background: rgba(5,5,20,0.95)        !important; }
 
@@ -152,8 +152,8 @@ body {
 .border-slate-100   { border-color: rgba(255,255,255,0.08) !important; }
 .border-slate-200   { border-color: rgba(255,255,255,0.1)  !important; }
 .border-slate-300   { border-color: rgba(255,255,255,0.14) !important; }
-.border-blue-100    { border-color: rgba(124,58,237,0.25)  !important; }
-.border-blue-200    { border-color: rgba(124,58,237,0.35)  !important; }
+.border-blue-100    { border-color: rgba(249,115,22,0.2)   !important; }
+.border-blue-200    { border-color: rgba(249,115,22,0.3)   !important; }
 .border-amber-200   { border-color: rgba(245,158,11,0.35)  !important; }
 .border-green-200   { border-color: rgba(16,185,129,0.35)  !important; }
 .border-red-200     { border-color: rgba(239,68,68,0.35)   !important; }
@@ -176,10 +176,10 @@ body {
 .text-slate-400 { color: rgba(248,250,252,0.4)  !important; }
 .text-slate-300 { color: rgba(248,250,252,0.35) !important; }
 .text-amber-800 { color: rgba(251,191,36,0.9)   !important; }
-.text-blue-600  { color: #A78BFA !important; }
-.text-blue-700  { color: #C4B5FD !important; }
-.text-blue-800  { color: #DDD6FE !important; }
-.text-blue-900  { color: #EDE9FE !important; }
+.text-blue-600  { color: #F97316 !important; }
+.text-blue-700  { color: #FB923C !important; }
+.text-blue-800  { color: #FDBA74 !important; }
+.text-blue-900  { color: #FED7AA !important; }
 .text-green-600 { color: #34D399 !important; }
 .text-red-600   { color: #F87171 !important; }
 .text-orange-600 { color: #FB923C !important; }
@@ -187,14 +187,14 @@ body {
 /* ════════════════════════════════════════
    FOCUS / HOVER STATES
 ════════════════════════════════════════ */
-.focus-within\:border-blue-400:focus-within { border-color: rgba(124,58,237,0.7)  !important; }
-.focus-within\:bg-white:focus-within        { background:   rgba(255,255,255,0.09) !important; }
-.focus\:border-blue-400:focus               { border-color: rgba(124,58,237,0.7)  !important; }
-.focus\:bg-white:focus                      { background:   rgba(255,255,255,0.09) !important; }
-.hover\:border-blue-200:hover               { border-color: rgba(124,58,237,0.45) !important; }
-.hover\:bg-blue-50:hover                    { background:   rgba(124,58,237,0.12) !important; }
-.hover\:bg-amber-50:hover                   { background:   rgba(245,158,11,0.1)  !important; }
-.hover\:bg-slate-50:hover                   { background:   rgba(255,255,255,0.07) !important; }
+.focus-within\:border-blue-400:focus-within { border-color: rgba(249,115,22,0.6)  !important; }
+.focus-within\:bg-white:focus-within        { background:   rgba(255,255,255,0.07) !important; }
+.focus\:border-blue-400:focus               { border-color: rgba(249,115,22,0.6)  !important; }
+.focus\:bg-white:focus                      { background:   rgba(255,255,255,0.07) !important; }
+.hover\:border-blue-200:hover               { border-color: rgba(249,115,22,0.4)  !important; }
+.hover\:bg-blue-50:hover                    { background:   rgba(249,115,22,0.1)  !important; }
+.hover\:bg-amber-50:hover                   { background:   rgba(249,115,22,0.08) !important; }
+.hover\:bg-slate-50:hover                   { background:   rgba(255,255,255,0.06) !important; }
 
 /* ════════════════════════════════════════
    SHADOWS
@@ -254,27 +254,27 @@ input[type="range"] {
 input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #7C3AED, #2563EB);
+  width: 20px;
+  height: 20px;
+  border-radius: 0;
+  background: #F97316;
   cursor: pointer;
-  border: 3px solid rgba(255,255,255,0.2);
-  box-shadow: 0 2px 8px rgba(124,58,237,0.5), 0 0 0 1px rgba(124,58,237,0.2);
+  border: 2px solid rgba(240,235,224,0.3);
+  box-shadow: 0 2px 8px rgba(249,115,22,0.4);
   transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 input[type="range"]::-webkit-slider-thumb:hover {
-  transform: scale(1.15);
-  box-shadow: 0 4px 16px rgba(124,58,237,0.6), 0 0 0 4px rgba(124,58,237,0.15);
+  transform: scale(1.1);
+  box-shadow: 0 4px 16px rgba(249,115,22,0.6);
 }
 input[type="range"]::-moz-range-thumb {
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #7C3AED, #2563EB);
+  width: 20px;
+  height: 20px;
+  border-radius: 0;
+  background: #F97316;
   cursor: pointer;
-  border: 3px solid rgba(255,255,255,0.2);
-  box-shadow: 0 2px 8px rgba(124,58,237,0.5);
+  border: 2px solid rgba(240,235,224,0.3);
+  box-shadow: 0 2px 8px rgba(249,115,22,0.4);
 }
 
 /* ════════════════════════════════════════
@@ -287,18 +287,18 @@ input[type="range"]::-moz-range-thumb {
   bottom: calc(100% + 10px);
   left: 50%;
   transform: translateX(-50%);
-  background: rgba(15,10,40,0.97);
+  background: rgba(12,12,16,0.98);
   backdrop-filter: blur(20px);
-  color: #E2D9F3;
+  color: #F0EBE0;
   font-size: 12px;
   font-weight: 400;
   line-height: 1.55;
   padding: 10px 14px;
-  border-radius: 10px;
+  border-radius: 4px;
   width: 240px;
   max-width: calc(100vw - 32px);
   z-index: 9999;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.5), 0 0 0 1px rgba(124,58,237,0.3);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.6), 0 0 0 1px rgba(249,115,22,0.25);
   pointer-events: none;
   white-space: normal;
   text-align: left;
@@ -346,8 +346,8 @@ input[type="range"]::-moz-range-thumb {
 ════════════════════════════════════════ */
 ::-webkit-scrollbar       { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: rgba(255,255,255,0.03); }
-::-webkit-scrollbar-thumb { background: rgba(124,58,237,0.4); border-radius: 4px; }
-::-webkit-scrollbar-thumb:hover { background: rgba(124,58,237,0.65); }
+::-webkit-scrollbar-thumb { background: rgba(249,115,22,0.35); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(249,115,22,0.6); }
 
 /* ════════════════════════════════════════
    MOBILE SAFE AREA
@@ -358,9 +358,9 @@ input[type="range"]::-moz-range-thumb {
    RECHARTS DARK THEME
 ════════════════════════════════════════ */
 .recharts-tooltip-wrapper .recharts-default-tooltip {
-  background: rgba(15,10,40,0.97) !important;
-  border: 1px solid rgba(124,58,237,0.3) !important;
-  border-radius: 10px !important;
+  background: rgba(12,12,16,0.97) !important;
+  border: 1px solid rgba(249,115,22,0.25) !important;
+  border-radius: 4px !important;
   backdrop-filter: blur(20px) !important;
 }
 .recharts-default-tooltip .recharts-tooltip-label {
