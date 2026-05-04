@@ -106,10 +106,8 @@ nav{
 .nav-logo{display:flex;align-items:center;gap:12px;text-decoration:none}
 .nav-logo-mark{
   width:30px;height:30px;
-  background:var(--orange);
   display:flex;align-items:center;justify-content:center;
-  font-family:var(--serif);font-size:14px;font-weight:400;
-  color:var(--deep);letter-spacing:0;
+  flex-shrink:0;
 }
 .nav-logo-text{
   font-family:var(--sans);font-weight:700;font-size:15px;
@@ -593,9 +591,9 @@ footer{
   display:flex;align-items:center;gap:10px;
 }
 .footer-brand-name span{
-  width:28px;height:28px;background:var(--orange);
+  width:28px;height:28px;
   display:flex;align-items:center;justify-content:center;
-  font-family:var(--serif);font-size:12px;color:var(--deep);
+  flex-shrink:0;
 }
 .footer-brand-name em{font-style:normal;color:var(--orange)}
 .footer-brand p{color:var(--muted);font-size:.83rem;line-height:1.7;margin-top:12px;max-width:260px;font-weight:300}
@@ -719,7 +717,13 @@ footer{
 <!-- NAV -->
 <nav>
   <a class="nav-logo" href="/">
-    <div class="nav-logo-mark">IV</div>
+    <div class="nav-logo-mark">
+      <svg width="30" height="30" viewBox="0 0 30 30" xmlns="http://www.w3.org/2000/svg" aria-label="ImmoVerdict">
+        <rect x="0" y="0" width="30" height="3" fill="#F97316"/>
+        <rect x="0" y="3" width="12" height="27" fill="#F0EBE0"/>
+        <rect x="18" y="3" width="12" height="18" fill="#F0EBE0"/>
+      </svg>
+    </div>
     <div class="nav-logo-text">Immo<em>Verdict</em></div>
   </a>
   <div class="nav-links">
@@ -1172,7 +1176,13 @@ footer{
     <div class="footer-top">
       <div class="footer-brand">
         <div class="footer-brand-name">
-          <span>IV</span>
+          <span>
+            <svg width="28" height="28" viewBox="0 0 30 30" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <rect x="0" y="0" width="30" height="3" fill="#F97316"/>
+              <rect x="0" y="3" width="12" height="27" fill="#F0EBE0"/>
+              <rect x="18" y="3" width="12" height="18" fill="#F0EBE0"/>
+            </svg>
+          </span>
           Immo<em>Verdict</em>
         </div>
         <p>Votre copilote pour tous vos projets immobiliers. Simulateurs professionnels, données à jour, accompagnement pédagogique.</p>
