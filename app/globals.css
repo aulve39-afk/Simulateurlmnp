@@ -105,7 +105,46 @@
 }
 
 /* ════════════════════════════════════════
-   DARK THEME — ImmoPilote Design System
+   ORANGE TAILWIND CLASS OVERRIDES
+════════════════════════════════════════ */
+.text-orange-200 { color: #FED7AA !important; }
+.text-orange-300 { color: #FDBA74 !important; }
+.text-orange-400 { color: #FB923C !important; }
+.text-orange-500 { color: #F97316 !important; }
+.text-orange-700 { color: #C2410C !important; }
+
+.bg-orange-50    { background: rgba(249,115,22,0.08) !important; }
+.bg-orange-100   { background: rgba(249,115,22,0.12) !important; }
+.bg-orange-400   { background: #FB923C !important; }
+.bg-orange-500   { background: #F97316 !important; }
+.bg-orange-600   { background: #EA6C0A !important; }
+
+.bg-orange-950\/20 { background: rgba(67,20,7,0.20) !important; }
+.bg-orange-950\/30 { background: rgba(67,20,7,0.30) !important; }
+.bg-orange-900\/20 { background: rgba(124,45,18,0.20) !important; }
+.bg-orange-50\/50  { background: rgba(249,115,22,0.05) !important; }
+
+.border-orange-100  { border-color: rgba(249,115,22,0.15) !important; }
+.border-orange-200  { border-color: rgba(249,115,22,0.25) !important; }
+.border-orange-500  { border-color: rgba(249,115,22,0.6)  !important; }
+.border-orange-500\/30 { border-color: rgba(249,115,22,0.30) !important; }
+.border-orange-500\/50 { border-color: rgba(249,115,22,0.50) !important; }
+
+.hover\:bg-orange-400:hover  { background: #FB923C !important; }
+.hover\:bg-orange-600:hover  { background: #EA6C0A !important; }
+.hover\:text-orange-300:hover { color: #FDBA74 !important; }
+.group-hover\:text-orange-300:hover { color: #FDBA74 !important; }
+.hover\:bg-orange-50\/50:hover { background: rgba(249,115,22,0.05) !important; }
+
+.focus\:ring-orange-400:focus  { --tw-ring-color: rgba(251,146,60,0.5); }
+.ring-2 { box-shadow: 0 0 0 2px var(--tw-ring-color, rgba(249,115,22,0.4)); }
+.ring-orange-400 { --tw-ring-color: rgba(251,146,60,0.5); }
+
+.accent-orange-500 { accent-color: #F97316; }
+.bg-orange-500.rounded-sm,.w-2\.5.h-2\.5.rounded-sm.bg-orange-500 { background: #F97316 !important; }
+
+/* ════════════════════════════════════════
+   DARK THEME — ImmoVerdict Design System
 ════════════════════════════════════════ */
 :root {
   --background: #0C0C10;

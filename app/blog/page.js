@@ -1,118 +1,166 @@
 import Link from "next/link";
 import { getAllPosts } from "@/lib/posts";
 
+const LogoMark = () => (
+  <svg width="28" height="28" viewBox="0 0 30 30" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style={{flexShrink:0}}>
+    <rect x="0" y="0" width="30" height="3" fill="#F97316"/>
+    <rect x="0" y="3" width="12" height="27" fill="#F0EBE0"/>
+    <rect x="18" y="3" width="12" height="18" fill="#F0EBE0"/>
+  </svg>
+);
+
 export default function BlogPage() {
   const posts = getAllPosts();
-
   const categories = [...new Set(posts.map((p) => p.category).filter(Boolean))];
 
   return (
-    <div className="min-h-screen bg-[#07071A] text-white">
-      {/* ── Nav ── */}
-      <nav className="border-b border-white/10 px-6 py-4">
-        <div className="max-w-5xl mx-auto flex items-center justify-between">
-          <Link href="/" className="text-xl font-bold tracking-tight">
-            Immo<span className="text-violet-400">Verdict</span>
+    <div style={{ minHeight:"100vh", background:"#0C0C10", color:"#F0EBE0", fontFamily:"'DM Sans',system-ui,sans-serif" }}>
+
+      {/* ── NAV ── */}
+      <nav style={{ borderBottom:"1px solid rgba(240,235,224,0.08)", padding:"0 48px", height:60, display:"flex", alignItems:"center", justifyContent:"space-between", position:"sticky", top:0, background:"rgba(12,12,16,0.92)", backdropFilter:"blur(20px)", zIndex:50 }}>
+        <Link href="/" style={{ display:"flex", alignItems:"center", gap:12, textDecoration:"none" }}>
+          <LogoMark />
+          <span style={{ fontFamily:"'DM Sans',sans-serif", fontWeight:700, fontSize:15, color:"#F0EBE0", letterSpacing:"-.2px" }}>
+            Immo<span style={{ color:"#F97316" }}>Verdict</span>
+          </span>
+        </Link>
+        <div style={{ display:"flex", alignItems:"center", gap:0 }}>
+          {[
+            { href:"/lmnp", label:"Simulateur LMNP" },
+            { href:"/rp",   label:"Résidence Principale" },
+            { href:"/blog", label:"Blog", active:true },
+          ].map(({href,label,active}) => (
+            <Link key={href} href={href} style={{
+              display:"inline-block", padding:"0 20px", height:60, lineHeight:"60px",
+              fontSize:13, fontWeight:500, textDecoration:"none",
+              color: active ? "#F97316" : "rgba(240,235,224,0.5)",
+              borderBottom: active ? "2px solid #F97316" : "2px solid transparent",
+              transition:"color .2s",
+            }}>{label}</Link>
+          ))}
+          <Link href="/lmnp" style={{
+            marginLeft:24, padding:"8px 18px", background:"#F97316", color:"#0C0C10",
+            fontWeight:700, fontSize:13, textDecoration:"none", letterSpacing:".01em",
+          }}>
+            Lancer le simulateur
           </Link>
-          <div className="flex items-center gap-6 text-sm text-white/70">
-            <Link href="/lmnp" className="hover:text-white transition-colors">Simulateur LMNP</Link>
-            <Link href="/rp" className="hover:text-white transition-colors">Résidence Principale</Link>
-            <Link href="/blog" className="text-violet-400 font-medium">Blog</Link>
-          </div>
         </div>
       </nav>
 
-      {/* ── Hero ── */}
-      <header className="max-w-5xl mx-auto px-6 pt-16 pb-10">
-        <p className="text-violet-400 text-sm font-semibold tracking-widest uppercase mb-3">
-          Guides & Analyses
-        </p>
-        <h1 className="text-4xl md:text-5xl font-bold leading-tight mb-4">
-          Blog ImmoVerdict
+      {/* ── HERO ── */}
+      <header style={{ maxWidth:1080, margin:"0 auto", padding:"72px 48px 48px" }}>
+        <div style={{ display:"flex", alignItems:"center", gap:12, marginBottom:20 }}>
+          <div style={{ width:3, height:36, background:"#F97316" }} />
+          <span style={{ fontSize:11, fontWeight:700, letterSpacing:"3px", textTransform:"uppercase", color:"#F97316" }}>
+            Guides &amp; Analyses
+          </span>
+        </div>
+        <h1 style={{ fontFamily:"'DM Serif Display',Georgia,serif", fontSize:"clamp(2.4rem,5vw,3.6rem)", fontWeight:400, lineHeight:1.05, marginBottom:20, color:"#F0EBE0" }}>
+          Blog <em style={{ color:"#F97316", fontStyle:"normal" }}>ImmoVerdict</em>
         </h1>
-        <p className="text-white/60 text-lg max-w-2xl">
+        <p style={{ fontSize:"1.05rem", color:"rgba(240,235,224,0.5)", maxWidth:520, lineHeight:1.7, fontWeight:300 }}>
           LMNP, fiscalité immobilière, PTZ, DPE — nos guides pratiques pour investir et acheter intelligemment en France.
         </p>
+
+        {/* Catégories */}
+        {categories.length > 1 && (
+          <div style={{ display:"flex", flexWrap:"wrap", gap:8, marginTop:32 }}>
+            {categories.map((cat) => (
+              <span key={cat} style={{
+                fontSize:11, fontWeight:700, padding:"5px 14px",
+                border:"1px solid rgba(249,115,22,0.35)", color:"#F97316",
+                letterSpacing:"1.5px", textTransform:"uppercase",
+              }}>{cat}</span>
+            ))}
+          </div>
+        )}
       </header>
 
-      {/* ── Category pills ── */}
-      {categories.length > 1 && (
-        <div className="max-w-5xl mx-auto px-6 pb-8 flex flex-wrap gap-2">
-          {categories.map((cat) => (
-            <span
-              key={cat}
-              className="text-xs font-semibold px-3 py-1 rounded-full border border-violet-500/40 text-violet-300"
-            >
-              {cat}
-            </span>
-          ))}
-        </div>
-      )}
+      {/* Ligne séparatrice */}
+      <div style={{ maxWidth:1080, margin:"0 auto 48px", borderTop:"1px solid rgba(240,235,224,0.08)" }} />
 
-      {/* ── Articles grid ── */}
-      <main className="max-w-5xl mx-auto px-6 pb-24">
+      {/* ── GRILLE ARTICLES ── */}
+      <main style={{ maxWidth:1080, margin:"0 auto", padding:"0 48px 96px" }}>
         {posts.length === 0 ? (
-          <p className="text-white/50 text-center py-20">Aucun article pour le moment.</p>
+          <p style={{ color:"rgba(240,235,224,0.3)", textAlign:"center", padding:"80px 0" }}>Aucun article pour le moment.</p>
         ) : (
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {posts.map((post) => (
-              <ArticleCard key={post.slug} post={post} />
+          <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill,minmax(300px,1fr))", gap:0, border:"1px solid rgba(240,235,224,0.08)" }}>
+            {posts.map((post, i) => (
+              <ArticleCard key={post.slug} post={post} index={i} />
             ))}
           </div>
         )}
       </main>
 
-      {/* ── Footer ── */}
-      <footer className="border-t border-white/10 py-8 text-center text-white/30 text-sm">
-        <p>© {new Date().getFullYear()} ImmoVerdict — <Link href="/mentions-legales" className="hover:text-white/60 transition-colors">Mentions légales</Link></p>
+      {/* ── FOOTER ── */}
+      <footer style={{ borderTop:"1px solid rgba(240,235,224,0.08)", padding:"32px 48px", display:"flex", alignItems:"center", justifyContent:"space-between" }}>
+        <div style={{ display:"flex", alignItems:"center", gap:10 }}>
+          <LogoMark />
+          <span style={{ fontSize:13, fontWeight:700, color:"rgba(240,235,224,0.5)" }}>
+            Immo<span style={{ color:"#F97316" }}>Verdict</span>
+          </span>
+        </div>
+        <p style={{ fontSize:12, color:"rgba(240,235,224,0.25)" }}>
+          © {new Date().getFullYear()} ImmoVerdict —{" "}
+          <Link href="/mentions-legales" style={{ color:"rgba(249,115,22,0.6)", textDecoration:"none" }}>Mentions légales</Link>
+        </p>
       </footer>
     </div>
   );
 }
 
-function ArticleCard({ post }) {
+function ArticleCard({ post, index }) {
   const dateStr = post.date
-    ? new Date(post.date).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" })
+    ? new Date(post.date).toLocaleDateString("fr-FR", { day:"numeric", month:"long", year:"numeric" })
     : "";
 
-  return (
-    <Link
-      href={`/blog/${post.slug}`}
-      className="group flex flex-col bg-white/5 border border-white/10 rounded-xl overflow-hidden hover:border-violet-500/50 hover:bg-white/8 transition-all duration-200"
-    >
-      {/* Card top accent */}
-      <div className="h-1 bg-gradient-to-r from-violet-600 to-indigo-600" />
+  const col = index % 3;
+  const borderRight = col < 2 ? "1px solid rgba(240,235,224,0.08)" : "none";
+  const borderBottom = "1px solid rgba(240,235,224,0.08)";
 
-      <div className="p-6 flex flex-col flex-1">
+  return (
+    <Link href={`/blog/${post.slug}`} style={{
+      display:"flex", flexDirection:"column", textDecoration:"none",
+      padding:0, borderRight, borderBottom,
+      transition:"background .2s",
+    }}
+      onMouseEnter={e => e.currentTarget.style.background="rgba(249,115,22,0.04)"}
+      onMouseLeave={e => e.currentTarget.style.background="transparent"}
+    >
+      {/* Orange top accent */}
+      <div style={{ height:3, background:"#F97316", width:"100%" }} />
+
+      <div style={{ padding:"28px 28px 24px", display:"flex", flexDirection:"column", flex:1 }}>
         {/* Category + reading time */}
-        <div className="flex items-center justify-between mb-3">
+        <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:14 }}>
           {post.category && (
-            <span className="text-xs font-semibold text-violet-400 uppercase tracking-widest">
+            <span style={{ fontSize:10, fontWeight:700, color:"#F97316", letterSpacing:"2px", textTransform:"uppercase" }}>
               {post.category}
             </span>
           )}
           {post.readingTime && (
-            <span className="text-xs text-white/40">{post.readingTime}</span>
+            <span style={{ fontSize:11, color:"rgba(240,235,224,0.3)" }}>{post.readingTime}</span>
           )}
         </div>
 
         {/* Title */}
-        <h2 className="text-base font-bold leading-snug mb-2 group-hover:text-violet-300 transition-colors line-clamp-3">
+        <h2 style={{ fontFamily:"'DM Serif Display',Georgia,serif", fontSize:"1.15rem", fontWeight:400, lineHeight:1.3, marginBottom:10, color:"#F0EBE0" }}>
           {post.title}
         </h2>
 
         {/* Description */}
         {post.description && (
-          <p className="text-sm text-white/50 leading-relaxed line-clamp-3 flex-1">
+          <p style={{ fontSize:".84rem", color:"rgba(240,235,224,0.45)", lineHeight:1.65, flex:1, display:"-webkit-box", WebkitLineClamp:3, WebkitBoxOrient:"vertical", overflow:"hidden" }}>
             {post.description}
           </p>
         )}
 
         {/* Date */}
         {dateStr && (
-          <p className="text-xs text-white/30 mt-4 pt-4 border-t border-white/10">
-            {dateStr}
-          </p>
+          <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginTop:20, paddingTop:16, borderTop:"1px solid rgba(240,235,224,0.07)" }}>
+            <span style={{ fontSize:11, color:"rgba(240,235,224,0.25)" }}>{dateStr}</span>
+            <span style={{ fontSize:11, color:"#F97316", fontWeight:700 }}>Lire →</span>
+          </div>
         )}
       </div>
     </Link>

@@ -339,8 +339,8 @@ function Tip({ text }) {
   return (
     <span className="tip-trigger ml-1 cursor-help" tabIndex={0}>
       <span style={{ display:"inline-flex", alignItems:"center", justifyContent:"center",
-        width:16, height:16, borderRadius:"50%", background:"#DBEAFE",
-        color:"#2563EB", fontSize:10, fontWeight:700, lineHeight:1, flexShrink:0 }}>ⓘ</span>
+        width:16, height:16, borderRadius:"50%", background:"rgba(249,115,22,0.12)",
+        color:"#F97316", fontSize:10, fontWeight:700, lineHeight:1, flexShrink:0 }}>ⓘ</span>
       <span className="tip-bubble">{text}</span>
     </span>
   );
@@ -367,7 +367,7 @@ function SectionTitle({ icon, title, sub }) {
   );
 }
 
-function SliderField({ label, value, onChange, min, max, step=1, format=fmt, help, color="#A78BFA" }) {
+function SliderField({ label, value, onChange, min, max, step=1, format=fmt, help, color="#F97316" }) {
   const pct = Math.round(((value-min)/(max-min))*100);
   return (
     <div className="mb-5">
@@ -395,7 +395,7 @@ function InputField({ label, value, onChange, type="text", suffix="", help, smal
       <label className="block text-sm font-semibold text-slate-700 mb-1 flex items-center">
         {label}{help && <Tip text={help} />}
       </label>
-      <div className="flex items-center border border-slate-200 rounded-xl bg-slate-50 focus-within:border-blue-400 focus-within:bg-white transition-colors">
+      <div className="flex items-center border border-slate-200 rounded-xl bg-slate-50 focus-within:border-orange-400 focus-within:bg-slate-900 transition-colors">
         <input type={type} value={value}
           onChange={e => onChange(type==="number" ? +e.target.value : e.target.value)}
           className="flex-1 bg-transparent px-3 py-2.5 text-sm text-slate-800 outline-none rounded-xl"
@@ -413,14 +413,14 @@ function SelectField({ label, value, onChange, options, help }) {
         {label}{help && <Tip text={help} />}
       </label>
       <select value={value} onChange={e => onChange(e.target.value)}
-        className="w-full border border-slate-200 rounded-xl bg-slate-50 px-3 py-2.5 text-sm text-slate-800 outline-none focus:border-blue-400 focus:bg-white transition-colors">
+        className="w-full border border-slate-200 rounded-xl bg-slate-50 px-3 py-2.5 text-sm text-slate-800 outline-none focus:border-orange-400 focus:bg-slate-900 transition-colors">
         {options.map(o => <option key={o.v ?? o} value={o.v ?? o}>{o.l ?? o}</option>)}
       </select>
     </div>
   );
 }
 
-function KPICard({ label, value, sub, color="#A78BFA", bg="rgba(124,58,237,0.12)", icon, help }) {
+function KPICard({ label, value, sub, color="#F97316", bg="rgba(124,58,237,0.12)", icon, help }) {
   return (
     <div className="rounded-2xl p-4 border" style={{ background:bg, borderColor:color+"33" }}>
       <div className="flex items-start justify-between mb-1">
@@ -557,7 +557,7 @@ function GainVsNue({ results }) {
   if (gain10ans <= 500) return null;
   return (
     <div className="rounded-2xl p-4 border border-green-200"
-      style={{ background:"linear-gradient(135deg,#F0FDF4,#DCFCE7)" }}>
+      style={{ background:"rgba(249,115,22,0.06)" }}>
       <div className="flex items-center gap-3">
         <span className="text-3xl">🏆</span>
         <div>
@@ -582,9 +582,9 @@ function GainVsNue({ results }) {
 function LandingPage({ onStart }) {
   const router = useRouter();
   return (
-    <div className="min-h-screen flex flex-col" style={{ background:"#07071A" }}>
+    <div className="min-h-screen flex flex-col" style={{ background:"#0C0C10" }}>
       {/* Hero */}
-      <div style={{ background:"linear-gradient(135deg, #1a0533 0%, #2d1b69 50%, #1e3a8a 100%)" }}
+      <div style={{ background:"#131318" }}
         className="relative overflow-hidden">
         {/* Back to hub + Badge */}
         <div className="absolute top-4 left-4">
@@ -623,11 +623,11 @@ function LandingPage({ onStart }) {
             style={{ fontSize:"clamp(1.55rem, 6vw, 2.25rem)", letterSpacing:"-0.03em" }}>
             Devenez intouchable<br />fiscalement.
           </h1>
-          <p className="text-blue-200 text-sm leading-relaxed mb-2" style={{ maxWidth:400 }}>
+          <p className="text-orange-200 text-sm leading-relaxed mb-2" style={{ maxWidth:400 }}>
             Validez votre projet LMNP et économisez jusqu&apos;à{" "}
             <strong className="text-white">4 200 €/an</strong> d&apos;impôts.
           </p>
-          <p className="text-blue-300 text-sm leading-relaxed mb-8" style={{ maxWidth:400 }}>
+          <p className="text-orange-300 text-sm leading-relaxed mb-8" style={{ maxWidth:400 }}>
             Dossier bancaire généré en <strong className="text-white">3 minutes</strong>.
             Comparaison Micro-BIC vs Réel · Amortissements par composants · TRI.
           </p>
@@ -641,23 +641,23 @@ function LandingPage({ onStart }) {
             ].map(({ n, l }) => (
               <div key={n} className="bg-white/10 border border-white/20 rounded-xl px-4 py-2.5 flex items-center gap-3">
                 <span className="text-white font-extrabold text-lg leading-none">{n}</span>
-                <span className="text-blue-200 text-[11px] leading-tight max-w-[120px]">{l}</span>
+                <span className="text-orange-200 text-[11px] leading-tight max-w-[120px]">{l}</span>
               </div>
             ))}
           </div>
 
           <button onClick={onStart}
             className="w-full py-4 rounded-2xl text-base font-extrabold text-white shadow-lg active:scale-95 transition-transform"
-            style={{ background:"linear-gradient(135deg, #10B981 0%, #059669 100%)", boxShadow:"0 8px 32px rgba(16,185,129,.45)" }}>
+            style={{ background:"#F97316", boxShadow:"0 8px 32px rgba(249,115,22,0.45)" }}>
             Calculer ma rentabilité LMNP →
           </button>
-          <p className="text-blue-300 text-[11px] mt-3 text-center">
+          <p className="text-orange-300 text-[11px] mt-3 text-center">
             Gratuit · Sans inscription · Données 100 % locales
           </p>
         </div>
 
         {/* Wave */}
-        <div style={{ height:32, background:"#07071A", borderRadius:"50% 50% 0 0 / 100% 100% 0 0", marginTop:-1 }} />
+        <div style={{ height:32, background:"#0C0C10", borderRadius:"50% 50% 0 0 / 100% 100% 0 0", marginTop:-1 }} />
       </div>
 
       {/* Trust bar */}
@@ -712,7 +712,7 @@ function LandingPage({ onStart }) {
       {/* Banner RP */}
       <div className="max-w-2xl mx-auto px-5 pb-24">
         <div onClick={() => router.push("/rp")}
-          style={{ background:"linear-gradient(135deg, #064E3B, #059669)",
+          style={{ background:"#131318",
             borderRadius:16, padding:"16px 18px", cursor:"pointer",
             display:"flex", alignItems:"center", gap:12 }}>
           <span style={{ fontSize:24 }}>🏠</span>
@@ -730,7 +730,7 @@ function LandingPage({ onStart }) {
       <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-100 px-5 py-3 shadow-lg pb-safe">
         <button onClick={onStart}
           className="w-full max-w-2xl mx-auto block py-3.5 rounded-xl text-sm font-extrabold text-white"
-          style={{ background:"linear-gradient(135deg, #7C3AED, #2563EB)" }}>
+          style={{ background:"linear-gradient(135deg, #F97316, #F97316)" }}>
           Commencer la simulation →
         </button>
       </div>
@@ -797,16 +797,16 @@ function OnboardingQuiz({ onComplete }) {
   const pct = Math.round((step / QUIZ_QUESTIONS.length) * 100);
 
   return (
-    <div className="min-h-screen flex flex-col" style={{ background:"#07071A" }}>
+    <div className="min-h-screen flex flex-col" style={{ background:"#0C0C10" }}>
       {/* Header */}
-      <div style={{ background:"linear-gradient(135deg, #1a0533 0%, #3730a3 100%)" }} className="px-5 pt-5 pb-6">
+      <div style={{ background:"#131318" }} className="px-5 pt-5 pb-6">
         <div className="max-w-2xl mx-auto">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <span className="text-xl">🏢</span>
               <span className="text-white font-bold text-sm">Simulateur LMNP</span>
             </div>
-            <span className="text-blue-200 text-xs">{step + 1} / {QUIZ_QUESTIONS.length}</span>
+            <span className="text-orange-200 text-xs">{step + 1} / {QUIZ_QUESTIONS.length}</span>
           </div>
           {/* Progress */}
           <div className="h-1.5 bg-white/20 rounded-full">
@@ -826,7 +826,7 @@ function OnboardingQuiz({ onComplete }) {
           <div className="space-y-3">
             {q.options.map(opt => (
               <button key={opt.value} onClick={() => pick(opt.value)}
-                className="w-full flex items-center gap-4 bg-white border-2 border-slate-100 rounded-2xl p-4 text-left active:scale-[.98] transition-transform hover:border-blue-200 hover:bg-blue-50">
+                className="w-full flex items-center gap-4 bg-white border-2 border-slate-100 rounded-2xl p-4 text-left active:scale-[.98] transition-transform hover:border-orange-200 hover:bg-orange-50">
                 <span className="text-2xl">{opt.icon}</span>
                 <span className="text-sm font-semibold text-slate-700">{opt.label}</span>
                 <span className="ml-auto text-slate-300 text-lg">›</span>
@@ -891,26 +891,26 @@ function ReverseCalculator({ form }) {
   const result = reverseCalc(target, form);
 
   return (
-    <div className="rounded-2xl border-2 border-dashed border-blue-200 overflow-hidden bg-blue-50/40">
+    <div className="rounded-2xl border-2 border-dashed border-orange-200 overflow-hidden bg-orange-50/20">
       <div className="p-4">
         <div className="flex items-center gap-2 mb-3">
           <span className="text-lg">🔄</span>
           <div>
-            <p className="text-sm font-bold text-blue-800">Calculateur inversé</p>
-            <p className="text-[10px] text-blue-500">Quel prix payer pour atteindre mon objectif ?</p>
+            <p className="text-sm font-bold text-orange-300">Calculateur inversé</p>
+            <p className="text-[10px] text-orange-400">Quel prix payer pour atteindre mon objectif ?</p>
           </div>
         </div>
 
         <div className="mb-4">
           <div className="flex justify-between items-center mb-2">
             <label className="text-xs font-semibold text-slate-700">Cash-flow cible</label>
-            <span className="text-sm font-bold text-blue-700">
+            <span className="text-sm font-bold text-orange-400">
               {target >= 0 ? "+" : ""}{target} €/mois
             </span>
           </div>
           <input type="range" min={-200} max={600} step={25} value={target}
             onChange={e => setTarget(+e.target.value)}
-            style={{ background:`linear-gradient(to right, #7C3AED ${Math.round(((target+200)/800)*100)}%, #E2E8F0 ${Math.round(((target+200)/800)*100)}%)` }}
+            style={{ background:`linear-gradient(to right, #F97316 ${Math.round(((target+200)/800)*100)}%, #E2E8F0 ${Math.round(((target+200)/800)*100)}%)` }}
           />
           <div className="flex justify-between mt-1">
             <span className="text-[10px] text-slate-400">-200 €</span>
@@ -920,9 +920,9 @@ function ReverseCalculator({ form }) {
 
         {result ? (
           <div className="space-y-2">
-            <div className="bg-white rounded-xl border border-blue-100 p-3">
+            <div className="bg-white rounded-xl border border-orange-100 p-3">
               <p className="text-[10px] text-slate-400 mb-0.5">Prix d&apos;achat maximum négociable</p>
-              <p className="text-2xl font-extrabold text-blue-700">{fmt(result.prixMax)}</p>
+              <p className="text-2xl font-extrabold text-orange-400">{fmt(result.prixMax)}</p>
               <p className="text-[10px] text-slate-400 mt-0.5">
                 Capital emprunté : {fmt(result.capitalMax)} · Mensualité : {fmt(result.mensualiteMax)}/mois
               </p>
@@ -974,7 +974,7 @@ const TESTIMONIALS = [
     rating: 5,
     text: "Le calculateur inversé m'a évité de surpayer. Le bien était à 195 000 € mais pour mon objectif de 150 €/mois de cashflow, le prix max était 178 000 €. J'ai négocié à 180 000 €.",
     kpi: "–15 000 € négociés",
-    kpiColor: "#A78BFA",
+    kpiColor: "#F97316",
   },
   {
     name: "Marc & Julie D.",
@@ -1035,7 +1035,7 @@ function StressTest({ form, results }) {
   };
   const stressed  = runCalc(stressedForm, "lmnp");
   const resists   = stressed.cashflowM >= -50;
-  const cfColor   = (v) => v >= 0 ? "#059669" : "#DC2626";
+  const cfColor   = (v) => v >= 0 ? "#F97316" : "#DC2626";
 
   return (
     <div>
@@ -1156,7 +1156,7 @@ Simulation : loyer ${fmt(form.loyer)}/mois · apport ${fmt(form.apport)} · cré
         <div className="px-5 py-4 border-t border-slate-100 shrink-0">
           <button onClick={copy}
             className="w-full py-3 rounded-xl text-sm font-bold text-white transition-all active:scale-95"
-            style={{ background: copied ? "#10B981" : "linear-gradient(135deg, #1a0533, #7C3AED)" }}>
+            style={{ background: copied ? "#10B981" : "#F97316" }}>
             {copied ? "✅ Copié dans le presse-papier !" : "📋 Copier l'argumentaire"}
           </button>
         </div>
@@ -1212,9 +1212,9 @@ function VeilleFiscale() {
       <form onSubmit={submit} className="flex gap-2">
         <input type="email" value={email} onChange={e => setEmail(e.target.value)}
           placeholder="votre@email.fr" required
-          className="flex-1 bg-slate-800 border border-slate-600 rounded-xl px-3 py-2.5 text-xs text-white placeholder-slate-400 outline-none focus:border-blue-400 transition-colors" />
+          className="flex-1 bg-slate-800 border border-slate-600 rounded-xl px-3 py-2.5 text-xs text-white placeholder-slate-400 outline-none focus:border-orange-400 transition-colors" />
         <button type="submit" disabled={loading || !email}
-          className="px-4 py-2.5 rounded-xl text-xs font-bold text-white bg-blue-600 hover:bg-blue-500 transition-colors disabled:opacity-50 whitespace-nowrap">
+          className="px-4 py-2.5 rounded-xl text-xs font-bold text-white bg-orange-500 hover:bg-orange-500 transition-colors disabled:opacity-50 whitespace-nowrap">
           {loading ? "…" : "M'alerter"}
         </button>
       </form>
@@ -1253,15 +1253,15 @@ function DVFWidget({ adresse, prixSaisi, surface }) {
   };
 
   return (
-    <div className="mt-2 rounded-xl border border-blue-100 bg-blue-50 p-3">
+    <div className="mt-2 rounded-xl border border-orange-100 bg-orange-50 p-3">
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-xs font-semibold text-blue-700">📊 Vérifier le prix du marché (DVF)</p>
-          <p className="text-[10px] text-blue-500 mt-0.5">Transactions réelles — Ministère de l&apos;Économie / data.gouv.fr</p>
+          <p className="text-xs font-semibold text-orange-400">📊 Vérifier le prix du marché (DVF)</p>
+          <p className="text-[10px] text-orange-400 mt-0.5">Transactions réelles — Ministère de l&apos;Économie / data.gouv.fr</p>
         </div>
         <button onClick={check} disabled={loading}
           className="text-xs font-bold px-3 py-1.5 rounded-lg transition-all"
-          style={{ background: loading ? "#CBD5E1" : "#1D4ED8", color: "white", border: "none", cursor: loading ? "not-allowed" : "pointer" }}>
+          style={{ background: loading ? "#CBD5E1" : "#F97316", color: "white", border: "none", cursor: loading ? "not-allowed" : "pointer" }}>
           {loading ? "⏳ Chargement…" : "Comparer"}
         </button>
       </div>
@@ -1273,18 +1273,18 @@ function DVFWidget({ adresse, prixSaisi, surface }) {
       {dvf && (
         <div className="mt-3 space-y-2">
           <div className="flex items-center gap-2">
-            <span className="text-[10px] font-semibold text-blue-700 uppercase tracking-wide">{dvf.commune}</span>
-            <span className="text-[9px] text-blue-400">· {dvf.nbTransactions} ventes · 2 dernières années</span>
+            <span className="text-[10px] font-semibold text-orange-400 uppercase tracking-wide">{dvf.commune}</span>
+            <span className="text-[9px] text-orange-400">· {dvf.nbTransactions} ventes · 2 dernières années</span>
           </div>
 
           {/* Comparaison prix */}
           <div className="grid grid-cols-3 gap-2">
             {[
-              { label:"Q1 (bas)", val: dvf.q1, col:"#059669" },
-              { label:"Médiane", val: dvf.medianPrixM2, col:"#1D4ED8" },
+              { label:"Q1 (bas)", val: dvf.q1, col:"#F97316" },
+              { label:"Médiane", val: dvf.medianPrixM2, col:"#F97316" },
               { label:"Q3 (haut)", val: dvf.q3, col:"#DC2626" },
             ].map(({ label, val, col }) => (
-              <div key={label} className="rounded-lg bg-white border border-blue-100 px-2 py-1.5 text-center">
+              <div key={label} className="rounded-lg bg-white border border-orange-100 px-2 py-1.5 text-center">
                 <p className="text-[9px] text-slate-500">{label}</p>
                 <p className="text-sm font-bold" style={{ color: col }}>{val?.toLocaleString("fr-FR")} €/m²</p>
               </div>
@@ -1296,7 +1296,7 @@ function DVFWidget({ adresse, prixSaisi, surface }) {
             <div className={`rounded-lg px-3 py-2 text-xs font-semibold ${
               Math.abs(ecart) <= 5 ? "bg-green-50 text-green-700 border border-green-200"
               : ecart > 5 ? "bg-amber-50 text-amber-700 border border-amber-200"
-              : "bg-blue-50 text-blue-700 border border-blue-200"
+              : "bg-orange-50 text-orange-400 border border-orange-200"
             }`}>
               {ecart > 5
                 ? `⚠️ Votre prix (${prixM2Saisi.toLocaleString("fr-FR")} €/m²) est ${ecart} % au-dessus de la médiane du marché. Marge de négociation possible.`
@@ -1307,7 +1307,7 @@ function DVFWidget({ adresse, prixSaisi, surface }) {
             </div>
           )}
 
-          <p className="text-[9px] text-blue-400">Source : {dvf.source}</p>
+          <p className="text-[9px] text-orange-400">Source : {dvf.source}</p>
         </div>
       )}
     </div>
@@ -1327,7 +1327,7 @@ function PresetsBar({ onSelect }) {
       <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1" style={{ scrollbarWidth:"none" }}>
         {PRESETS.map(p => (
           <button key={p.label} onClick={() => onSelect(p)}
-            className="shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white border border-slate-200 text-xs font-semibold text-slate-700 hover:border-blue-300 hover:bg-blue-50 active:scale-[.97] transition-all shadow-sm whitespace-nowrap">
+            className="shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white border border-slate-200 text-xs font-semibold text-slate-700 hover:border-orange-200 hover:bg-orange-50 active:scale-[.97] transition-all shadow-sm whitespace-nowrap">
             <span>{p.icon}</span>
             <span>{p.label}</span>
           </button>
@@ -1357,17 +1357,17 @@ function AmortDureesTable({ prix, terrain, travaux, mobilier }) {
     <div className="mt-2">
       <button onClick={() => setOpen(o=>!o)}
         className="w-full flex items-center justify-between text-left px-0 py-1.5">
-        <span className="text-[11px] font-semibold text-blue-600 flex items-center gap-1">
+        <span className="text-[11px] font-semibold text-orange-500 flex items-center gap-1">
           🏗️ Voir les durées d&apos;amortissement par composant
         </span>
-        <span className="text-blue-400 text-[10px]">{open ? "▲" : "▼"}</span>
+        <span className="text-orange-400 text-[10px]">{open ? "▲" : "▼"}</span>
       </button>
       {open && (
-        <div className="rounded-xl border border-blue-100 overflow-hidden mt-1">
-          <div className="bg-blue-50 px-3 py-2">
-            <p className="text-[10px] font-semibold text-blue-700">
-              Déduction totale : <span className="text-blue-800 text-xs font-bold">{fmt(totalAn)}/an</span>
-              <span className="text-blue-500 ml-2">· Conformément CGI Art. 39 C</span>
+        <div className="rounded-xl border border-orange-100 overflow-hidden mt-1">
+          <div className="bg-orange-50 px-3 py-2">
+            <p className="text-[10px] font-semibold text-orange-400">
+              Déduction totale : <span className="text-orange-300 text-xs font-bold">{fmt(totalAn)}/an</span>
+              <span className="text-orange-400 ml-2">· Conformément CGI Art. 39 C</span>
             </p>
           </div>
           <table className="w-full text-xs">
@@ -1386,7 +1386,7 @@ function AmortDureesTable({ prix, terrain, travaux, mobilier }) {
                     <span className="text-slate-400 ml-1">({c.pct}%)</span>
                   </td>
                   <td className="px-3 py-1.5 text-center text-slate-500">{c.duree} ans</td>
-                  <td className="px-3 py-1.5 text-right font-semibold text-blue-700">
+                  <td className="px-3 py-1.5 text-right font-semibold text-orange-400">
                     {fmt(c.base * c.pct/100 / c.duree)}
                   </td>
                 </tr>
@@ -1405,10 +1405,10 @@ function AmortDureesTable({ prix, terrain, travaux, mobilier }) {
                   <td className="px-3 py-1.5 text-right font-semibold text-amber-700">{fmt(travauxAn)}</td>
                 </tr>
               )}
-              <tr className="bg-blue-50 font-bold">
-                <td className="px-3 py-2 text-blue-800">Total déductible</td>
-                <td className="px-3 py-2 text-center text-blue-600">—</td>
-                <td className="px-3 py-2 text-right text-blue-800">{fmt(totalAn)}<span className="text-blue-500 text-[10px] font-normal">/an</span></td>
+              <tr className="bg-orange-50 font-bold">
+                <td className="px-3 py-2 text-orange-300">Total déductible</td>
+                <td className="px-3 py-2 text-center text-orange-500">—</td>
+                <td className="px-3 py-2 text-right text-orange-300">{fmt(totalAn)}<span className="text-orange-400 text-[10px] font-normal">/an</span></td>
               </tr>
             </tbody>
           </table>
@@ -1477,8 +1477,8 @@ function StepProjet({ form, set }) {
           ]}
           help="Le LMNP meublé au régime réel est presque toujours le plus avantageux fiscalement (amortissements par composants)." />
         {form.modeExploitation === "LMNP meublé" && (
-          <div className="rounded-xl bg-purple-50 border border-purple-100 p-3 mt-1">
-            <p className="text-[10px] text-purple-700 leading-relaxed">
+          <div className="rounded-xl bg-orange-50 border border-orange-100 p-3 mt-1">
+            <p className="text-[10px] text-orange-300 leading-relaxed">
               🥇 <strong>LMNP Réel recommandé :</strong> Vous pouvez déduire les amortissements par composants (CGI Art. 39 C)
               et générer un bouclier fiscal de 10–15 ans. La plus-value à la revente est taxée au régime des particuliers.
             </p>
@@ -1515,7 +1515,7 @@ function StepProjet({ form, set }) {
           <div className="flex items-center gap-2 mb-2">
             <span className="text-xs font-medium text-slate-600">Type d&apos;acquisition</span>
             <div className="flex rounded-lg overflow-hidden border border-slate-200 text-xs font-semibold">
-              {[["ancien","Ancien ~8%","#5B21B6","rgba(91,33,182,0.08)"],["neuf","Neuf ~2.5%","#065F46","rgba(6,95,70,0.08)"]].map(([val,label,col,bg])=>(
+              {[["ancien","Ancien ~8%","#5B21B6","rgba(91,33,182,0.08)"],["neuf","Neuf ~2.5%","#0C0C10","rgba(6,95,70,0.08)"]].map(([val,label,col,bg])=>(
                 <button key={val} type="button"
                   onClick={() => { set("typeAcquisition")(val); set("notaire")(val==="neuf" ? 2.5 : 8); }}
                   style={form.typeAcquisition===val ? {background:bg, color:col, borderBottom:`2px solid ${col}`} : {background:"#fff",color:"#94a3b8"}}
@@ -1543,12 +1543,12 @@ function StepProjet({ form, set }) {
           min={5} max={40} step={1} format={n=>`${n} %`}
           help="Le terrain est NON amortissable (art. 39 C CGI). En centre-ville : 20–35 %. En périphérie : 10–20 %. Par défaut : 15 %." />
 
-        <div className="mt-4 rounded-xl bg-blue-50 border border-blue-100 p-3">
-          <p className="text-xs font-semibold text-blue-700 mb-1">📊 Coût total de l&apos;opération</p>
-          <p className="text-lg font-bold text-blue-800">
+        <div className="mt-4 rounded-xl bg-orange-50 border border-orange-100 p-3">
+          <p className="text-xs font-semibold text-orange-400 mb-1">📊 Coût total de l&apos;opération</p>
+          <p className="text-lg font-bold text-orange-300">
             {fmt(form.prix + form.prix*(form.notaire/100) + form.travaux + form.mobilier)}
           </p>
-          <p className="text-[10px] text-blue-500 mt-0.5">
+          <p className="text-[10px] text-orange-400 mt-0.5">
             Prix {fmt(form.prix)} + Notaire {fmt(form.prix*form.notaire/100)} + Travaux {fmtK(form.travaux)} + Mobilier {fmtK(form.mobilier)}
           </p>
           <p className="text-[10px] text-amber-600 mt-1">
@@ -1562,9 +1562,9 @@ function StepProjet({ form, set }) {
         {/* Checklist de visite */}
         <button onClick={() => downloadChecklist(form)}
           className="mt-3 w-full flex items-center justify-center gap-2 rounded-xl py-2.5 text-sm font-semibold text-white transition-all active:scale-95 hover:opacity-90"
-          style={{ background:"linear-gradient(135deg,#7C3AED,#2563EB)" }}>
+          style={{ background:"linear-gradient(135deg,#F97316,#F97316)" }}>
           📋 Télécharger ma checklist de visite
-          <span className="text-blue-200 text-[10px] font-normal">6 sections · 40 points</span>
+          <span className="text-orange-200 text-[10px] font-normal">6 sections · 40 points</span>
         </button>
       </Card>
     </div>
@@ -1652,7 +1652,7 @@ function StepFinancement({ form, set }) {
         <div className="rounded-xl p-3 border mt-2" style={{ background: ratioColor+"11", borderColor: ratioColor+"44" }}>
           <div className="flex justify-between items-center">
             <span className="text-sm font-semibold text-slate-700">Mensualité estimée</span>
-            <span className="text-lg font-bold" style={{ color:"#A78BFA" }}>{fmt(mens)}/mois</span>
+            <span className="text-lg font-bold" style={{ color:"#F97316" }}>{fmt(mens)}/mois</span>
           </div>
           <div className="flex justify-between items-center mt-1">
             <span className="text-xs text-slate-500">
@@ -1697,7 +1697,7 @@ function StepFinancement({ form, set }) {
             <p className="text-xs font-semibold text-slate-600 mb-2">📊 Répartition de vos revenus mensuels</p>
             <div className="flex h-5 rounded-lg overflow-hidden w-full mb-2.5 bg-green-100">
               {mens > 0 && (
-                <div style={{ width:`${Math.min(mens/form.revenusMensuels*100,100).toFixed(1)}%`, background:"#7C3AED", transition:"width .4s" }}
+                <div style={{ width:`${Math.min(mens/form.revenusMensuels*100,100).toFixed(1)}%`, background:"#F97316", transition:"width .4s" }}
                   title={`Crédit LMNP : ${fmt(mens)}`} />
               )}
               {(+form.chargesCredit||0) > 0 && (
@@ -1707,12 +1707,12 @@ function StepFinancement({ form, set }) {
             </div>
             <div className="flex flex-wrap gap-x-4 gap-y-1">
               <div className="flex items-center gap-1.5 text-[10px]">
-                <div className="w-2.5 h-2.5 rounded-sm bg-blue-700" />
+                <div className="w-2.5 h-2.5 rounded-sm bg-orange-600" />
                 <span className="text-slate-500">Crédit LMNP — <strong>{fmt(mens)}</strong> ({(mens/form.revenusMensuels*100).toFixed(0)}%)</span>
               </div>
               {(+form.chargesCredit||0) > 0 && (
                 <div className="flex items-center gap-1.5 text-[10px]">
-                  <div className="w-2.5 h-2.5 rounded-sm bg-indigo-500" />
+                  <div className="w-2.5 h-2.5 rounded-sm bg-orange-500" />
                   <span className="text-slate-500">Autres crédits — <strong>{fmt(+form.chargesCredit)}</strong> ({((+form.chargesCredit)/form.revenusMensuels*100).toFixed(0)}%)</span>
                 </div>
               )}
@@ -1769,7 +1769,7 @@ function StepExploitation({ form, set }) {
           <button
             onClick={() => set("tourismeClass")(!form.tourismeClass)}
             className="relative flex-shrink-0"
-            style={{ width:44, height:24, borderRadius:12, background: form.tourismeClass ? "#7C3AED" : "#CBD5E1",
+            style={{ width:44, height:24, borderRadius:12, background: form.tourismeClass ? "#F97316" : "#CBD5E1",
               transition:"background .2s", cursor:"pointer", border:"none" }}>
             <span style={{ position:"absolute", top:3, left: form.tourismeClass ? 23 : 3,
               width:18, height:18, borderRadius:9, background:"#fff",
@@ -1786,9 +1786,9 @@ function StepExploitation({ form, set }) {
             <p className="text-[10px] text-green-600 font-semibold mb-0.5">Loyers nets / an</p>
             <p className="text-base font-bold text-green-700">{fmt(loyersNet)}</p>
           </div>
-          <div className="rounded-xl bg-blue-50 border border-blue-100 p-3">
-            <p className="text-[10px] text-blue-600 font-semibold mb-0.5">Rendement brut</p>
-            <p className="text-base font-bold text-blue-700">{rendBrut} %</p>
+          <div className="rounded-xl bg-orange-50 border border-orange-100 p-3">
+            <p className="text-[10px] text-orange-500 font-semibold mb-0.5">Rendement brut</p>
+            <p className="text-base font-bold text-orange-400">{rendBrut} %</p>
             <Tip text={LEXIQUE["Rendement brut"]} />
           </div>
         </div>
@@ -1835,7 +1835,7 @@ function MicroVsReelChart({ data }) {
           <YAxis tick={{ fontSize:10, fill:"#94A3B8" }} tickFormatter={v=>fmtK(v)} width={50} />
           <RTooltip formatter={(v,n) => [fmt(v), n]} labelStyle={{ fontSize:11 }} contentStyle={{ borderRadius:8, border:"1px solid #E2E8F0", fontSize:11 }} />
           <Bar dataKey="Micro-BIC" fill="#FBBF24" radius={[3,3,0,0]} />
-          <Bar dataKey="Régime Réel" fill="#7C3AED" radius={[3,3,0,0]} />
+          <Bar dataKey="Régime Réel" fill="#F97316" radius={[3,3,0,0]} />
         </BarChart>
       </ResponsiveContainer>
       {breakEven > 0 && (
@@ -1854,14 +1854,14 @@ function AmortChart({ chartData }) {
     <div>
       <div className="flex items-center justify-between mb-3">
         <p className="text-xs font-semibold text-slate-600">Déduction annuelle par composant</p>
-        <span className="text-xs bg-blue-100 text-blue-700 font-bold px-2 py-0.5 rounded-full">{fmt(total)}/an</span>
+        <span className="text-xs bg-orange-50 text-orange-400 font-bold px-2 py-0.5 rounded-full">{fmt(total)}/an</span>
       </div>
       <div className="space-y-2">
         {chartData.map(c => (
           <div key={c.name} className="flex items-center gap-2">
             <div className="w-24 text-[11px] text-slate-500 text-right shrink-0">{c.name}</div>
             <div className="flex-1 bg-slate-100 rounded-full h-2">
-              <div className="h-2 rounded-full bg-blue-400"
+              <div className="h-2 rounded-full bg-orange-400"
                 style={{ width:`${Math.round(c.montant/total*100)}%`, background:`hsl(${210+chartData.indexOf(c)*15},70%,${55+chartData.indexOf(c)*3}%)` }} />
             </div>
             <div className="w-16 text-[11px] font-semibold text-slate-700 text-right shrink-0">{fmt(c.montant)}</div>
@@ -1886,8 +1886,8 @@ function CashflowChart({ rows }) {
       <AreaChart data={data} margin={{ top:0, right:0, left:0, bottom:0 }}>
         <defs>
           <linearGradient id="cfGrad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="5%" stopColor="#7C3AED" stopOpacity={0.15}/>
-            <stop offset="95%" stopColor="#7C3AED" stopOpacity={0}/>
+            <stop offset="5%" stopColor="#F97316" stopOpacity={0.15}/>
+            <stop offset="95%" stopColor="#F97316" stopOpacity={0}/>
           </linearGradient>
         </defs>
         <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" />
@@ -1895,7 +1895,7 @@ function CashflowChart({ rows }) {
         <YAxis tick={{ fontSize:10, fill:"#94A3B8" }} tickFormatter={v=>fmtK(v)} width={50} />
         <RTooltip formatter={(v,n) => [fmt(v), n]} contentStyle={{ borderRadius:8, border:"1px solid #E2E8F0", fontSize:11 }} />
         <ReferenceLine y={0} stroke="#E2E8F0" strokeWidth={1.5} />
-        <Area type="monotone" dataKey="Cash-flow" stroke="#7C3AED" strokeWidth={2} fill="url(#cfGrad)" dot={{ r:3, fill:"#7C3AED" }} />
+        <Area type="monotone" dataKey="Cash-flow" stroke="#F97316" strokeWidth={2} fill="url(#cfGrad)" dot={{ r:3, fill:"#F97316" }} />
       </AreaChart>
     </ResponsiveContainer>
   );
@@ -1985,10 +1985,10 @@ function PatrimoineChart({ rows, form }) {
   return (
     <div>
       <div className="grid grid-cols-3 gap-2 mb-4">
-        <div className="rounded-xl bg-blue-50 border border-blue-100 p-3 text-center">
-          <p className="text-[10px] text-blue-500 font-semibold mb-0.5">Valeur finale</p>
-          <p className="text-sm font-bold text-blue-700">{fmtK(last.valeurBien)}</p>
-          <p className="text-[9px] text-blue-400">À {form.horizon} ans</p>
+        <div className="rounded-xl bg-orange-50 border border-orange-100 p-3 text-center">
+          <p className="text-[10px] text-orange-400 font-semibold mb-0.5">Valeur finale</p>
+          <p className="text-sm font-bold text-orange-400">{fmtK(last.valeurBien)}</p>
+          <p className="text-[9px] text-orange-400">À {form.horizon} ans</p>
         </div>
         <div className="rounded-xl bg-red-50 border border-red-100 p-3 text-center">
           <p className="text-[10px] text-red-500 font-semibold mb-0.5">Dette restante</p>
@@ -2022,7 +2022,7 @@ function PatrimoineChart({ rows, form }) {
           <Area  type="monotone" dataKey="patrimoineNet" name="💚 Patrimoine net"
             stroke="#10B981" fill="url(#gradPatrimoine)" strokeWidth={2} />
           <Line  type="monotone" dataKey="valeurBien"    name="🏠 Valeur du bien"
-            stroke="#7C3AED" strokeWidth={2} dot={false} strokeDasharray="5 3" />
+            stroke="#F97316" strokeWidth={2} dot={false} strokeDasharray="5 3" />
           <Line  type="monotone" dataKey="detteRestante" name="🔴 Dette restante"
             stroke="#EF4444" strokeWidth={2} dot={false} strokeDasharray="3 2" />
         </AreaChart>
@@ -2034,7 +2034,7 @@ function PatrimoineChart({ rows, form }) {
           <span className="text-[10px] text-slate-500">Patrimoine net</span>
         </div>
         <div className="flex items-center gap-1.5">
-          <div className="w-5 border-t-2 border-dashed border-blue-600" />
+          <div className="w-5 border-t-2 border-dashed border-orange-500" />
           <span className="text-[10px] text-slate-500">Valeur du bien</span>
         </div>
         <div className="flex items-center gap-1.5">
@@ -2077,7 +2077,7 @@ function TableauProjection({ rows, horizon }) {
                   <td className="px-3 py-1.5 font-semibold" style={{ color:r.cashflow>=0?"#10B981":"#EF4444" }}>
                     {fmtK(r.cashflowM)}/m
                   </td>
-                  <td className="px-3 py-1.5 font-semibold text-blue-600">{fmtK(r.cumCashflow)}</td>
+                  <td className="px-3 py-1.5 font-semibold text-orange-500">{fmtK(r.cumCashflow)}</td>
                 </tr>
               ))}
             </tbody>
@@ -2153,23 +2153,23 @@ function AlerteLF2026() {
   };
 
   return (
-    <div className="rounded-2xl border border-indigo-200 overflow-hidden bg-indigo-50">
+    <div className="rounded-2xl border border-orange-200 overflow-hidden bg-orange-50">
       <button onClick={() => setOpen(o=>!o)}
-        className="w-full flex items-center justify-between px-4 py-3.5 text-left hover:bg-indigo-100/50 transition-colors">
+        className="w-full flex items-center justify-between px-4 py-3.5 text-left hover:bg-orange-50/50 transition-colors">
         <div className="flex items-center gap-2.5">
           <span className="text-lg">🔔</span>
           <div>
-            <p className="text-sm font-bold text-indigo-800">Alerte fiscale LMNP 2026</p>
-            <p className="text-[10px] text-indigo-500">
+            <p className="text-sm font-bold text-orange-200">Alerte fiscale LMNP 2026</p>
+            <p className="text-[10px] text-orange-500">
               Soyez alerté des changements de la Loi de Finances · Gratuit
             </p>
           </div>
         </div>
-        <span className="text-indigo-400 text-sm">{open ? "▲" : "▼"}</span>
+        <span className="text-orange-400 text-sm">{open ? "▲" : "▼"}</span>
       </button>
 
       {open && (
-        <div className="border-t border-indigo-100 px-4 pb-4 pt-3">
+        <div className="border-t border-orange-100 px-4 pb-4 pt-3">
           {sent ? (
             <div className="flex items-center gap-2 py-2">
               <span className="text-green-500 text-xl">✅</span>
@@ -2179,7 +2179,7 @@ function AlerteLF2026() {
             </div>
           ) : (
             <>
-              <p className="text-xs text-indigo-700 mb-3 leading-relaxed">
+              <p className="text-xs text-orange-300 mb-3 leading-relaxed">
                 La Loi de Finances 2026 peut modifier les règles d&apos;amortissement LMNP, les plafonds Micro-BIC
                 ou les taux de prélèvements sociaux. Recevez une alerte dès qu&apos;un changement impacte vos calculs.
               </p>
@@ -2190,14 +2190,14 @@ function AlerteLF2026() {
                   onChange={e => setEmail(e.target.value)}
                   placeholder="votre@email.fr"
                   required
-                  className="flex-1 text-sm px-3 py-2.5 rounded-xl border border-indigo-200 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-400"
+                  className="flex-1 text-sm px-3 py-2.5 rounded-xl border border-orange-200 bg-white focus:outline-none focus:ring-2 focus:ring-orange-400"
                 />
                 <button type="submit" disabled={loading}
-                  className="px-4 py-2.5 rounded-xl text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 transition-colors disabled:opacity-60 whitespace-nowrap">
+                  className="px-4 py-2.5 rounded-xl text-sm font-bold text-white bg-orange-500 hover:bg-orange-600 transition-colors disabled:opacity-60 whitespace-nowrap">
                   {loading ? "…" : "M'alerter →"}
                 </button>
               </form>
-              <p className="text-[9px] text-indigo-400 mt-2">
+              <p className="text-[9px] text-orange-400 mt-2">
                 Désabonnement en 1 clic · Données stockées en France · Aucun spam
               </p>
             </>
@@ -2232,7 +2232,7 @@ function AffiliationContextuelle({ results, form }) {
       desc: "Simulation en 2 min, offre en 48h",
       badge: triIsGreat ? "Recommandé" : null,
       url: `https://www.pretto.fr?utm_source=immoverdict&utm_medium=affiliation&utm_content=tri-${tri}`,
-      color: "#7C3AED",
+      color: "#F97316",
     },
     {
       name: "MeilleurTaux",
@@ -2241,7 +2241,7 @@ function AffiliationContextuelle({ results, form }) {
       desc: "200+ banques comparées",
       badge: null,
       url: `https://www.meilleurtaux.com?utm_source=immoverdict&utm_medium=affiliation&utm_content=tri-${tri}`,
-      color: "#2563EB",
+      color: "#F97316",
     },
     {
       name: "CAFPI",
@@ -2250,7 +2250,7 @@ function AffiliationContextuelle({ results, form }) {
       desc: "Expertise locatif & LMNP",
       badge: "Expert LMNP",
       url: `https://www.cafpi.fr?utm_source=immoverdict&utm_medium=affiliation`,
-      color: "#059669",
+      color: "#F97316",
     },
   ];
 
@@ -2326,14 +2326,14 @@ function AffiliationContextuelle({ results, form }) {
               </p>
               <p className="text-xs mb-3 leading-relaxed" style={{ color:"rgba(248,250,252,0.55)" }}>
                 Avec ce volume, un expert-comptable LMNP peut optimiser la ventilation par composants et
-                potentiellement <strong style={{ color:"#A78BFA" }}>augmenter vos déductions annuelles</strong>.
+                potentiellement <strong style={{ color:"#F97316" }}>augmenter vos déductions annuelles</strong>.
                 Premier mois souvent offert.
               </p>
               <a href="https://www.compta-lmnp.fr?utm_source=immoverdict&utm_medium=cta-travaux"
                 target="_blank" rel="noopener noreferrer"
                 onClick={() => { try { window.gtag?.("event","clic_comptable",{ travaux:form.travaux }); } catch(_){} }}
                 className="inline-flex items-center gap-1.5 text-white text-xs font-bold px-4 py-2 rounded-xl"
-                style={{ background:"linear-gradient(135deg, #7C3AED, #2563EB)" }}>
+                style={{ background:"linear-gradient(135deg, #F97316, #F97316)" }}>
                 🧾 Trouver un comptable LMNP →
               </a>
               <p className="text-[9px] mt-2" style={{ color:"rgba(248,250,252,0.25)" }}>Lien partenaire · Sans engagement</p>
@@ -2368,13 +2368,13 @@ function ReferencesLegales() {
             <div key={ref.code} className="px-4 py-3">
               <div className="flex items-start justify-between gap-2 mb-1">
                 <div className="flex items-center gap-2">
-                  <span className="inline-block bg-blue-100 text-blue-700 text-[10px] font-bold px-2 py-0.5 rounded-full whitespace-nowrap">
+                  <span className="inline-block bg-orange-50 text-orange-400 text-[10px] font-bold px-2 py-0.5 rounded-full whitespace-nowrap">
                     {ref.code}
                   </span>
                   <p className="text-xs font-semibold text-slate-700">{ref.titre}</p>
                 </div>
                 <a href={ref.lien} target="_blank" rel="noopener noreferrer"
-                  className="shrink-0 text-[10px] text-blue-500 hover:text-blue-700 underline">
+                  className="shrink-0 text-[10px] text-orange-400 hover:text-orange-400 underline">
                   Texte officiel →
                 </a>
               </div>
@@ -2435,7 +2435,7 @@ function AchatVsEpargneChart({ rows, form }) {
             <ReferenceLine x={`A${breakEven}`} stroke="#10B981" strokeDasharray="4 4"
               label={{ value:"Break-even", position:"insideTopLeft", fill:"#10B981", fontSize:10 }} />
           )}
-          <Line type="monotone" dataKey="achat"   stroke="#7C3AED" strokeWidth={2.5} dot={false} />
+          <Line type="monotone" dataKey="achat"   stroke="#F97316" strokeWidth={2.5} dot={false} />
           <Line type="monotone" dataKey="epargne" stroke="#F59E0B" strokeWidth={2}   dot={false} strokeDasharray="5 5" />
         </LineChart>
       </ResponsiveContainer>
@@ -2478,7 +2478,7 @@ function PlusValueLatente({ form }) {
   };
 
   const rows = scenarios.map(calcScenario);
-  const colors = ["#7C3AED","#2563EB","#10B981"];
+  const colors = ["#F97316","#F97316","#10B981"];
 
   return (
     <div className="space-y-3">
@@ -2522,13 +2522,13 @@ function downloadChecklist(form) {
 <style>
   *{box-sizing:border-box;} body{margin:0;padding:0;background:#F8FAFC;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#0F172A;}
   .wrap{max-width:640px;margin:0 auto;padding:20px;}
-  .header{background:linear-gradient(135deg,#0F172A,#185FA5);color:white;padding:28px 24px;border-radius:16px;margin-bottom:16px;}
+  .header{background:#131318;color:white;padding:28px 24px;border-radius:16px;margin-bottom:16px;}
   .header h1{margin:0 0 4px;font-size:20px;} .header p{margin:0;font-size:12px;color:rgba(255,255,255,.7);}
   .section{background:white;border-radius:12px;padding:20px;margin-bottom:14px;box-shadow:0 1px 3px rgba(0,0,0,.06);}
   .section-title{font-size:13px;font-weight:700;color:#0F172A;margin:0 0 12px;padding-bottom:8px;border-bottom:1px solid #F1F5F9;}
   .ct{width:100%;border-collapse:collapse;} .ct tr{border-bottom:1px solid #F8FAFC;}
   .ct tr.done .ci{text-decoration:line-through;color:#94A3B8;}
-  .cb{width:28px;padding:7px 6px 7px 0;vertical-align:top;} .cb input{width:16px;height:16px;cursor:pointer;accent-color:#185FA5;}
+  .cb{width:28px;padding:7px 6px 7px 0;vertical-align:top;} .cb input{width:16px;height:16px;cursor:pointer;accent-color:#F97316;}
   .ci{font-size:12px;padding:7px 0;line-height:1.4;color:#334155;}
   .footer{text-align:center;font-size:10px;color:#94A3B8;padding:12px 0 4px;}
   @media print{body{background:white;} .header{-webkit-print-color-adjust:exact;print-color-adjust:exact;}}
@@ -2795,7 +2795,7 @@ function StepResultats({ form, results, comparaison, amort, onLead, onArgumentai
         <KPICard label="Rendement net" value={`${best.rendNet.toFixed(2)} %`}
           sub="(loyers − charges) / prix total achat" icon="🏠"
           help={LEXIQUE["Rendement net"]}
-          color="#A78BFA" bg="rgba(124,58,237,0.12)" />
+          color="#F97316" bg="rgba(124,58,237,0.12)" />
         <KPICard label="Taux d'endettement" value={`${best.ratioEndt} %`}
           sub={best.ratioEndt<=35?"✅ Règle HCSF OK":"⚠ Dépasse 35%"} icon="⚖️"
           help={LEXIQUE["Ratio d'endettement"]}
@@ -2811,7 +2811,7 @@ function StepResultats({ form, results, comparaison, amort, onLead, onArgumentai
         const tmiLabel   = form.tmi === 0 ? "Non imposable" : `${form.tmi} %`;
         return (
           <div className="rounded-2xl overflow-hidden border border-emerald-200"
-            style={{ background:"linear-gradient(135deg,rgba(16,185,129,0.18) 0%,rgba(5,150,105,0.12) 100%)" }}>
+            style={{ background:"rgba(249,115,22,0.08)" }}>
             <div className="px-4 pt-4 pb-1 flex items-center gap-2">
               <span className="text-xl">🛡️</span>
               <div>
@@ -2828,7 +2828,7 @@ function StepResultats({ form, results, comparaison, amort, onLead, onArgumentai
                 <p className="text-lg font-extrabold text-emerald-700">{fmt(amort.totalAnnuel)}</p>
                 <p className="text-[9px] text-emerald-500 mt-0.5">déductibles du revenu imposable</p>
               </div>
-              <div className="rounded-xl p-3 text-center" style={{ background:"#059669", color:"white" }}>
+              <div className="rounded-xl p-3 text-center" style={{ background:"#F97316", color:"white" }}>
                 <p className="text-[9px] font-semibold uppercase tracking-wide mb-1 opacity-80">Économie IR / an</p>
                 <p className="text-lg font-extrabold">{fmt(econIR)}</p>
                 <p className="text-[9px] mt-0.5 opacity-75">= amort. × TMI {form.tmi}%</p>
@@ -2868,10 +2868,10 @@ function StepResultats({ form, results, comparaison, amort, onLead, onArgumentai
             <p className="text-lg font-bold text-amber-700">{fmt(micro.rows[0]?.impot)}</p>
             <p className="text-[10px] text-amber-500">Abattement {form.tourismeClass ? "71" : "50"}%</p>
           </div>
-          <div className="rounded-xl bg-blue-50 border border-blue-100 p-3 text-center">
-            <p className="text-[10px] text-blue-600 font-semibold">Impôt Réel an 1</p>
-            <p className="text-lg font-bold text-blue-700">{fmt(best.rows[0]?.impot)}</p>
-            <p className="text-[10px] text-blue-500">Amortissements déduits</p>
+          <div className="rounded-xl bg-orange-50 border border-orange-100 p-3 text-center">
+            <p className="text-[10px] text-orange-500 font-semibold">Impôt Réel an 1</p>
+            <p className="text-lg font-bold text-orange-400">{fmt(best.rows[0]?.impot)}</p>
+            <p className="text-[10px] text-orange-400">Amortissements déduits</p>
           </div>
         </div>
         {comparaison && <MicroVsReelChart data={comparaison} />}
@@ -2940,7 +2940,7 @@ function StepResultats({ form, results, comparaison, amort, onLead, onArgumentai
             const isWin   = i===0;
             const isSciIS = r.type === "sciis";
             return (
-              <div key={r.type} className={`rounded-xl p-3 border ${isWin?"bg-blue-50 border-blue-200":"bg-slate-50 border-slate-100"}`}>
+              <div key={r.type} className={`rounded-xl p-3 border ${isWin?"bg-orange-50 border-orange-200":"bg-slate-50 border-slate-100"}`}>
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm font-bold text-slate-800 flex items-center">
@@ -2978,9 +2978,9 @@ function StepResultats({ form, results, comparaison, amort, onLead, onArgumentai
       {/* Argumentaire vendeur */}
       <button onClick={onArgumentaire}
         className="w-full flex items-center justify-center gap-2 rounded-2xl py-3.5 px-4 text-sm font-bold text-white transition-all active:scale-95"
-        style={{ background:"linear-gradient(135deg, #4C1D95, #7C3AED)" }}>
+        style={{ background:"#F97316" }}>
         📝 Générer l'argumentaire vendeur
-        <span className="text-blue-300 text-xs font-normal">CGI Art. 39 C · Négociation bancaire</span>
+        <span className="text-orange-300 text-xs font-normal">CGI Art. 39 C · Négociation bancaire</span>
       </button>
 
       {/* Veille fiscale */}
@@ -2993,18 +2993,18 @@ function StepResultats({ form, results, comparaison, amort, onLead, onArgumentai
 
       {/* CTA Lead Capture */}
       <div className="rounded-2xl overflow-hidden"
-        style={{ background:"linear-gradient(135deg, #1a0533 0%, #4C1D95 60%, #7C3AED 100%)" }}>
+        style={{ background:"#131318" }}>
         <div className="p-6 text-center">
           <p className="text-2xl mb-2">📄</p>
           <h3 className="text-white font-bold text-base mb-1">Rapport fiscal complet</h3>
-          <p className="text-blue-200 text-xs mb-4">
+          <p className="text-orange-200 text-xs mb-4">
             Tableau de projection 20 ans · Comparatif des 4 régimes · Analyse amortissements · Conseils personnalisés
           </p>
           <button onClick={onLead}
-            className="w-full bg-white text-blue-800 font-bold py-3 px-6 rounded-xl text-sm hover:bg-blue-50 transition-colors">
+            className="w-full bg-white text-orange-300 font-bold py-3 px-6 rounded-xl text-sm hover:bg-orange-50 transition-colors">
             Générer mon rapport complet →
           </button>
-          <p className="text-blue-300 text-[10px] mt-2">Gratuit · Reçu par email en quelques secondes</p>
+          <p className="text-orange-300 text-[10px] mt-2">Gratuit · Reçu par email en quelques secondes</p>
         </div>
       </div>
 
@@ -3034,911 +3034,843 @@ function StepResultats({ form, results, comparaison, amort, onLead, onArgumentai
    LEAD CAPTURE MODAL
 ════════════════════════════════════════ */
 
-/* ── Générateur de rapport HTML téléchargeable (fallback client-side) ── */
+/* ══════════════════════════════════════════════════════════════════
+   DOSSIER BANCAIRE PROFESSIONNEL — PDF A4
+   Format : document Word/banque, sections numérotées, tableaux formels
+══════════════════════════════════════════════════════════════════ */
 function downloadReport(form, results, amort, nom) {
-  const r0   = results?.[0];
-  const fmt2 = (n) => new Intl.NumberFormat("fr-FR",{style:"currency",currency:"EUR",maximumFractionDigits:0}).format(n??0);
-  const cfColor   = (r0?.cashflowM??0)>=0?"#059669":"#DC2626";
-  const triColor  = (r0?.tri??0)>=6?"#059669":(r0?.tri??0)>=4?"#D97706":"#DC2626";
-  const verdictEmoji = (r0?.tri??0)>=6?"🟢":(r0?.tri??0)>=4?"🟡":"🔴";
-  const dateStr   = new Date().toLocaleDateString("fr-FR",{day:"numeric",month:"long",year:"numeric"});
+  const r0      = results?.[0];
+  const fmt     = (n) => new Intl.NumberFormat("fr-FR",{style:"currency",currency:"EUR",maximumFractionDigits:0}).format(n??0);
+  const dateStr = new Date().toLocaleDateString("fr-FR",{day:"2-digit",month:"long",year:"numeric"});
+  const refNum  = `LMNP-${new Date().getFullYear()}-${String(Math.floor(Math.random()*9000)+1000)}`;
 
-  // Score bancabilité inline
-  const ratioEndt = +(r0?.ratioEndt ?? 0);
-  const capital   = form.prix + form.travaux + form.prix*(form.notaire/100) - form.apport;
-  const tm        = form.interet/100/12;
-  const nn        = form.dureeCredit * 12;
-  const mens      = capital>0&&tm>0 ? Math.round((capital*tm)/(1-Math.pow(1+tm,-nn))) : 0;
-  const totalMens = mens + (+form.chargesCredit||0);
-  const rav       = Math.round((+form.revenusMensuels||0) - totalMens);
-  const ravColor  = rav>=1500?"#059669":rav>=1200?"#D97706":"#DC2626";
-  const pctApport = Math.round(form.apport / Math.max(form.prix,1) * 100);
-  const rendBrut  = +r0?.rendBrut || 0;
-  const scoreEndt = ratioEndt<=28?25:ratioEndt<=33?18:ratioEndt<=35?10:0;
-  const scoreCF   = (r0?.cashflowM??0)>=200?25:(r0?.cashflowM??0)>=50?20:(r0?.cashflowM??0)>=0?15:(r0?.cashflowM??0)>=-100?8:0;
-  const scoreRdt  = rendBrut>=7?20:rendBrut>=5.5?15:rendBrut>=4?10:3;
-  const scoreAppt = pctApport>=20?20:pctApport>=15?15:pctApport>=10?8:2;
-  const scoreTRI  = (r0?.tri??0)>=6?10:(r0?.tri??0)>=4?7:2;
-  const scoreTot  = scoreEndt+scoreCF+scoreRdt+scoreAppt+scoreTRI;
-  const scoreColor= scoreTot>=75?"#059669":scoreTot>=50?"#D97706":"#DC2626";
-  const scoreLabel= scoreTot>=75?"Dossier solide ✅":scoreTot>=50?"Dossier acceptable ⚠️":"Dossier fragile 🔴";
 
-  // Projection patrimoniale finale
-  const revalo = (form.revalorisation||1.5)/100;
-  const lastRow = r0?.rows?.[(form.horizon||20)-1];
-  const valFinale = Math.round(form.prix * Math.pow(1+revalo, form.horizon||20));
-  const detteFinale = Math.max(0, Math.round(lastRow?.capRestant||0));
-  const patriFinal  = Math.max(0, valFinale - detteFinale);
-
-  // ── Données emprunteur & bien
-  const profession      = form.profession || "—";
-  const typeContrat     = form.typeContrat || "CDI";
-  const age             = form.age || "—";
-  const epargne         = form.epargneResiduelle ?? 0;
-  const nbPieces        = form.nbPieces ?? 2;
-  const etatGeneral     = form.etatGeneral || "—";
-  const quartier        = form.quartier || "—";
-  const modeExploit     = form.modeExploitation || "LMNP meublé";
-  const assurancePNO    = form.assurancePNO ?? 200;
-  const fraisGestion    = form.fraisGestion ?? 0;
-  const objetTravaux    = form.objetTravaux || "";
-
-  // ── Charges locatives totales annuelles
-  const chargesAnnuelles = (form.charges||0)*12 + (form.taxeFonciere||0) + assurancePNO + fraisGestion + (form.cfe||0);
-  const loyerAnnuelNet   = Math.round(form.loyer * 12 * (1 - (form.vacance||0)/100));
-  const cfBancaireMensuel = Math.round((loyerAnnuelNet - chargesAnnuelles) / 12); // revenus locatifs nets - charges hors crédit
-
-  // ── Taux d'endettement différentiel (revenus locatifs déduits)
-  const revenuDifferentiel = Math.max(0, Math.round(loyerAnnuelNet / 12 * 0.7)); // 70% des loyers pris en compte par banques
-  const ratioEndtDiff = (totalMens / Math.max((+form.revenusMensuels||0) + revenuDifferentiel, 1) * 100).toFixed(1);
-
-  // ── Tableau d'amortissement prévisionnel (8 jalons)
-  const amortRows = (() => {
-    if (capital <= 0 || tm <= 0) return [];
-    const jalons = [1,2,3,4,5,10,15,form.dureeCredit].filter((v,i,a)=>a.indexOf(v)===i&&v<=form.dureeCredit).sort((a,b)=>a-b);
-    const rows = [];
-    for (const annee of jalons) {
-      const k = annee * 12;
-      // Capital restant après k paiements
-      const capRest = Math.max(0, Math.round(capital * (Math.pow(1+tm,nn) - Math.pow(1+tm,k)) / (Math.pow(1+tm,nn) - 1)));
-      // Intérêts payés sur l'année annee
-      const capAvant = annee===1 ? capital : Math.max(0, Math.round(capital * (Math.pow(1+tm,nn) - Math.pow(1+tm,(annee-1)*12)) / (Math.pow(1+tm,nn) - 1)));
-      const interetsAn  = Math.round(mens * 12 - (capAvant - capRest));
-      const amortAn     = Math.round(capAvant - capRest);
-      rows.push({ annee, mens, capRest, interetsAn, amortAn });
-    }
-    return rows;
-  })();
-
-  // ── Synthèse executive (5 points forts)
-  const execPoints = [
-    pctApport>=20 ? `✅ Apport solide : ${pctApport}% du prix (${fmt2(form.apport)}) — couvre les frais de notaire et rassure la banque.`
-      : pctApport>=10 ? `🟡 Apport de ${pctApport}% (${fmt2(form.apport)}) — suffisant, idéalement porter à 20% pour obtenir les meilleures conditions.`
-      : `⚠️ Apport faible : ${pctApport}% — envisagez d'augmenter l'apport pour faciliter l'obtention du crédit.`,
-
-    quartier&&quartier!=="—" ? `✅ Localisation : ${quartier} — secteur à fort potentiel de valorisation.`
-      : `📍 Localisation à renseigner pour renforcer l'argumentaire bancaire.`,
-
-    (r0?.cashflowM??0)>=0 ? `✅ Cash-flow positif : ${(r0?.cashflowM??0)>=0?"+":""}${r0?.cashflowM}€/mois — l'investissement s'autofinance sans effort d'épargne.`
-      : `🟡 Cash-flow légèrement négatif : ${r0?.cashflowM}€/mois — effort d'épargne modéré, compensé par la plus-value latente.`,
-
-    typeContrat==="CDI"||typeContrat==="Fonctionnaire" ? `✅ Profil emprunteur ${typeContrat} — situation professionnelle stable, critère n°1 des banques.`
-      : `📋 Profil ${typeContrat} — prévoir 3 bilans ou avis d'imposition pour rassurer l'établissement prêteur.`,
-
-    modeExploit==="LMNP meublé" ? `✅ Fiscalité LMNP Réel — amortissements de ${fmt2(amort?.totalAnnuel||0)}/an → bouclier fiscal prévu sur ~${Math.round((amort?.totalAnnuel||0)*(form.tmi/100) > 0 ? (form.prix+form.travaux)/(amort?.totalAnnuel||1) : 12)} ans.`
-      : `📋 Stratégie ${modeExploit} — vérifiez l'optimisation fiscale avec un expert-comptable spécialisé.`,
-  ];
-
-  // ── Analyse de risque (points de sécurité)
-  const risqueItems = [
-    { ok: (form.vacance||5)<=7, label:"Vacance locative", detail: `${form.vacance||5}% estimé (${Math.round((form.vacance||5)/100*365)} jours/an) — ${(form.vacance||5)<=5?"marché tendu, risque faible":"prévoir 1 à 2 mois de loyer en réserve"}` },
-    { ok: ["A","B","C","D"].includes(form.dpe||"C"), label:"DPE & réglementation", detail: `Classe ${form.dpe||"C"} — ${["A","B","C","D"].includes(form.dpe||"C")?"conforme aux nouvelles règles (pas d'interdiction de location)":"⚠️ travaux obligatoires pour louer légalement après 2025/2028"}` },
-    { ok: ratioEndt<=35, label:"Règle HCSF 35%", detail: `Taux d'endettement ${ratioEndt}% ${ratioEndt<=35?"✅ dans les clous":"⚠️ dépassement, apport supplémentaire nécessaire"}` },
-    { ok: epargne>=mens*3, label:"Épargne de précaution", detail: `${fmt2(epargne)} disponible (${mens>0?Math.round(epargne/mens):0} mensualités de réserve) — ${epargne>=mens*3?"réserve confortable":"banque peut exiger un effort supplémentaire"}` },
-    { ok: valFinale>capital, label:"Plus-value latente", detail: `Valeur estimée dans ${form.horizon} ans : ${fmt2(valFinale)} (+${fmt2(valFinale-form.prix)} vs prix d'achat à ${form.revalorisation||1.5}%/an)` },
-  ];
-
-  const html = `<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8">
-<title>Dossier Bancaire LMNP — ${nom||"Investisseur"}</title>
-<style>
-  *{box-sizing:border-box;}
-  body{margin:0;padding:0;background:#F1F5F9;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#0F172A;}
-  .wrap{max-width:700px;margin:0 auto;padding:20px;}
-  /* Header */
-  .header{background:linear-gradient(135deg,#0F172A 0%,#185FA5 100%);color:white;padding:32px 28px;border-radius:16px;margin-bottom:16px;position:relative;}
-  .header-badge{position:absolute;top:16px;right:16px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);color:white;font-size:10px;font-weight:700;padding:4px 10px;border-radius:20px;}
-  /* Executive summary */
-  .exec{background:white;border-radius:16px;padding:24px;margin-bottom:16px;border:2px solid ${triColor}33;}
-  /* Sections */
-  .section{background:white;border-radius:16px;padding:24px;margin-bottom:16px;}
-  .section-title{font-size:13px;font-weight:700;color:#0F172A;margin:0 0 14px;padding-bottom:8px;border-bottom:1px solid #F1F5F9;display:flex;align-items:center;gap:6px;}
-  /* KPIs */
-  .kpi4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px;}
-  .kpi3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
-  .kpi-box{border-radius:12px;padding:14px;text-align:center;}
-  .kpi-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;margin-bottom:5px;}
-  .kpi-val{font-size:22px;font-weight:800;line-height:1;}
-  .kpi-sub{font-size:10px;margin-top:4px;opacity:.75;}
-  /* Score bancabilité */
-  .score-bar-bg{height:8px;background:#E2E8F0;border-radius:4px;flex:1;}
-  .score-bar-fill{height:8px;border-radius:4px;background:${scoreColor};}
-  .score-row{display:flex;align-items:center;gap:8px;margin-bottom:7px;font-size:11px;}
-  /* Tables */
-  .dt{width:100%;border-collapse:collapse;font-size:12px;}
-  .dt td{padding:6px 4px;border-bottom:1px solid #F8FAFC;}
-  .dt td:last-child{text-align:right;font-weight:600;}
-  .dt tr:last-child td{border-bottom:none;}
-  /* Regimes */
-  .regime{border-radius:10px;padding:12px 16px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;}
-  /* Amort */
-  .amort-row{display:flex;align-items:center;gap:8px;margin-bottom:7px;}
-  .bar-bg{flex:1;background:#DBEAFE;border-radius:3px;height:6px;}
-  .bar-fill{background:#185FA5;border-radius:3px;height:6px;}
-  /* Footer */
-  .footer{background:#F8FAFC;border-radius:12px;padding:14px 20px;text-align:center;border:1px solid #E2E8F0;font-size:10px;color:#94A3B8;margin-top:8px;}
-  @media print{body{background:white;}.wrap{padding:0;}@page{margin:12mm;size:A4;}}
-</style>
-</head><body><div class="wrap">
-
-<!-- PAGE DE GARDE -->
-<div class="header">
-  <div class="header-badge">LF 2026 · ${dateStr}</div>
-  <div style="display:flex;align-items:center;gap:14px;margin-bottom:18px;">
-    <span style="font-size:44px;">🏦</span>
-    <div>
-      <div style="font-size:22px;font-weight:800;margin-bottom:2px;">Dossier de Financement Bancaire</div>
-      <div style="font-size:13px;opacity:.7;">Investissement Locatif · ${modeExploit} · Conformité CGI 2026</div>
-    </div>
-  </div>
-  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:4px;">
-    ${[
-      ["Emprunteur", nom||"—"],
-      ["Profession", profession!=="—"?profession:typeContrat],
-      ["Bien", `${fmt2(form.prix)}`],
-      ["Durée crédit", `${form.dureeCredit} ans`],
-    ].map(([l,v])=>`<div style="background:rgba(255,255,255,.1);border-radius:10px;padding:10px 12px;">
-      <div style="font-size:9px;opacity:.6;text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px;">${l}</div>
-      <div style="font-weight:700;font-size:13px;">${v}</div>
-    </div>`).join("")}
-  </div>
-</div>
-
-<!-- PROFIL EMPRUNTEUR -->
-<div class="section">
-  <div class="section-title">👤 Présentation de l'emprunteur</div>
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;">
-    ${[
-      ["Emprunteur", nom||"—"],
-      ["Âge", `${age} ans`],
-      ["Profession", profession],
-      ["Type de contrat", typeContrat],
-      ["Revenus nets mensuels", `${fmt2(form.revenusMensuels)}/mois`],
-      ["Épargne résiduelle après projet", fmt2(epargne)],
-    ].map(([l,v])=>`<div style="background:#F8FAFC;border-radius:8px;padding:9px 12px;">
-      <div style="font-size:10px;color:#64748B;margin-bottom:2px;">${l}</div>
-      <div style="font-size:13px;font-weight:700;color:#0F172A;">${v}</div>
-    </div>`).join("")}
-  </div>
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-    ${[
-      ["Localisation", quartier!=="—"?quartier:(form.adresse||"—")],
-      ["Type de bien", `${form.typeBien} · ${form.surface} m² · ${nbPieces} pièce${nbPieces>1?"s":""}`],
-      ["DPE", `Classe ${form.dpe||"C"} — ${["A","B"].includes(form.dpe||"C")?"Très économe":["C","D"].includes(form.dpe||"C")?"Performant":["E"].includes(form.dpe||"C")?"Moyen":"⚠️ À rénover"}`],
-      ["État général", etatGeneral],
-      ["Mode d'exploitation", modeExploit],
-      objetTravaux?["Nature des travaux", objetTravaux]:["Travaux prévus", fmt2(form.travaux)],
-    ].map(([l,v])=>`<div style="background:#F8FAFC;border-radius:8px;padding:9px 12px;">
-      <div style="font-size:10px;color:#64748B;margin-bottom:2px;">${l}</div>
-      <div style="font-size:13px;font-weight:700;color:#0F172A;">${v}</div>
-    </div>`).join("")}
-  </div>
-</div>
-
-<!-- RÉSUMÉ EXÉCUTIF (PAGE BANQUIER) -->
-<div class="exec">
-  <div style="display:flex;align-items:center;gap:16px;margin-bottom:20px;">
-    <span style="font-size:40px;">${verdictEmoji}</span>
-    <div style="flex:1;">
-      <div style="font-weight:800;font-size:18px;color:${triColor};margin-bottom:3px;">
-        Verdict : ${(r0?.tri??0)>=6?"Projet excellent — Finançable":(r0?.tri??0)>=4?"Projet acceptable — Optimisable":"Projet risqué — À restructurer"}
-      </div>
-      <div style="font-size:12px;color:#64748B;">
-        TRI ${r0?.tri??"-"}% · Cash-flow ${r0?.cashflowM!=null?((r0.cashflowM>=0?"+":"")+r0.cashflowM+"€"):"-"}/mois · TMI ${form.tmi}% · Apport ${pctApport}%
-      </div>
-    </div>
-    <div style="text-align:center;background:${scoreColor}11;border:2px solid ${scoreColor}33;border-radius:12px;padding:12px 16px;min-width:90px;">
-      <div style="font-size:28px;font-weight:800;color:${scoreColor};">${scoreTot}</div>
-      <div style="font-size:9px;font-weight:700;color:${scoreColor};">/ 100</div>
-      <div style="font-size:9px;color:#64748B;margin-top:2px;">Score bancaire</div>
-    </div>
-  </div>
-
-  <!-- 4 KPIs principaux -->
-  <div class="kpi4">
-    <div class="kpi-box" style="background:#EFF6FF;border:1px solid #BFDBFE;">
-      <div class="kpi-label" style="color:#3B82F6;">TRI</div>
-      <div class="kpi-val" style="color:#185FA5;">${r0?.tri??"-"}%</div>
-      <div class="kpi-sub" style="color:#93C5FD;">Sur ${form.horizon} ans</div>
-    </div>
-    <div class="kpi-box" style="background:${cfColor}0F;border:1px solid ${cfColor}33;">
-      <div class="kpi-label" style="color:${cfColor};">Cash-flow</div>
-      <div class="kpi-val" style="color:${cfColor};">${r0?.cashflowM!=null?((r0.cashflowM>=0?"+":"")+r0.cashflowM+"€"):"-"}</div>
-      <div class="kpi-sub" style="color:#94A3B8;">par mois</div>
-    </div>
-    <div class="kpi-box" style="background:#F0FDF4;border:1px solid #BBF7D0;">
-      <div class="kpi-label" style="color:#16A34A;">Rdt net</div>
-      <div class="kpi-val" style="color:#15803D;">${r0?.rendNet!=null?(+r0.rendNet).toFixed(2):"-"}%</div>
-      <div class="kpi-sub" style="color:#86EFAC;">Après charges</div>
-    </div>
-    <div class="kpi-box" style="background:${ratioEndt<=35?"#F0FDF4":"#FEF2F2"};border:1px solid ${ratioEndt<=35?"#BBF7D0":"#FECACA"};">
-      <div class="kpi-label" style="color:${ratioEndt<=35?"#16A34A":"#DC2626"};">Endettement</div>
-      <div class="kpi-val" style="color:${ratioEndt<=35?"#15803D":"#DC2626"};">${ratioEndt}%</div>
-      <div class="kpi-sub" style="color:#94A3B8;">${ratioEndt<=35?"✅ HCSF OK":"⚠ > 35%"}</div>
-    </div>
-  </div>
-
-  <!-- Reste à vivre -->
-  <div style="background:${ravColor}0F;border:1px solid ${ravColor}33;border-radius:10px;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;">
-    <div>
-      <div style="font-size:12px;font-weight:700;color:#0F172A;">Reste à vivre mensuel</div>
-      <div style="font-size:10px;color:#64748B;">Revenus ${fmt2(form.revenusMensuels)} − mensualités ${fmt2(totalMens)}</div>
-    </div>
-    <div style="text-align:right;">
-      <div style="font-size:20px;font-weight:800;color:${ravColor};">${fmt2(rav)}/mois</div>
-      <div style="font-size:10px;color:${ravColor};font-weight:600;">${rav>=1500?"Confortable ✅":rav>=1200?"Juste ⚠️":"Serré 🔴"}</div>
-    </div>
-  </div>
-</div>
-
-<!-- SCORE BANCABILITÉ DÉTAILLÉ -->
-<div class="section">
-  <div class="section-title">⚖️ Score de bancabilité — ${scoreLabel}</div>
-  <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
-    <div style="font-size:36px;font-weight:800;color:${scoreColor};">${scoreTot}<span style="font-size:16px;color:#94A3B8;">/100</span></div>
-    <div style="flex:1;">
-      <div class="bar-bg" style="height:12px;background:#E2E8F0;border-radius:6px;">
-        <div style="height:12px;border-radius:6px;background:${scoreColor};width:${scoreTot}%;"></div>
-      </div>
-    </div>
-  </div>
-  ${[
-    ["Taux d'endettement",scoreEndt,25,`${ratioEndt}%`],
-    ["Cash-flow mensuel",scoreCF,25,`${r0?.cashflowM!=null?(r0.cashflowM>=0?"+":"")+r0.cashflowM+"€":"-"}/mois`],
-    ["Rendement brut",scoreRdt,20,`${rendBrut.toFixed(2)}%`],
-    ["Apport personnel",scoreAppt,20,`${pctApport}%`],
-    ["TRI",scoreTRI,10,`${r0?.tri??"-"}%`],
-  ].map(([label,score,max,val])=>`
-    <div class="score-row">
-      <div style="width:150px;color:#64748B;">${label}</div>
-      <div style="flex:1;background:#E2E8F0;border-radius:3px;height:6px;">
-        <div style="height:6px;border-radius:3px;background:${score/max>=.8?"#10B981":score/max>=.5?"#F59E0B":"#EF4444"};width:${Math.round(score/max*100)}%;"></div>
-      </div>
-      <div style="width:50px;text-align:right;font-weight:700;color:#0F172A;">${score}/${max}</div>
-      <div style="width:60px;text-align:right;font-size:10px;color:#64748B;">${val}</div>
-    </div>`).join("")}
-</div>
-
-<!-- CARACTÉRISTIQUES DU BIEN -->
-<div class="section">
-  <div class="section-title">🏠 Caractéristiques du bien &amp; financement</div>
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-    ${[
-      ["Prix d'achat",fmt2(form.prix)],
-      ["Frais de notaire",`${fmt2(form.prix*form.notaire/100)} (${form.notaire}%)`],
-      ["Travaux",fmt2(form.travaux)],
-      ["Mobilier",fmt2(form.mobilier)],
-      ["Apport",`${fmt2(form.apport)} (${pctApport}%)`],
-      ["Capital emprunté",fmt2(capital)],
-      ["Mensualité LMNP",`${fmt2(mens)}/mois`],
-      ["Durée crédit",`${form.dureeCredit} ans à ${form.interet}%`],
-      ["Loyer mensuel",`${fmt2(form.loyer)}/mois`],
-      ["Terrain (non amort.)",`${form.terrain??15}% · ${fmt2(form.prix*(form.terrain??15)/100)}`],
-    ].map(([l,v])=>`<div style="background:#F8FAFC;border-radius:8px;padding:9px 12px;">
-      <div style="font-size:10px;color:#64748B;margin-bottom:2px;">${l}</div>
-      <div style="font-size:13px;font-weight:700;">${v}</div>
-    </div>`).join("")}
-  </div>
-</div>
-
-<!-- COMPARAISON 4 RÉGIMES -->
-<div class="section">
-  <div class="section-title">📊 Comparaison des 4 régimes fiscaux</div>
-  ${(results||[]).map((r,i)=>{
-    const labels=["LMNP Réel","Micro-BIC","SCI à l'IS","SCI à l'IR"];
-    const icons=["🥇","🥈","🏅","🏅"];
-    const bg=i===0?"#EFF6FF":"#F8FAFC";
-    const bd=i===0?"#BFDBFE":"#E2E8F0";
-    const cc=(r.cashflowM??0)>=0?"#059669":"#DC2626";
-    return `<div class="regime" style="background:${bg};border:1px solid ${bd};">
-      <div>
-        <div style="font-weight:700;font-size:13px;">${icons[i]} ${labels[i]}</div>
-        <div style="font-size:10px;color:#64748B;margin-top:2px;">TRI ${r.tri??"-"}% · Rdt ${r.rendNet!=null?(+r.rendNet).toFixed(2):"-"}% · Impôt an 1 ${fmt2(r.rows?.[0]?.impot)}</div>
-      </div>
-      <div style="text-align:right;">
-        <div style="font-size:18px;font-weight:800;color:${cc};">${r.cashflowM!=null?((r.cashflowM>=0?"+":"")+r.cashflowM+"€"):"-"}/mois</div>
-      </div>
-    </div>`;
-  }).join("")}
-</div>
-
-<!-- AMORTISSEMENTS PAR COMPOSANTS -->
-${amort?.chartData?.length ? `
-<div class="section">
-  <div class="section-title">🏗️ Amortissement par composants — ${fmt2(amort.totalAnnuel)}/an déductible</div>
-  ${amort.chartData.map(c=>`<div class="amort-row">
-    <div style="width:120px;font-size:11px;color:#64748B;">${c.name}</div>
-    <div class="bar-bg"><div class="bar-fill" style="width:${Math.round(c.montant/amort.totalAnnuel*100)}%;"></div></div>
-    <div style="width:60px;text-align:right;font-size:11px;font-weight:700;">${fmt2(c.montant)}</div>
-    <div style="width:38px;font-size:10px;color:#94A3B8;">${c.duree}ans</div>
-  </div>`).join("")}
-  <div style="background:#EFF6FF;border-radius:8px;padding:10px 12px;margin-top:12px;font-size:11px;color:#185FA5;">
-    💡 <strong>Économie fiscale annuelle</strong> : ${fmt2(amort.totalAnnuel)} × ${form.tmi}% TMI = <strong>${fmt2(amort.totalAnnuel * form.tmi/100)}/an</strong> d'impôt évité en régime Réel
-  </div>
-</div>` : ""}
-
-<!-- PROJECTION PATRIMONIALE -->
-<div class="section">
-  <div class="section-title">📈 Projection patrimoniale à ${form.horizon} ans</div>
-  <div class="kpi3">
-    <div class="kpi-box" style="background:#EFF6FF;border:1px solid #BFDBFE;">
-      <div class="kpi-label" style="color:#3B82F6;">Valeur du bien</div>
-      <div class="kpi-val" style="color:#185FA5;font-size:18px;">${fmt2(valFinale)}</div>
-      <div class="kpi-sub" style="color:#93C5FD;">Revalorisation ${form.revalorisation??1.5}%/an</div>
-    </div>
-    <div class="kpi-box" style="background:#FEF2F2;border:1px solid #FECACA;">
-      <div class="kpi-label" style="color:#EF4444;">Dette restante</div>
-      <div class="kpi-val" style="color:#DC2626;font-size:18px;">${fmt2(detteFinale)}</div>
-      <div class="kpi-sub" style="color:#FCA5A5;">Capital dû</div>
-    </div>
-    <div class="kpi-box" style="background:#F0FDF4;border:1px solid #BBF7D0;">
-      <div class="kpi-label" style="color:#16A34A;">Patrimoine net</div>
-      <div class="kpi-val" style="color:#15803D;font-size:18px;">${fmt2(patriFinal)}</div>
-      <div class="kpi-sub" style="color:#86EFAC;">+${fmt2(valFinale-form.prix)} PV</div>
-    </div>
-  </div>
-</div>
-
-<!-- SYNTHÈSE EXECUTIVE -->
-<div class="section">
-  <div class="section-title">📋 Synthèse Executive — Points forts du dossier</div>
-  <div style="font-size:11px;color:#475569;margin-bottom:12px;">Les 5 arguments clés à présenter à votre banquier ou courtier :</div>
-  ${execPoints.map((pt,i)=>`<div style="display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border-radius:8px;background:${i%2===0?"#F8FAFC":"white"};margin-bottom:6px;border:1px solid #F1F5F9;">
-    <div style="font-size:11px;font-weight:700;color:#94A3B8;min-width:16px;">${i+1}.</div>
-    <div style="font-size:12px;color:#1E293B;line-height:1.5;">${pt}</div>
-  </div>`).join("")}
-</div>
-
-<!-- ANALYSE DE RISQUE -->
-<div class="section">
-  <div class="section-title">🛡️ Analyse de Risque — Sécurité du projet</div>
-  <div style="font-size:11px;color:#475569;margin-bottom:12px;">5 indicateurs de robustesse évalués par les établissements prêteurs :</div>
-  ${risqueItems.map(r=>`<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;background:${r.ok?"#F0FDF4":"#FFF7ED"};border:1px solid ${r.ok?"#BBF7D0":"#FED7AA"};margin-bottom:6px;">
-    <div style="font-size:16px;">${r.ok?"✅":"⚠️"}</div>
-    <div style="flex:1;">
-      <div style="font-size:12px;font-weight:700;color:${r.ok?"#15803D":"#C2410C"};margin-bottom:2px;">${r.label}</div>
-      <div style="font-size:11px;color:#475569;">${r.detail}</div>
-    </div>
-  </div>`).join("")}
-</div>
-
-<!-- TABLEAU D'AMORTISSEMENT DU CRÉDIT -->
-${amortRows.length ? `
-<div class="section">
-  <div class="section-title">📅 Tableau d'Amortissement Prévisionnel</div>
-  <div style="font-size:11px;color:#475569;margin-bottom:12px;">Capital emprunté : ${fmt2(capital)} · Taux : ${form.interet}% · Mensualité : ${fmt2(mens)}/mois</div>
-  <table class="dt" style="width:100%;font-size:11px;">
-    <thead>
-      <tr style="background:#F1F5F9;">
-        <th style="text-align:left;padding:7px 6px;color:#64748B;font-weight:700;">Année</th>
-        <th style="text-align:right;padding:7px 6px;color:#64748B;font-weight:700;">Mensualité</th>
-        <th style="text-align:right;padding:7px 6px;color:#64748B;font-weight:700;">Intérêts (an)</th>
-        <th style="text-align:right;padding:7px 6px;color:#64748B;font-weight:700;">Capital remb.</th>
-        <th style="text-align:right;padding:7px 6px;color:#64748B;font-weight:700;">Capital restant</th>
-        <th style="text-align:right;padding:7px 6px;color:#64748B;font-weight:700;">% remb.</th>
-      </tr>
-    </thead>
-    <tbody>
-      ${amortRows.map((r,i)=>`<tr style="background:${i%2===0?"white":"#F8FAFC"};">
-        <td style="padding:7px 6px;font-weight:700;color:#185FA5;">An ${r.annee}</td>
-        <td style="text-align:right;padding:7px 6px;">${fmt2(r.mens)}</td>
-        <td style="text-align:right;padding:7px 6px;color:#EF4444;">${fmt2(r.interetsAn)}</td>
-        <td style="text-align:right;padding:7px 6px;color:#10B981;">${fmt2(r.amortAn)}</td>
-        <td style="text-align:right;padding:7px 6px;font-weight:700;">${fmt2(r.capRest)}</td>
-        <td style="text-align:right;padding:7px 6px;color:#7C3AED;">${Math.round((1-r.capRest/capital)*100)}%</td>
-      </tr>`).join("")}
-    </tbody>
-  </table>
-  <div style="background:#EFF6FF;border-radius:8px;padding:10px 14px;margin-top:12px;font-size:11px;color:#185FA5;">
-    💡 <strong>Total intérêts sur ${form.dureeCredit} ans :</strong> ${fmt2(Math.round(mens*form.dureeCredit*12 - capital))} · Coût total du crédit : ${fmt2(Math.round(mens*form.dureeCredit*12))}
-  </div>
-</div>` : ""}
-
-<!-- CONCLUSION / AVIS MOTIVÉ -->
-<div class="section" style="border:2px solid ${scoreColor}33;">
-  <div class="section-title">🏁 Conclusion — Avis Motivé sur la Bancabilité</div>
-  <div style="display:flex;align-items:flex-start;gap:14px;padding:14px;background:${scoreColor}08;border-radius:12px;margin-bottom:14px;">
-    <div style="font-size:36px;">${scoreTot>=75?"✅":scoreTot>=50?"⚠️":"🔴"}</div>
-    <div>
-      <div style="font-size:16px;font-weight:800;color:${scoreColor};margin-bottom:4px;">${scoreLabel} — Score ${scoreTot}/100</div>
-      <div style="font-size:12px;color:#475569;line-height:1.6;">
-        ${scoreTot>=75
-          ? `Ce dossier présente toutes les caractéristiques d'un investissement <strong>finançable en conditions standards</strong>. Le taux d'endettement de ${ratioEndt}% respecte la règle HCSF, l'apport de ${pctApport}% est rassurant, et le cash-flow ${(r0?.cashflowM??0)>=0?"positif de +"+(r0?.cashflowM||0)+"€/mois démontre l'autofinancement":"modéré"} du bien. La rentabilité nette de ${r0?.rendNet!=null?(+r0.rendNet).toFixed(2):"-"}% et le TRI de ${r0?.tri??"-"}% sur ${form.horizon} ans confirment la solidité du projet. <strong>Recommandation : présenter ce dossier à votre banque ou courtier sans délai.</strong>`
-          : scoreTot>=50
-          ? `Ce dossier est <strong>acceptable mais perfectible</strong>. Quelques ajustements ciblés permettront d'améliorer significativement vos chances d'obtention : ${+ratioEndt>35?"réduire le taux d'endettement (actuellement "+ratioEndt+"%) en augmentant l'apport ":""}${pctApport<15?"renforcer l'apport (actuellement "+pctApport+"%) pour atteindre au moins 15–20% ":""}${epargne<mens*3?"constituer une épargne de précaution équivalente à 3 mensualités ("+fmt2(mens*3)+") ":""}. Un courtier pourra optimiser les conditions. <strong>Recommandation : optimisez 1 ou 2 paramètres avant de soumettre.</strong>`
-          : `Ce dossier nécessite une <strong>restructuration avant soumission bancaire</strong>. Les points de vigilance identifiés : ${+ratioEndt>35?"taux d'endettement à "+ratioEndt+"% (seuil HCSF dépassé) · ":""}${pctApport<10?"apport insuffisant à "+pctApport+"% · ":""}${(r0?.tri??0)<4?"rentabilité faible (TRI "+r0?.tri+"%) · ":""} Envisagez une renégociation du prix, un apport supplémentaire ou une durée de crédit étendue. <strong>Recommandation : consultez un conseiller en gestion de patrimoine avant dépôt.</strong>`
-        }
-      </div>
-    </div>
-  </div>
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-    ${[
-      ["📋 Dossier à préparer","Relevés de compte 3 mois, bulletins de salaire, avis d'imposition, compromis de vente"],
-      ["🏦 Type d'établissement","Banques généralistes, courtiers (Meilleurtaux, Pretto), établissements spécialisés investissement"],
-      ["📑 Justificatifs LMNP","Statuts société si SCI, prévisionnel expert-comptable, bail type meublé"],
-      ["⏱️ Délai moyen","3–6 semaines entre demande et offre de prêt. Prévoir 2–3 sollicitations simultanées"],
-    ].map(([l,v])=>`<div style="background:#F8FAFC;border-radius:8px;padding:9px 12px;border:1px solid #E2E8F0;">
-      <div style="font-size:10px;font-weight:700;color:#185FA5;margin-bottom:4px;">${l}</div>
-      <div style="font-size:11px;color:#475569;line-height:1.4;">${v}</div>
-    </div>`).join("")}
-  </div>
-</div>
-
-<!-- AVERTISSEMENT -->
-<div class="footer">
-  <strong>Dossier Bancaire LMNP</strong> — Généré le ${dateStr} · Calculs conformes LF 2026 · CGI Art. 39 C (amortissements) · CGI Art. 156 (déficit) · Règle HCSF 35%<br/>
-  Ce document est fourni à titre indicatif. Consultez un expert-comptable spécialisé LMNP pour votre situation personnelle.
-</div>
-
-</div></body></html>`;
-
-  // Injecter le script d'auto-impression (print → PDF via le navigateur)
-  const htmlWithPrint = html.replace(
-    "</body>",
-    `<script>
-      window.addEventListener('load', function() {
-        setTimeout(function() {
-          window.print();
-          window.addEventListener('afterprint', function() { window.close(); });
-        }, 600);
-      });
-    </scr` + `ipt></body>`
-  );
-  const blob = new Blob([htmlWithPrint], { type:"text/html" });
-  const url  = URL.createObjectURL(blob);
-  const w    = window.open(url, "_blank");
-  if (!w) {
-    // Fallback si pop-up bloqué : téléchargement HTML
-    const a    = document.createElement("a");
-    a.href     = url;
-    a.download = `dossier-bancaire-lmnp-${new Date().toISOString().slice(0,10)}.html`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-  }
-  setTimeout(() => URL.revokeObjectURL(url), 30000);
-}
-
-/* ════════════════════════════════════════
-   STEP DOSSIER — Vue inline dans le site
-════════════════════════════════════════ */
-function StepDossier({ form, results, amort }) {
-  const r0   = results?.[0];
-  const fmt2 = (n) => new Intl.NumberFormat("fr-FR", { style:"currency", currency:"EUR", maximumFractionDigits:0 }).format(n ?? 0);
-
-  /* ── Calculs partagés avec downloadReport ── */
+  // ── Calculs financiers
   const capital   = Math.max(0, form.prix + form.travaux + form.prix*(form.notaire/100) - form.apport);
   const tm        = (form.interet/100)/12;
   const nn        = form.dureeCredit * 12;
-  const mens      = capital > 0 && tm > 0 ? Math.round((capital * tm) / (1 - Math.pow(1+tm, -nn))) : 0;
-  const totalMens = mens + (+form.chargesCredit || 0);
-  const ratioEndt = +(totalMens / Math.max(+form.revenusMensuels || 1, 1) * 100).toFixed(1);
-  const rav       = Math.round((+form.revenusMensuels||0) - totalMens);
-  const pctApport = Math.round((form.apport / Math.max(form.prix,1)) * 100);
+  const mens      = capital>0&&tm>0 ? Math.round((capital*tm)/(1-Math.pow(1+tm,-nn))) : 0;
+  const assurCredit = form.assuranceCredit ?? Math.round(capital*0.003/12);
+  const totalMens   = mens + (+form.chargesCredit||0) + assurCredit;
+  const rav         = Math.round((+form.revenusMensuels||0) - totalMens);
+  const pctApport   = Math.round(form.apport / Math.max(form.prix,1) * 100);
+  const ratioEndt   = +(totalMens / Math.max(+form.revenusMensuels||1, 1) * 100).toFixed(1);
 
-  const profession  = form.profession || "—";
-  const typeContrat = form.typeContrat || "CDI";
-  const age         = form.age || "—";
-  const epargne     = form.epargneResiduelle ?? 0;
-  const quartier    = form.quartier || "—";
-  const modeExploit = form.modeExploitation || "LMNP meublé";
-  const objetTravaux= form.objetTravaux || "";
-  const assurancePNO= form.assurancePNO ?? 200;
-  const fraisGestion= form.fraisGestion ?? 0;
-
+  // Revenus locatifs
+  const assurancePNO     = form.assurancePNO ?? 200;
+  const fraisGestion     = form.fraisGestion ?? 0;
   const chargesAnnuelles = (form.charges||0)*12 + (form.taxeFonciere||0) + assurancePNO + fraisGestion + (form.cfe||0);
-  const loyerAnnuelNet   = Math.round(form.loyer * 12 * (1 - (form.vacance||0)/100));
-  const revenuDifferentiel = Math.max(0, Math.round(loyerAnnuelNet / 12 * 0.7));
-  const ratioEndtDiff    = +(totalMens / Math.max((+form.revenusMensuels||0) + revenuDifferentiel, 1) * 100).toFixed(1);
+  const loyerAnnuelBrut  = form.loyer * 12;
+  const loyerAnnuelNet   = Math.round(loyerAnnuelBrut * (1-(form.vacance||0)/100));
+  const revLocatifPris   = Math.round(loyerAnnuelNet/12*0.7);
+  const ratioEndtDiff    = +(totalMens / Math.max((+form.revenusMensuels||0)+revLocatifPris,1)*100).toFixed(1);
 
-  const rendBrut  = capital + form.apport > 0 ? +((form.loyer * 12) / (form.prix + form.travaux + form.prix*(form.notaire/100)) * 100).toFixed(2) : 0;
-  const revalo    = (form.revalorisation||1.5)/100;
-  const lastRow   = r0?.rows?.[(form.horizon||20)-1];
-  const valFinale = Math.round(form.prix * Math.pow(1+revalo, form.horizon||20));
-  const detteFinale = Math.max(0, Math.round(lastRow?.capRestant||0));
-  const patriFinal  = Math.max(0, valFinale - detteFinale);
-
-  /* Scores */
-  const scoreEndt = ratioEndt<=30?25:ratioEndt<=35?18:ratioEndt<=40?10:2;
+  // Score bancabilité
+  const rendBrut  = +(r0?.rendBrut||0);
+  const epargne   = form.epargneResiduelle ?? 0;
+  const scoreEndt = ratioEndt<=28?25:ratioEndt<=33?18:ratioEndt<=35?10:2;
   const scoreCF   = (r0?.cashflowM??-999)>=100?25:(r0?.cashflowM??-999)>=0?18:(r0?.cashflowM??-999)>=-200?10:2;
   const scoreRdt  = rendBrut>=7?20:rendBrut>=5?14:rendBrut>=3?8:2;
   const scoreAppt = pctApport>=20?20:pctApport>=15?15:pctApport>=10?10:3;
   const scoreTRI  = (r0?.tri??0)>=6?10:(r0?.tri??0)>=4?7:2;
   const scoreTot  = scoreEndt+scoreCF+scoreRdt+scoreAppt+scoreTRI;
-  const scoreColor= scoreTot>=75?"#059669":scoreTot>=50?"#D97706":"#DC2626";
-  const scoreLabel= scoreTot>=75?"Dossier solide ✅":scoreTot>=50?"Dossier acceptable ⚠️":"Dossier fragile 🔴";
+  const scoreVerdict = scoreTot>=75?"FAVORABLE":scoreTot>=50?"RÉSERVÉ":"DÉFAVORABLE";
+  const scoreClass   = scoreTot>=75?"#F97316":scoreTot>=50?"#92400E":"#991B1B";
 
-  /* Tableau d'amortissement (jalons) */
+  // Projection patrimoniale
+  const revalo      = (form.revalorisation||1.5)/100;
+  const lastRow     = r0?.rows?.[(form.horizon||20)-1];
+  const valFinale   = Math.round(form.prix * Math.pow(1+revalo, form.horizon||20));
+  const detteFinale = Math.max(0, Math.round(lastRow?.capRestant||0));
+  const patriFinal  = Math.max(0, valFinale - detteFinale);
+
+  // Identité
+  const nomAffiche  = nom||"—";
+  const profession  = form.profession||"—";
+  const typeContrat = form.typeContrat||"CDI";
+  const age         = form.age||"—";
+  const quartier    = form.quartier||form.adresse||"—";
+  const modeExploit = form.modeExploitation||"LMNP meublé";
+  const objetTravaux= form.objetTravaux||"—";
+
+  // Tableau d'amortissement
   const amortRows = (() => {
-    if (capital <= 0 || tm <= 0) return [];
+    if (capital<=0||tm<=0) return [];
     const jalons = [1,2,3,5,10,15,form.dureeCredit].filter((v,i,a)=>a.indexOf(v)===i&&v<=form.dureeCredit).sort((a,b)=>a-b);
     return jalons.map(annee => {
-      const k = annee * 12;
-      const capRest  = Math.max(0, Math.round(capital * (Math.pow(1+tm,nn) - Math.pow(1+tm,k)) / (Math.pow(1+tm,nn) - 1)));
-      const capAvant = annee===1 ? capital : Math.max(0, Math.round(capital * (Math.pow(1+tm,nn) - Math.pow(1+tm,(annee-1)*12)) / (Math.pow(1+tm,nn) - 1)));
-      return { annee, mens, capRest, interetsAn: Math.round(mens*12-(capAvant-capRest)), amortAn: Math.round(capAvant-capRest) };
+      const k = annee*12;
+      const capRest  = Math.max(0,Math.round(capital*(Math.pow(1+tm,nn)-Math.pow(1+tm,k))/(Math.pow(1+tm,nn)-1)));
+      const capAvant = annee===1?capital:Math.max(0,Math.round(capital*(Math.pow(1+tm,nn)-Math.pow(1+tm,(annee-1)*12))/(Math.pow(1+tm,nn)-1)));
+      return {annee,mens,capRest,interetsAn:Math.round(mens*12-(capAvant-capRest)),amortAn:Math.round(capAvant-capRest)};
     });
   })();
 
-  /* Points exécutifs */
-  const execPoints = [
-    pctApport>=20 ? `✅ Apport solide : ${pctApport}% du prix (${fmt2(form.apport)}) — couvre les frais de notaire et rassure la banque.`
-      : pctApport>=10 ? `🟡 Apport de ${pctApport}% (${fmt2(form.apport)}) — suffisant, idéalement porter à 20% pour les meilleures conditions.`
-      : `⚠️ Apport faible (${pctApport}%) — envisagez d'augmenter l'apport pour faciliter l'obtention du crédit.`,
-    quartier&&quartier!=="—" ? `✅ Localisation : ${quartier} — secteur à fort potentiel de valorisation.`
-      : `📍 Localisation à renseigner pour renforcer l'argumentaire bancaire.`,
-    (r0?.cashflowM??0)>=0 ? `✅ Cash-flow positif : ${(r0?.cashflowM??0)>=0?"+":""}${r0?.cashflowM}€/mois — l'investissement s'autofinance sans effort d'épargne.`
-      : `🟡 Cash-flow de ${r0?.cashflowM}€/mois — effort d'épargne modéré, compensé par la plus-value latente.`,
-    typeContrat==="CDI"||typeContrat==="Fonctionnaire" ? `✅ Profil ${typeContrat} — situation professionnelle stable, critère n°1 des banques.`
-      : `📋 Profil ${typeContrat} — prévoir 3 bilans ou avis d'imposition pour rassurer l'établissement prêteur.`,
-    modeExploit==="LMNP meublé" ? `✅ Fiscalité LMNP Réel — amortissements de ${fmt2(amort?.totalAnnuel||0)}/an → bouclier fiscal sur ~${Math.round((form.prix+form.travaux)/(amort?.totalAnnuel||1))} ans.`
-      : `📋 Stratégie ${modeExploit} — vérifiez l'optimisation fiscale avec un expert-comptable spécialisé.`,
-  ];
+  const TR = (label,val,hl=false) => `<tr${hl?" style='background:rgba(249,115,22,0.06);font-weight:700;'":" "}>
+    <td style="padding:7px 12px;border:1px solid #CBD5E1;color:#475569;font-size:10pt;">${label}</td>
+    <td style="padding:7px 12px;border:1px solid #CBD5E1;text-align:right;font-weight:${hl?"700":"500"};font-size:10pt;">${val}</td>
+  </tr>`;
 
-  /* Analyse risque */
-  const risqueItems = [
-    { ok:(form.vacance||5)<=7, label:"Vacance locative", detail:`${form.vacance||5}% estimé (${Math.round((form.vacance||5)/100*365)} jours/an) — ${(form.vacance||5)<=5?"marché tendu, risque faible":"prévoir 1 à 2 mois de loyer en réserve"}` },
-    { ok:["A","B","C","D"].includes(form.dpe||"C"), label:"DPE & réglementation", detail:`Classe ${form.dpe||"C"} — ${["A","B","C","D"].includes(form.dpe||"C")?"conforme, pas d'interdiction de location":"⚠️ travaux obligatoires avant 2025/2028"}` },
-    { ok:ratioEndt<=35, label:"Règle HCSF 35%", detail:`Taux d'endettement ${ratioEndt}% ${ratioEndt<=35?"✅ dans les clous":"⚠️ dépassement, apport supplémentaire nécessaire"}` },
-    { ok:epargne>=mens*3, label:"Épargne de précaution", detail:`${fmt2(epargne)} disponible (${mens>0?Math.round(epargne/mens):0} mensualités) — ${epargne>=mens*3?"réserve confortable":"banque peut exiger un effort supplémentaire"}` },
-    { ok:valFinale>capital, label:"Plus-value latente", detail:`Valeur dans ${form.horizon} ans : ${fmt2(valFinale)} (+${fmt2(valFinale-form.prix)} vs prix d'achat à ${form.revalorisation||1.5}%/an)` },
-  ];
+  const html = `<!DOCTYPE html>
+<html lang="fr"><head><meta charset="utf-8">
+<title>Dossier de Financement Bancaire — ${refNum}</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:Arial,'Helvetica Neue',Helvetica,sans-serif;font-size:11pt;color:#1a1a2e;background:white;line-height:1.55;}
+.page{max-width:794px;margin:0 auto;padding:14mm 18mm;background:white;}
+h1{font-size:18pt;font-weight:700;color:#F97316;}
+.sec{background:linear-gradient(135deg,#F97316,#F97316);color:white;padding:8px 14px;font-size:9.5pt;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin:20px 0 12px;border-radius:2px;}
+.subsec{font-size:11pt;font-weight:700;color:#F97316;border-bottom:1.5px solid #F97316;padding-bottom:3px;margin:16px 0 10px;}
+table{width:100%;border-collapse:collapse;margin:8px 0;}
+th{background:rgba(249,115,22,0.06);color:#F97316;font-weight:700;padding:7px 12px;text-align:left;border:1px solid rgba(249,115,22,0.2);font-size:10pt;}
+th.r{text-align:right;}
+td{padding:7px 12px;border:1px solid #CBD5E1;font-size:10pt;vertical-align:middle;}
+td.r{text-align:right;}
+td.b{font-weight:700;}
+tr.alt td{background:#F8FAFC;}
+tr.total td{background:rgba(249,115,22,0.06);font-weight:700;}
+.ig{display:grid;grid-template-columns:1fr 1fr;border:1px solid rgba(249,115,22,0.2);margin:10px 0;}
+.ic{padding:8px 12px;border-bottom:1px solid rgba(249,115,22,0.2);border-right:1px solid rgba(249,115,22,0.2);}
+.ic:nth-child(even){border-right:none;}
+.ic-l{font-size:9pt;color:#6D28D9;margin-bottom:2px;}
+.ic-v{font-size:11pt;font-weight:600;color:#1a1a2e;}
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid rgba(249,115,22,0.2);margin:12px 0;}
+.kpi-cell{padding:12px;border-right:1px solid rgba(249,115,22,0.2);text-align:center;}
+.kpi-cell:last-child{border-right:none;}
+.kpi-l{font-size:8.5pt;color:#6D28D9;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;}
+.kpi-v{font-size:16pt;font-weight:700;color:#F97316;line-height:1;}
+.kpi-s{font-size:9pt;color:#94A3B8;margin-top:3px;}
+.score-box{border:2px solid #F97316;padding:14px 18px;margin:12px 0;display:flex;align-items:center;gap:20px;background:#FAFAFF;}
+.score-num{font-size:36pt;font-weight:700;line-height:1;}
+.score-bar-bg{height:10px;background:#E2E8F0;border-radius:2px;flex:1;}
+.score-bar-fill{height:10px;border-radius:2px;}
+.score-item{display:flex;align-items:center;gap:8px;margin-bottom:7px;font-size:10pt;}
+.reco{border-left:4px solid #F97316;padding:16px 20px;margin:14px 0;background:rgba(249,115,22,0.06);}
+.reco-title{font-size:11pt;font-weight:700;color:#F97316;margin-bottom:8px;text-transform:uppercase;letter-spacing:.04em;}
+.hl{background:rgba(249,115,22,0.06);border-left:3px solid #F97316;padding:10px 14px;font-size:10.5pt;margin:10px 0;}
+.confidential{display:inline-block;border:1px solid rgba(249,115,22,0.2);color:#F97316;font-size:8pt;font-weight:700;padding:2px 8px;letter-spacing:.1em;text-transform:uppercase;background:rgba(249,115,22,0.06);}
+.doc-footer{border-top:1.5px solid rgba(249,115,22,0.2);padding-top:8px;margin-top:28px;font-size:8pt;color:#94A3B8;display:flex;justify-content:space-between;}
+.pb{page-break-before:always;}
+p{margin-bottom:8px;font-size:10.5pt;}
+@media print{body{background:white;}.page{padding:8mm 10mm;max-width:100%;}@page{size:A4;margin:8mm 10mm;}.no-print{display:none!important;}}
+</style></head>
+<body><div class="page">
 
-  const triColor  = (r0?.tri??0)>=6?"#059669":(r0?.tri??0)>=4?"#D97706":"#DC2626";
-  const cfColor   = (r0?.cashflowM??0)>=0?"#059669":"#EF4444";
-  const ravColor  = rav>=1500?"#059669":rav>=1200?"#D97706":"#DC2626";
-  const dateStr   = new Date().toLocaleDateString("fr-FR", { day:"2-digit", month:"long", year:"numeric" });
+<!-- EN-TÊTE -->
+<div style="background:#131318;border-radius:4px;padding:18px 22px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:flex-start;">
+  <div>
+    <div style="font-size:7pt;letter-spacing:.18em;color:#F97316;text-transform:uppercase;margin-bottom:6px;">Généré par</div>
+    <div style="font-size:20pt;font-weight:800;background:linear-gradient(90deg,#F97316,#FB923C);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:-.02em;line-height:1;margin-bottom:6px;">ImmoVerdict</div>
+    <div style="font-size:11pt;font-weight:700;color:white;margin-bottom:3px;">DOSSIER DE DEMANDE DE FINANCEMENT BANCAIRE</div>
+    <div style="font-size:9pt;color:rgba(255,255,255,.55);">Investissement Locatif Meublé — Régime LMNP · Loi de Finances ${new Date().getFullYear()} · CGI Art. 39&nbsp;C</div>
+  </div>
+  <div style="text-align:right;margin-top:4px;">
+    <div class="confidential">Document confidentiel</div>
+    <div style="font-size:9pt;color:rgba(255,255,255,.6);margin-top:8px;">Réf. : <strong style="color:white;">${refNum}</strong></div>
+    <div style="font-size:9pt;color:rgba(255,255,255,.6);margin-top:3px;">Établi le ${dateStr}</div>
+    <div style="font-size:9pt;color:rgba(255,255,255,.6);margin-top:3px;">immoverdict.com</div>
+  </div>
+</div>
 
-  /* Couleurs helpers */
-  const C = {
-    blue:"#185FA5", blueLight:"#EFF6FF", blueBorder:"#BFDBFE",
-    green:"#059669", greenLight:"#F0FDF4", greenBorder:"#BBF7D0",
-    red:"#DC2626",   redLight:"#FEF2F2",  redBorder:"#FECACA",
-    slate:"#64748B", slateLight:"#F8FAFC",
-  };
+<!-- I. IDENTIFICATION -->
+<div class="sec">I. Identification du dossier et de l'emprunteur</div>
+<div class="ig">
+  ${[
+    ["Emprunteur",nomAffiche],
+    ["À l'attention de","Établissement bancaire / Courtier en financement"],
+    ["Profession",`${profession} — ${typeContrat}`],
+    ["Âge",age!=="—"?`${age} ans`:"—"],
+    ["Revenus professionnels nets mensuels",`${fmt(form.revenusMensuels)}`],
+    ["Épargne résiduelle après opération",`${fmt(epargne)}`],
+    ["Localisation du bien",quartier],
+    ["Mode d'exploitation envisagé",modeExploit],
+  ].map(([l,v])=>`<div class="ic"><div class="ic-l">${l}</div><div class="ic-v">${v}</div></div>`).join("")}
+</div>
 
-  const InfoBox = ({ label, value }) => (
-    <div style={{ background:C.slateLight, borderRadius:8, padding:"9px 12px", border:"1px solid #E2E8F0" }}>
-      <div style={{ fontSize:10, color:C.slate, marginBottom:2 }}>{label}</div>
-      <div style={{ fontSize:13, fontWeight:700, color:"#0F172A" }}>{value}</div>
+<!-- II. PROJET IMMOBILIER -->
+<div class="sec">II. Présentation du projet immobilier</div>
+<div class="subsec">A. Caractéristiques du bien</div>
+<div class="ig">
+  ${[
+    ["Type de bien",`${form.typeBien||"Appartement"} — ${form.surface||"—"} m² — ${form.nbPieces||2} pièce(s)`],
+    ["Localisation",quartier],
+    ["Diagnostic de performance énergétique (DPE)",`Classe ${form.dpe||"C"}`],
+    ["État général du bien",form.etatGeneral||"Bon état"],
+    ["Nature des travaux prévus",objetTravaux!=="—"?objetTravaux:"Aucun / Déjà réalisés"],
+    ["Destination du bien","Location meublée (régime LMNP)"],
+  ].map(([l,v])=>`<div class="ic"><div class="ic-l">${l}</div><div class="ic-v">${v}</div></div>`).join("")}
+</div>
+
+<div class="subsec">B. Plan de financement de l'opération</div>
+<table>
+  <tr><th>Poste</th><th class="r">Montant</th></tr>
+  ${TR("Prix d'acquisition",fmt(form.prix))}
+  ${TR("Frais d'acquisition (notaire)",`${fmt(form.prix*form.notaire/100)} (${form.notaire}% du prix)`)}
+  ${TR("Travaux de rénovation / d'aménagement",fmt(form.travaux))}
+  ${TR("Mobilier et équipements",fmt(form.mobilier))}
+  ${TR("<strong>Coût total de l'opération</strong>",`<strong>${fmt(form.prix+form.travaux+form.mobilier+form.prix*form.notaire/100)}</strong>`,true)}
+  ${TR("Apport personnel",`${fmt(form.apport)} (${pctApport}% du prix d'acquisition)`)}
+  ${TR("<strong>Capital à emprunter</strong>",`<strong>${fmt(capital)}</strong>`,true)}
+</table>
+<div class="hl">
+  <strong>Apport personnel :</strong> ${fmt(form.apport)}, représentant <strong>${pctApport}%</strong> du prix d'acquisition.
+  ${pctApport>=20?" L'apport couvre intégralement les frais annexes — position très favorable auprès des établissements prêteurs."
+  :pctApport>=10?" L'apport couvre les frais de notaire — position acceptable pour un investissement locatif meublé."
+  :" L'apport est en deçà des standards bancaires habituels (10–20%). Un effort complémentaire est recommandé."}
+</div>
+
+<!-- III. FINANCEMENT ET CAPACITÉ DE REMBOURSEMENT -->
+<div class="sec">III. Conditions de crédit et capacité de remboursement</div>
+<div class="subsec">A. Conditions du prêt sollicité</div>
+<table>
+  <tr><th>Paramètre</th><th class="r">Valeur</th></tr>
+  ${TR("Capital emprunté",fmt(capital))}
+  ${TR("Taux d'intérêt nominal annuel",`${form.interet}% (taux fixe)`)}
+  ${TR("Durée d'amortissement",`${form.dureeCredit} ans (${form.dureeCredit*12} mensualités)`)}
+  ${TR("Mensualité hors assurance emprunteur",fmt(mens))}
+  ${TR("Assurance emprunteur estimée",fmt(assurCredit))}
+  ${TR("<strong>Charge mensuelle crédit (tout compris)</strong>",`<strong>${fmt(totalMens)}</strong>`,true)}
+  ${TR("<strong>Coût total du crédit (intérêts sur la durée)</strong>",`<strong>${fmt(Math.round(mens*form.dureeCredit*12-capital))}</strong>`,true)}
+</table>
+
+<div class="subsec">B. Analyse de la capacité de remboursement</div>
+<table>
+  <tr><th>Indicateur réglementaire</th><th class="r">Valeur calculée</th><th class="r">Norme HCSF</th><th class="r">Statut</th></tr>
+  <tr>
+    <td>Taux d'endettement global (brut)</td>
+    <td class="r b">${ratioEndt}%</td>
+    <td class="r">≤ 35%</td>
+    <td class="r" style="color:${ratioEndt<=35?"#F97316":"#DC2626"};font-weight:700;">${ratioEndt<=35?"CONFORME":"DÉPASSÉ"}</td>
+  </tr>
+  <tr class="alt">
+    <td>Taux d'endettement différentiel (70% loyers déduits)</td>
+    <td class="r b">${ratioEndtDiff}%</td>
+    <td class="r">≤ 35%</td>
+    <td class="r" style="color:${ratioEndtDiff<=35?"#F97316":"#DC2626"};font-weight:700;">${ratioEndtDiff<=35?"CONFORME":"À OPTIMISER"}</td>
+  </tr>
+  <tr>
+    <td>Reste à vivre mensuel (après charge crédit)</td>
+    <td class="r b">${fmt(rav)}</td>
+    <td class="r">≥ 1 200 €</td>
+    <td class="r" style="color:${rav>=1200?"#F97316":"#DC2626"};font-weight:700;">${rav>=1500?"CONFORTABLE":rav>=1200?"ACCEPTABLE":"INSUFFISANT"}</td>
+  </tr>
+  <tr class="alt">
+    <td>Épargne de précaution post-opération</td>
+    <td class="r b">${fmt(epargne)}</td>
+    <td class="r">≥ ${fmt(mens*3)} (3 mens.)</td>
+    <td class="r" style="color:${epargne>=mens*3?"#F97316":"#D97706"};font-weight:700;">${epargne>=mens*3?"SUFFISANTE":"À RENFORCER"}</td>
+  </tr>
+</table>
+
+${amortRows.length?`
+<div class="subsec">C. Tableau d'amortissement prévisionnel (jalons)</div>
+<table>
+  <tr>
+    <th>Année</th>
+    <th class="r">Mensualité</th>
+    <th class="r">Intérêts payés (année)</th>
+    <th class="r">Capital remboursé (année)</th>
+    <th class="r">Capital restant dû</th>
+    <th class="r">% remboursé</th>
+  </tr>
+  ${amortRows.map((r,i)=>`<tr${i%2===1?' class="alt"':""}>
+    <td class="b" style="color:#F97316;">Année ${r.annee}</td>
+    <td class="r">${fmt(r.mens)}</td>
+    <td class="r" style="color:#92400E;">${fmt(r.interetsAn)}</td>
+    <td class="r" style="color:#0C0C10;">${fmt(r.amortAn)}</td>
+    <td class="r b">${fmt(r.capRest)}</td>
+    <td class="r" style="color:#F97316;">${Math.round((1-r.capRest/capital)*100)}%</td>
+  </tr>`).join("")}
+  <tr class="total"><td colspan="5"><strong>Total intérêts sur ${form.dureeCredit} ans</strong></td><td class="r b">${fmt(Math.round(mens*form.dureeCredit*12-capital))}</td></tr>
+</table>`:""}
+
+<!-- IV. EXPLOITATION LOCATIVE -->
+<div class="sec pb">IV. Analyse de l'exploitation locative</div>
+<div class="subsec">A. Compte de résultat prévisionnel (année 1)</div>
+<table>
+  <tr><th>Poste</th><th class="r">Montant annuel</th><th class="r">Mensuel</th></tr>
+  ${TR("Loyer mensuel brut hors charges",`${fmt(form.loyer*12)}`,false)}
+  ${TR(`Vacance locative estimée (${form.vacance||5}%)`,`− ${fmt(Math.round(form.loyer*12*(form.vacance||5)/100))}`)}
+  ${TR("<strong>Revenus locatifs nets encaissés</strong>",`<strong>${fmt(loyerAnnuelNet)}</strong>`,true)}
+  ${TR("Charges de copropriété",`− ${fmt((form.charges||0)*12)}`)}
+  ${TR("Taxe foncière",`− ${fmt(form.taxeFonciere||0)}`)}
+  ${TR("Assurance propriétaire non occupant (PNO)",`− ${fmt(assurancePNO)}`)}
+  ${TR("Frais de gestion locative",`− ${fmt(fraisGestion)}`)}
+  ${TR("CFE et autres charges",`− ${fmt(form.cfe||0)}`)}
+  ${TR("<strong>Total charges d'exploitation annuelles</strong>",`<strong>− ${fmt(chargesAnnuelles)}</strong>`,true)}
+  ${TR("<strong>Revenu locatif net de charges (hors crédit)</strong>",`<strong>${fmt(loyerAnnuelNet-chargesAnnuelles)}</strong>`,true)}
+</table>
+
+<div class="subsec">B. Indicateurs de performance</div>
+<div class="kpi-row">
+  ${[
+    ["TRI à "+form.horizon+" ans",`${r0?.tri??"-"}%`,"Taux de Rendement Interne"],
+    ["Cash-flow mensuel net",`${r0?.cashflowM!=null?((r0.cashflowM>=0?"+":"")+r0.cashflowM+"€"):"-"}`,"Après crédit et charges"],
+    ["Rendement brut",`${rendBrut.toFixed(2)}%`,"Loyers / coût total opération"],
+    ["Rendement net",`${r0?.rendNet!=null?(+r0.rendNet).toFixed(2):"-"}%`,"Après toutes charges"],
+  ].map(([l,v,s])=>`<div class="kpi-cell"><div class="kpi-l">${l}</div><div class="kpi-v">${v}</div><div class="kpi-s">${s}</div></div>`).join("")}
+</div>
+
+${amort?.chartData?.length?`
+<div class="subsec">C. Amortissement par composants — CGI Art. 39 C (régime LMNP Réel)</div>
+<table>
+  <tr><th>Composant</th><th class="r">Durée</th><th class="r">Dotation annuelle déductible</th></tr>
+  ${amort.chartData.map((c,i)=>`<tr${i%2===1?' class="alt"':""}>
+    <td>${c.name}</td>
+    <td class="r">${c.duree} ans</td>
+    <td class="r b">${fmt(c.montant)}</td>
+  </tr>`).join("")}
+  <tr class="total"><td colspan="2"><strong>Total amortissement déductible par an</strong></td><td class="r b">${fmt(amort.totalAnnuel)}</td></tr>
+</table>
+<div class="hl"><strong>Économie fiscale :</strong> ${fmt(amort.totalAnnuel)} × ${form.tmi}% (TMI) = <strong>${fmt(amort.totalAnnuel*form.tmi/100)}/an</strong> d'impôt économisé pendant la période d'amortissement (art. 39 C CGI).</div>
+`:""}
+
+<div class="subsec">${amort?.chartData?.length?"D":"C"}. Comparaison des régimes fiscaux applicables</div>
+<table>
+  <tr><th>Régime fiscal</th><th class="r">Cash-flow net/mois</th><th class="r">TRI</th><th class="r">Rendement net</th><th class="r">Impôt an 1</th></tr>
+  ${(results||[]).map((r,i)=>{
+    const labels=["LMNP Réel — Recommandé","Micro-BIC","SCI à l'IS","SCI à l'IR"];
+    const cc=(r.cashflowM??0)>=0?"#0C0C10":"#991B1B";
+    return `<tr${i===0?" style='background:rgba(249,115,22,0.08);'":" "}${i%2===1&&i!==0?' class="alt"':""}>
+      <td class="b">${i===0?"★ ":""}${labels[i]}</td>
+      <td class="r" style="color:${cc};font-weight:700;">${r.cashflowM!=null?((r.cashflowM>=0?"+":"")+r.cashflowM+"€"):"-"}/mois</td>
+      <td class="r">${r.tri??"-"}%</td>
+      <td class="r">${r.rendNet!=null?(+r.rendNet).toFixed(2):"-"}%</td>
+      <td class="r">${fmt(r.rows?.[0]?.impot)}</td>
+    </tr>`;
+  }).join("")}
+</table>
+
+<!-- V. ANALYSE DES RISQUES -->
+<div class="sec">V. Analyse des risques du projet</div>
+<table>
+  <tr><th>Facteur de risque</th><th class="r">Valeur</th><th class="r">Appréciation</th><th>Observations</th></tr>
+  ${[
+    {label:"Vacance locative",valeur:`${form.vacance||5}%`,ok:(form.vacance||5)<=7,
+     obs:(form.vacance||5)<=5?"Marché tendu, risque de vacance faible":(form.vacance||5)<=7?"Vacance raisonnable — constituer 1 mois de loyer en réserve":"Vacance élevée — analyse de marché local préalable recommandée"},
+    {label:"Conformité DPE — loi Climat & Résilience",valeur:`Classe ${form.dpe||"C"}`,ok:["A","B","C","D"].includes(form.dpe||"C"),
+     obs:["A","B","C","D"].includes(form.dpe||"C")?"Bien conforme aux exigences 2025–2028":"Classe F ou G : interdiction de louer imminente — travaux obligatoires"},
+    {label:"Taux d'endettement HCSF",valeur:`${ratioEndt}%`,ok:ratioEndt<=35,
+     obs:ratioEndt<=33?"Dans le quota exceptionnel (33%) — très favorable":ratioEndt<=35?"Conforme au plafond réglementaire (35%)":"Dépassement du seuil HCSF — apport supplémentaire nécessaire"},
+    {label:"Épargne de précaution résiduelle",valeur:fmt(epargne),ok:epargne>=mens*3,
+     obs:epargne>=mens*6?"Réserve très confortable (supérieure à 6 mensualités)":epargne>=mens*3?"Réserve suffisante (supérieure à 3 mensualités)":"Réserve insuffisante — recommander constitution d'épargne préalable"},
+    {label:"Valorisation patrimoniale projetée",valeur:`+${((valFinale/form.prix-1)*100).toFixed(1)}% sur ${form.horizon} ans`,ok:valFinale>form.prix,
+     obs:`Hypothèse ${form.revalorisation||1.5}%/an — valeur estimée : ${fmt(valFinale)} dans ${form.horizon} ans vs. ${fmt(form.prix)} à l'acquisition`},
+  ].map((item,i)=>`<tr${i%2===1?' class="alt"':""}>
+    <td class="b">${item.label}</td>
+    <td class="r b">${item.valeur}</td>
+    <td class="r" style="color:${item.ok?"#F97316":"#DC2626"};font-weight:700;">${item.ok?"MAÎTRISÉ":"À SURVEILLER"}</td>
+    <td style="font-size:9.5pt;color:#475569;">${item.obs}</td>
+  </tr>`).join("")}
+</table>
+
+<!-- VI. PROJECTION PATRIMONIALE -->
+<div class="sec">VI. Projection patrimoniale à ${form.horizon} ans</div>
+<table>
+  <tr><th>Indicateur</th><th class="r">Situation initiale</th><th class="r">Projection à ${form.horizon} ans</th><th class="r">Variation</th></tr>
+  <tr>
+    <td class="b">Valeur vénale du bien</td>
+    <td class="r">${fmt(form.prix)}</td>
+    <td class="r b" style="color:#F97316;">${fmt(valFinale)}</td>
+    <td class="r" style="color:#F97316;font-weight:700;">+${fmt(valFinale-form.prix)} (+${((valFinale/form.prix-1)*100).toFixed(1)}%)</td>
+  </tr>
+  <tr class="alt">
+    <td class="b">Capital restant dû</td>
+    <td class="r">${fmt(capital)}</td>
+    <td class="r b" style="color:#DC2626;">${fmt(detteFinale)}</td>
+    <td class="r" style="color:#F97316;font-weight:700;">${fmt(capital-detteFinale)} remboursé</td>
+  </tr>
+  <tr class="total">
+    <td class="b">Patrimoine net constitué</td>
+    <td class="r b">${fmt(form.apport)}</td>
+    <td class="r b" style="color:#F97316;font-size:13pt;">${fmt(patriFinal)}</td>
+    <td class="r" style="color:#F97316;font-weight:700;">× ${(patriFinal/Math.max(form.apport,1)).toFixed(1)} l'apport initial</td>
+  </tr>
+</table>
+<div class="hl"><strong>Effet de levier bancaire :</strong> Pour un apport de <strong>${fmt(form.apport)}</strong>, le patrimoine net estimé atteint <strong>${fmt(patriFinal)}</strong> dans ${form.horizon} ans, soit un coefficient multiplicateur de <strong>${(patriFinal/Math.max(form.apport,1)).toFixed(1)}x</strong>. (Hypothèse revalorisation ${form.revalorisation||1.5}%/an — à titre indicatif)</div>
+
+<!-- VII. SCORE DE BANCABILITÉ -->
+<div class="sec">VII. Score de bancabilité et avis motivé</div>
+<div class="score-box">
+  <div style="min-width:140px;">
+    <div style="font-size:9pt;color:#64748B;text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px;">Score global</div>
+    <div class="score-num" style="color:${scoreClass};">${scoreTot}<span style="font-size:14pt;color:#94A3B8;">/100</span></div>
+    <div style="font-size:10pt;font-weight:700;color:${scoreClass};margin-top:4px;letter-spacing:.03em;">Avis : ${scoreVerdict}</div>
+  </div>
+  <div style="flex:1;">
+    ${[
+      ["Taux d'endettement (25 pts)",scoreEndt,25],
+      ["Cash-flow mensuel (25 pts)", scoreCF,  25],
+      ["Rendement brut (20 pts)",    scoreRdt,  20],
+      ["Apport personnel (20 pts)",  scoreAppt, 20],
+      ["TRI (10 pts)",               scoreTRI,  10],
+    ].map(([label,score,max])=>`<div class="score-item">
+      <div style="width:210px;font-size:9.5pt;color:#475569;">${label}</div>
+      <div class="score-bar-bg"><div class="score-bar-fill" style="width:${Math.round(score/max*100)}%;background:${score/max>=.8?"#F97316":score/max>=.5?"#D97706":"#DC2626"};"></div></div>
+      <div style="width:36px;text-align:right;font-weight:700;font-size:10pt;">${score}/${max}</div>
+    </div>`).join("")}
+  </div>
+</div>
+
+<div class="reco">
+  <div class="reco-title">Avis motivé — ${scoreVerdict} (Score ${scoreTot}/100)</div>
+  <p style="font-size:10.5pt;line-height:1.75;color:#1a1a2e;">
+    ${scoreTot>=75
+      ? `Le présent dossier réunit les conditions nécessaires à l'obtention d'un financement bancaire dans des conditions standards. Le taux d'endettement de <strong>${ratioEndt}%</strong> s'inscrit dans le respect strict de la réglementation HCSF. L'apport personnel de <strong>${pctApport}%</strong> (${fmt(form.apport)}) est supérieur au seuil minimal habituel. Le cash-flow ${(r0?.cashflowM??0)>=0?`<strong>positif de +${r0?.cashflowM}€/mois</strong> atteste de la capacité du bien à s'autofinancer`:"généré par l'exploitation confirme la viabilité du projet"} ; le TRI de <strong>${r0?.tri??"-"}%</strong> sur ${form.horizon} ans confirme la qualité de l'investissement. <strong>Recommandation : soumettre ce dossier auprès de 2 à 3 établissements bancaires ou d'un courtier spécialisé en investissement locatif.</strong>`
+      : scoreTot>=50
+      ? `Le présent dossier présente des fondamentaux acceptables mais nécessite des ajustements pour optimiser les conditions d'obtention. Points d'amélioration prioritaires : ${+ratioEndt>35?`le taux d'endettement (<strong>${ratioEndt}%</strong>) dépasse le plafond HCSF — un apport complémentaire permettrait de le ramener sous 35% ; `:""}${pctApport<15?`l'apport personnel (<strong>${pctApport}%</strong>) est en dessous des standards — viser 15 à 20% pour les meilleures conditions ; `:""}${epargne<mens*3?`l'épargne résiduelle (${fmt(epargne)}) est insuffisante — constituer au minimum ${fmt(mens*3)} de réserve. `:""}Parallèlement, un courtier spécialisé pourra identifier les établissements les plus adaptés au profil. <strong>Recommandation : optimiser 1 ou 2 paramètres clés avant dépôt du dossier.</strong>`
+      : `Le présent dossier présente des faiblesses significatives rendant difficile l'obtention d'un financement dans les conditions actuelles. Points bloquants identifiés : ${+ratioEndt>35?`taux d'endettement à <strong>${ratioEndt}%</strong> (seuil HCSF dépassé) — nécessite un apport supplémentaire substantiel ou une réduction du capital emprunté ; `:""}${pctApport<10?`apport insuffisant à <strong>${pctApport}%</strong> (minimum recommandé : 10–15%) ; `:""}${(r0?.tri??0)<4?`rentabilité en deçà des standards (TRI <strong>${r0?.tri}%</strong>) — revoir les conditions d'acquisition ou les paramètres locatifs. `:""}Il est fortement recommandé de consulter un conseiller en gestion de patrimoine avant tout dépôt. <strong>Recommandation : restructurer le plan de financement et consulter un courtier spécialisé.</strong>`
+    }
+  </p>
+</div>
+
+<!-- VIII. PIÈCES JUSTIFICATIVES -->
+<div class="sec">VIII. Pièces justificatives à joindre au dossier</div>
+<table>
+  <tr><th style="width:35%;">Catégorie</th><th>Documents requis</th></tr>
+  <tr><td class="b">Identité et situation personnelle</td><td>Pièce d'identité en cours de validité, justificatif de domicile (moins de 3 mois), livret de famille le cas échéant</td></tr>
+  <tr class="alt"><td class="b">Revenus professionnels</td><td>${typeContrat==="CDI"||typeContrat==="Fonctionnaire"?"3 derniers bulletins de salaire, contrat de travail (ou attestation employeur), 2 derniers avis d'imposition":typeContrat==="TNS"||typeContrat==="Indépendant"?"3 derniers bilans comptables certifiés, liasses fiscales, 2 derniers avis d'imposition":"Bulletins de salaire ou justificatifs de revenus, 2 derniers avis d'imposition"}</td></tr>
+  <tr><td class="b">Patrimoine et épargne</td><td>3 derniers relevés de tous comptes bancaires, justificatifs d'épargne et placements (livrets, assurance-vie), tableau d'amortissement des prêts en cours</td></tr>
+  <tr class="alt"><td class="b">Projet immobilier</td><td>Compromis ou promesse de vente signé, diagnostics techniques (DPE, plomb, amiante), plans et descriptif des travaux le cas échéant, estimation immobilière</td></tr>
+  <tr><td class="b">Exploitation locative LMNP</td><td>Prévisionnel d'exploitation établi par expert-comptable, bail de location meublée type (loi Alur), attestation d'immatriculation SIREN si LMNP déjà déclaré, statuts si SCI</td></tr>
+  <tr class="alt"><td class="b">Assurances et garanties</td><td>Devis assurance emprunteur (délégation possible), attestation d'assurance PNO (propriétaire non-occupant), garantie loyers impayés (GLI) le cas échéant</td></tr>
+</table>
+
+<!-- IX. ATTESTATION -->
+<div class="sec">IX. Attestation sur l'honneur</div>
+<div class="reco" style="background:white;">
+  <p style="font-size:10.5pt;color:#1a1a2e;line-height:1.7;">
+    Je soussigné(e) <strong>${nomAffiche}</strong>, atteste sur l'honneur que les informations contenues dans le présent dossier sont exactes, sincères et complètes à la date de signature. Je m'engage à informer l'établissement prêteur de toute modification de ma situation survenant en cours d'instruction, et à fournir tout document complémentaire nécessaire à l'examen de ma demande de financement.
+  </p>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:24px;">
+    <div>
+      <div style="font-size:9.5pt;color:#64748B;margin-bottom:24px;">Fait à _________________________________, le ${dateStr}</div>
+      <div style="border-top:1px solid #CBD5E1;padding-top:6px;font-size:9pt;color:#64748B;">Signature de l'emprunteur(e)</div>
     </div>
+    <div>
+      <div style="font-size:9.5pt;color:#64748B;margin-bottom:24px;">Cachet, nom et signature du conseiller</div>
+      <div style="border-top:1px solid #CBD5E1;padding-top:6px;font-size:9pt;color:#64748B;">Conseiller bancaire / Courtier</div>
+    </div>
+  </div>
+</div>
+
+<!-- PIED DE PAGE -->
+<div class="doc-footer">
+  <div style="color:#F97316;font-weight:700;">ImmoVerdict · immoverdict.com</div>
+  <div>Dossier Bancaire LMNP · Réf. ${refNum} · ${dateStr}</div>
+  <div>LF ${new Date().getFullYear()} · CGI Art. 39 C · HCSF 35% · Document confidentiel</div>
+</div>
+
+</div></body></html>`;
+
+  const htmlWithPrint = html.replace("</body>",
+    `<script>window.addEventListener('load',function(){setTimeout(function(){window.print();window.addEventListener('afterprint',function(){window.close();});},800);});</scr`+`ipt></body>`);
+  const blob = new Blob([htmlWithPrint],{type:"text/html"});
+  const url  = URL.createObjectURL(blob);
+  const w    = window.open(url,"_blank");
+  if (!w) {
+    const a = document.createElement("a");
+    a.href = url; a.download = `dossier-bancaire-lmnp-${new Date().toISOString().slice(0,10)}.html`;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  }
+  setTimeout(()=>URL.revokeObjectURL(url),30000);
+}
+
+/* ════════════════════════════════════════
+   STEP DOSSIER — Vue inline professionnelle
+════════════════════════════════════════ */
+function StepDossier({ form, results, amort }) {
+  const r0      = results?.[0];
+  const fmt     = (n) => new Intl.NumberFormat("fr-FR",{style:"currency",currency:"EUR",maximumFractionDigits:0}).format(n??0);
+  const dateStr = new Date().toLocaleDateString("fr-FR",{day:"2-digit",month:"long",year:"numeric"});
+
+  const capital   = Math.max(0, form.prix + form.travaux + form.prix*(form.notaire/100) - form.apport);
+  const tm        = (form.interet/100)/12;
+  const nn        = form.dureeCredit * 12;
+  const mens      = capital>0&&tm>0 ? Math.round((capital*tm)/(1-Math.pow(1+tm,-nn))) : 0;
+  const assurCredit = form.assuranceCredit ?? Math.round(capital*0.003/12);
+  const totalMens   = mens + (+form.chargesCredit||0) + assurCredit;
+  const rav         = Math.round((+form.revenusMensuels||0) - totalMens);
+  const pctApport   = Math.round(form.apport / Math.max(form.prix,1) * 100);
+  const ratioEndt   = +(totalMens / Math.max(+form.revenusMensuels||1, 1) * 100).toFixed(1);
+
+  const assurancePNO     = form.assurancePNO ?? 200;
+  const fraisGestion     = form.fraisGestion ?? 0;
+  const chargesAnnuelles = (form.charges||0)*12 + (form.taxeFonciere||0) + assurancePNO + fraisGestion + (form.cfe||0);
+  const loyerAnnuelNet   = Math.round(form.loyer*12*(1-(form.vacance||0)/100));
+  const revLocatifPris   = Math.round(loyerAnnuelNet/12*0.7);
+  const ratioEndtDiff    = +(totalMens/Math.max((+form.revenusMensuels||0)+revLocatifPris,1)*100).toFixed(1);
+  const rendBrut         = +(r0?.rendBrut||0);
+  const epargne          = form.epargneResiduelle ?? 0;
+
+  const revalo      = (form.revalorisation||1.5)/100;
+  const lastRow     = r0?.rows?.[(form.horizon||20)-1];
+  const valFinale   = Math.round(form.prix * Math.pow(1+revalo, form.horizon||20));
+  const detteFinale = Math.max(0, Math.round(lastRow?.capRestant||0));
+  const patriFinal  = Math.max(0, valFinale - detteFinale);
+
+  const scoreEndt = ratioEndt<=28?25:ratioEndt<=33?18:ratioEndt<=35?10:2;
+  const scoreCF   = (r0?.cashflowM??-999)>=100?25:(r0?.cashflowM??-999)>=0?18:(r0?.cashflowM??-999)>=-200?10:2;
+  const scoreRdt  = rendBrut>=7?20:rendBrut>=5?14:rendBrut>=3?8:2;
+  const scoreAppt = pctApport>=20?20:pctApport>=15?15:pctApport>=10?10:3;
+  const scoreTRI  = (r0?.tri??0)>=6?10:(r0?.tri??0)>=4?7:2;
+  const scoreTot  = scoreEndt+scoreCF+scoreRdt+scoreAppt+scoreTRI;
+  const scoreColor   = scoreTot>=75?"#F97316":scoreTot>=50?"#92400E":"#991B1B";
+  const scoreVerdict = scoreTot>=75?"FAVORABLE":scoreTot>=50?"RÉSERVÉ":"DÉFAVORABLE";
+  const scoreLabel   = scoreTot>=75?"Dossier solide":scoreTot>=50?"Dossier acceptable":"Dossier à améliorer";
+
+  const profession  = form.profession||"—";
+  const typeContrat = form.typeContrat||"CDI";
+  const age         = form.age||"—";
+  const quartier    = form.quartier||form.adresse||"—";
+  const modeExploit = form.modeExploitation||"LMNP meublé";
+
+  const amortRows = (() => {
+    if (capital<=0||tm<=0) return [];
+    const jalons=[1,2,3,5,10,15,form.dureeCredit].filter((v,i,a)=>a.indexOf(v)===i&&v<=form.dureeCredit).sort((a,b)=>a-b);
+    return jalons.map(annee=>{
+      const k=annee*12;
+      const capRest=Math.max(0,Math.round(capital*(Math.pow(1+tm,nn)-Math.pow(1+tm,k))/(Math.pow(1+tm,nn)-1)));
+      const capAvant=annee===1?capital:Math.max(0,Math.round(capital*(Math.pow(1+tm,nn)-Math.pow(1+tm,(annee-1)*12))/(Math.pow(1+tm,nn)-1)));
+      return {annee,mens,capRest,interetsAn:Math.round(mens*12-(capAvant-capRest)),amortAn:Math.round(capAvant-capRest)};
+    });
+  })();
+
+  /* ── Composants UI ── */
+  const navy = "#F97316";
+  const Card = ({children,style={}}) => (
+    <div style={{background:"white",border:"1px solid #CBD5E1",borderRadius:4,marginBottom:12,overflow:"hidden",...style}}>{children}</div>
+  );
+  const SecHeader = ({children}) => (
+    <div style={{background:navy,color:"white",padding:"8px 14px",fontSize:11,fontWeight:700,letterSpacing:".06em",textTransform:"uppercase"}}>{children}</div>
+  );
+  const SubSec = ({children}) => (
+    <div style={{fontSize:12,fontWeight:700,color:navy,borderBottom:`1.5px solid ${navy}`,paddingBottom:3,margin:"14px 14px 10px"}}>{children}</div>
+  );
+  const InfoGrid = ({items}) => (
+    <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",borderTop:"1px solid #E2E8F0"}}>
+      {items.map(([l,v],i)=>(
+        <div key={i} style={{padding:"8px 14px",borderBottom:"1px solid #E2E8F0",borderRight:i%2===0?"1px solid #E2E8F0":"none",background:i%4>=2?"#F8FAFC":"white"}}>
+          <div style={{fontSize:9,color:"#64748B",marginBottom:2,textTransform:"uppercase",letterSpacing:".04em"}}>{l}</div>
+          <div style={{fontSize:12,fontWeight:600,color:"#1a1a2e"}}>{v}</div>
+        </div>
+      ))}
+    </div>
+  );
+  const TRow = ({label,value,hl=false,color=""}) => (
+    <tr style={{background:hl?"rgba(249,115,22,0.08)":"transparent"}}>
+      <td style={{padding:"7px 14px",borderBottom:"1px solid #E2E8F0",fontSize:11,color:"#475569"}}>{label}</td>
+      <td style={{padding:"7px 14px",borderBottom:"1px solid #E2E8F0",fontSize:11,fontWeight:hl?700:500,textAlign:"right",color:color||"#1a1a2e"}}>{value}</td>
+    </tr>
   );
 
   return (
-    <div className="slide-up space-y-4">
+    <div className="slide-up" style={{fontFamily:"Arial,'Helvetica Neue',sans-serif"}}>
 
-      {/* ── PAGE DE GARDE ── */}
-      <div style={{ background:"linear-gradient(135deg,#0F172A 0%,#185FA5 100%)", borderRadius:16, padding:"28px 24px", color:"white", position:"relative" }}>
-        <div style={{ position:"absolute", top:14, right:14, background:"rgba(255,255,255,.12)", border:"1px solid rgba(255,255,255,.2)", fontSize:10, fontWeight:700, padding:"4px 10px", borderRadius:20 }}>
-          LF 2026 · {dateStr}
-        </div>
-        <div style={{ display:"flex", alignItems:"center", gap:14, marginBottom:20 }}>
-          <span style={{ fontSize:44 }}>🏦</span>
-          <div>
-            <div style={{ fontSize:20, fontWeight:800 }}>Dossier de Financement Bancaire</div>
-            <div style={{ fontSize:12, opacity:.7, marginTop:2 }}>Investissement Locatif · {modeExploit} · Conformité CGI 2026</div>
+      {/* ── EN-TÊTE DOCUMENT ── */}
+      <div style={{background:navy,color:"white",borderRadius:4,padding:"20px 18px",marginBottom:12,display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}>
+        <div>
+          <div style={{fontSize:16,fontWeight:700,letterSpacing:".01em",marginBottom:4}}>DOSSIER DE FINANCEMENT BANCAIRE</div>
+          <div style={{fontSize:11,opacity:.75}}>Investissement Locatif Meublé — Régime LMNP · LF 2026</div>
+          <div style={{display:"flex",gap:16,marginTop:14}}>
+            {[
+              ["Emprunteur", `${profession !== "—" ? profession : typeContrat}${age!=="—"?`, ${age} ans`:""}` ],
+              ["Bien", `${form.typeBien||"—"} · ${form.surface||"—"} m²`],
+              ["Montant", fmt(form.prix)],
+              ["Durée", `${form.dureeCredit} ans`],
+            ].map(([l,v])=>(
+              <div key={l} style={{background:"rgba(255,255,255,.1)",borderRadius:3,padding:"7px 10px",minWidth:80}}>
+                <div style={{fontSize:8,opacity:.6,textTransform:"uppercase",letterSpacing:".05em",marginBottom:2}}>{l}</div>
+                <div style={{fontSize:11,fontWeight:700}}>{v}</div>
+              </div>
+            ))}
           </div>
         </div>
-        <div style={{ display:"grid", gridTemplateColumns:"repeat(2,1fr)", gap:8 }}>
-          {[
-            ["Emprunteur", `${profession !== "—" ? profession : typeContrat}, ${age} ans`],
-            ["Bien",       `${form.typeBien} · ${form.surface} m² · ${form.nbPieces ?? 2} p.`],
-            ["Prix achat", fmt2(form.prix)],
-            ["Durée",      `${form.dureeCredit} ans à ${form.interet}%`],
-          ].map(([l,v]) => (
-            <div key={l} style={{ background:"rgba(255,255,255,.1)", borderRadius:10, padding:"10px 12px" }}>
-              <div style={{ fontSize:9, opacity:.6, textTransform:"uppercase", letterSpacing:".04em", marginBottom:3 }}>{l}</div>
-              <div style={{ fontWeight:700, fontSize:13 }}>{v}</div>
-            </div>
-          ))}
+        <div style={{textAlign:"right"}}>
+          <div style={{border:"1px solid rgba(255,255,255,.3)",fontSize:9,fontWeight:700,padding:"2px 8px",letterSpacing:".1em",display:"inline-block",marginBottom:6}}>CONFIDENTIEL</div>
+          <div style={{fontSize:10,opacity:.7}}>{dateStr}</div>
         </div>
       </div>
 
-      {/* ── VERDICT + KPIs ── */}
+      {/* ── VERDICT + SCORE ── */}
       <Card>
-        <div style={{ display:"flex", alignItems:"center", gap:14, marginBottom:16 }}>
-          <span style={{ fontSize:36 }}>{scoreTot>=75?"✅":scoreTot>=50?"⚠️":"🔴"}</span>
-          <div style={{ flex:1 }}>
-            <div style={{ fontSize:16, fontWeight:800, color:triColor }}>
-              {(r0?.tri??0)>=6?"Projet excellent — Finançable":(r0?.tri??0)>=4?"Projet acceptable — Optimisable":"Projet risqué — À restructurer"}
-            </div>
-            <div style={{ fontSize:11, color:C.slate, marginTop:2 }}>
-              TRI {r0?.tri??"-"}% · Cash-flow {r0?.cashflowM!=null?((r0.cashflowM>=0?"+":"")+r0.cashflowM+"€"):"-"}/mois · Apport {pctApport}%
-            </div>
+        <SecHeader>Avis motivé sur la bancabilité</SecHeader>
+        <div style={{padding:"16px 14px",display:"flex",alignItems:"center",gap:16}}>
+          <div style={{border:`2px solid ${scoreColor}`,padding:"12px 18px",textAlign:"center",minWidth:110}}>
+            <div style={{fontSize:32,fontWeight:700,color:scoreColor,lineHeight:1}}>{scoreTot}</div>
+            <div style={{fontSize:10,color:"#64748B",marginTop:2}}>/100 pts</div>
+            <div style={{fontSize:11,fontWeight:700,color:scoreColor,marginTop:4,letterSpacing:".03em"}}>{scoreVerdict}</div>
           </div>
-          <div style={{ textAlign:"center", background:scoreColor+"18", border:`2px solid ${scoreColor}44`, borderRadius:12, padding:"12px 16px", minWidth:80 }}>
-            <div style={{ fontSize:28, fontWeight:800, color:scoreColor }}>{scoreTot}</div>
-            <div style={{ fontSize:9, fontWeight:700, color:scoreColor }}>/100</div>
-            <div style={{ fontSize:9, color:C.slate, marginTop:2 }}>Score bancaire</div>
+          <div style={{flex:1}}>
+            <div style={{fontSize:14,fontWeight:700,color:scoreColor,marginBottom:6}}>{scoreLabel}</div>
+            <div style={{display:"flex",flexWrap:"wrap",gap:10}}>
+              {[
+                ["TRI",`${r0?.tri??"-"}%`],
+                ["Cash-flow",`${r0?.cashflowM!=null?((r0.cashflowM>=0?"+":"")+r0.cashflowM+"€"):"-"}/mois`],
+                ["Rdt net",`${r0?.rendNet!=null?(+r0.rendNet).toFixed(2):"-"}%`],
+                ["Endettement",`${ratioEndt}%`],
+                ["Reste à vivre",`${fmt(rav)}/mois`],
+              ].map(([l,v])=>(
+                <div key={l} style={{background:"#F8FAFC",border:"1px solid #E2E8F0",borderRadius:3,padding:"5px 10px"}}>
+                  <div style={{fontSize:9,color:"#64748B",textTransform:"uppercase",letterSpacing:".04em"}}>{l}</div>
+                  <div style={{fontSize:13,fontWeight:700,color:navy}}>{v}</div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
-        {/* 4 KPIs */}
-        <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:8, marginBottom:12 }}>
+        <div style={{padding:"0 14px 14px"}}>
           {[
-            { label:"TRI", val:`${r0?.tri??"-"}%`, bg:C.blueLight, border:C.blueBorder, color:C.blue },
-            { label:"Cash-flow", val:`${r0?.cashflowM!=null?((r0.cashflowM>=0?"+":"")+r0.cashflowM+"€"):"-"}/mois`, bg:cfColor+"12", border:cfColor+"44", color:cfColor },
-            { label:"Rdt net", val:`${r0?.rendNet!=null?(+r0.rendNet).toFixed(2):"-"}%`, bg:C.greenLight, border:C.greenBorder, color:C.green },
-            { label:"Endettement", val:`${ratioEndt}%`, bg:ratioEndt<=35?C.greenLight:C.redLight, border:ratioEndt<=35?C.greenBorder:C.redBorder, color:ratioEndt<=35?C.green:C.red },
-          ].map(k => (
-            <div key={k.label} style={{ background:k.bg, border:`1px solid ${k.border}`, borderRadius:12, padding:"12px 8px", textAlign:"center" }}>
-              <div style={{ fontSize:9, fontWeight:700, textTransform:"uppercase", color:k.color, marginBottom:4 }}>{k.label}</div>
-              <div style={{ fontSize:18, fontWeight:800, color:k.color, lineHeight:1 }}>{k.val}</div>
-            </div>
-          ))}
-        </div>
-        {/* Reste à vivre */}
-        <div style={{ background:ravColor+"12", border:`1px solid ${ravColor}44`, borderRadius:10, padding:"10px 14px", display:"flex", justifyContent:"space-between", alignItems:"center" }}>
-          <div>
-            <div style={{ fontSize:12, fontWeight:700 }}>Reste à vivre mensuel</div>
-            <div style={{ fontSize:10, color:C.slate }}>Revenus {fmt2(form.revenusMensuels)} − mensualités {fmt2(totalMens)}</div>
-          </div>
-          <div style={{ textAlign:"right" }}>
-            <div style={{ fontSize:20, fontWeight:800, color:ravColor }}>{fmt2(rav)}/mois</div>
-            <div style={{ fontSize:10, fontWeight:600, color:ravColor }}>{rav>=1500?"Confortable ✅":rav>=1200?"Juste ⚠️":"Serré 🔴"}</div>
-          </div>
-        </div>
-      </Card>
-
-      {/* ── PROFIL EMPRUNTEUR ── */}
-      <Card>
-        <SectionTitle icon="👤" title="Profil Emprunteur & Bien" sub="Données transmises à l'établissement prêteur" />
-        <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:8, marginBottom:8 }}>
-          {[
-            ["Profession", profession],
-            ["Contrat", typeContrat],
-            ["Âge", `${age} ans`],
-            ["Revenus nets", `${fmt2(form.revenusMensuels)}/mois`],
-            ["Épargne résiduelle", fmt2(epargne)],
-            ["Localisation", quartier!=="—"?quartier:(form.adresse||"—")],
-            ["Type de bien", `${form.typeBien} · ${form.surface} m² · ${form.nbPieces??2} pièce(s)`],
-            ["DPE", `Classe ${form.dpe||"C"} — ${["A","B","C","D"].includes(form.dpe||"C")?"Conforme":"⚠️ À rénover"}`],
-            ["Mode d'exploitation", modeExploit],
-            ...(objetTravaux ? [["Nature des travaux", objetTravaux]] : [["Travaux prévus", fmt2(form.travaux)]]),
-          ].map(([l,v]) => <InfoBox key={l} label={l} value={v} />)}
-        </div>
-      </Card>
-
-      {/* ── SYNTHÈSE EXECUTIVE ── */}
-      <Card>
-        <SectionTitle icon="📋" title="Synthèse Executive" sub="5 arguments clés à présenter à votre banquier" />
-        <div className="space-y-2">
-          {execPoints.map((pt, i) => (
-            <div key={i} style={{ display:"flex", gap:10, padding:"10px 12px", borderRadius:8, background:i%2===0?C.slateLight:"white", border:"1px solid #F1F5F9" }}>
-              <div style={{ fontSize:11, fontWeight:700, color:C.slate, minWidth:16 }}>{i+1}.</div>
-              <div style={{ fontSize:12, color:"#1E293B", lineHeight:1.5 }}>{pt}</div>
-            </div>
-          ))}
-        </div>
-      </Card>
-
-      {/* ── SCORE BANCABILITÉ ── */}
-      <Card>
-        <SectionTitle icon="⚖️" title={`Score de bancabilité — ${scoreLabel}`} />
-        <div style={{ display:"flex", alignItems:"center", gap:12, marginBottom:14 }}>
-          <div style={{ fontSize:32, fontWeight:800, color:scoreColor }}>{scoreTot}<span style={{ fontSize:14, color:C.slate }}>/100</span></div>
-          <div style={{ flex:1, background:"#E2E8F0", borderRadius:6, height:12 }}>
-            <div style={{ height:12, borderRadius:6, background:scoreColor, width:`${scoreTot}%`, transition:"width .4s" }} />
-          </div>
-        </div>
-        <div className="space-y-2">
-          {[
-            ["Taux d'endettement", scoreEndt, 25, `${ratioEndt}%`],
-            ["Cash-flow mensuel",  scoreCF,   25, `${r0?.cashflowM!=null?(r0.cashflowM>=0?"+":"")+r0.cashflowM+"€":"-"}/mois`],
-            ["Rendement brut",     scoreRdt,  20, `${rendBrut.toFixed(2)}%`],
-            ["Apport personnel",   scoreAppt, 20, `${pctApport}%`],
-            ["TRI",                scoreTRI,  10, `${r0?.tri??"-"}%`],
-          ].map(([label, score, max, val]) => (
-            <div key={label} style={{ display:"flex", alignItems:"center", gap:8, fontSize:11 }}>
-              <div style={{ width:140, color:C.slate }}>{label}</div>
-              <div style={{ flex:1, background:"#E2E8F0", borderRadius:3, height:6 }}>
-                <div style={{ height:6, borderRadius:3, width:`${Math.round(score/max*100)}%`, background:score/max>=.8?"#10B981":score/max>=.5?"#F59E0B":"#EF4444" }} />
+            ["Taux d'endettement",scoreEndt,25],
+            ["Cash-flow mensuel", scoreCF,  25],
+            ["Rendement brut",    scoreRdt,  20],
+            ["Apport personnel",  scoreAppt, 20],
+            ["TRI",               scoreTRI,  10],
+          ].map(([label,score,max])=>(
+            <div key={label} style={{display:"flex",alignItems:"center",gap:8,marginBottom:5,fontSize:11}}>
+              <div style={{width:140,color:"#475569",fontSize:10}}>{label}</div>
+              <div style={{flex:1,background:"#E2E8F0",borderRadius:2,height:6}}>
+                <div style={{height:6,borderRadius:2,background:score/max>=.8?"#F97316":score/max>=.5?"#D97706":"#DC2626",width:`${Math.round(score/max*100)}%`}} />
               </div>
-              <div style={{ width:40, textAlign:"right", fontWeight:700 }}>{score}/{max}</div>
-              <div style={{ width:56, textAlign:"right", color:C.slate }}>{val}</div>
+              <div style={{width:36,textAlign:"right",fontWeight:700,fontSize:10}}>{score}/{max}</div>
             </div>
           ))}
         </div>
       </Card>
 
-      {/* ── ANALYSE DE RISQUE ── */}
+      {/* ── EMPRUNTEUR ── */}
       <Card>
-        <SectionTitle icon="🛡️" title="Analyse de Risque" sub="5 indicateurs de robustesse évalués par les banques" />
-        <div className="space-y-2">
-          {risqueItems.map((r, i) => (
-            <div key={i} style={{ display:"flex", alignItems:"flex-start", gap:10, padding:"10px 12px", borderRadius:8, background:r.ok?C.greenLight:"#FFF7ED", border:`1px solid ${r.ok?C.greenBorder:"#FED7AA"}` }}>
-              <div style={{ fontSize:16, marginTop:1 }}>{r.ok?"✅":"⚠️"}</div>
-              <div>
-                <div style={{ fontSize:12, fontWeight:700, color:r.ok?C.green:"#C2410C", marginBottom:2 }}>{r.label}</div>
-                <div style={{ fontSize:11, color:"#475569" }}>{r.detail}</div>
-              </div>
-            </div>
-          ))}
-        </div>
+        <SecHeader>I. Profil emprunteur et projet immobilier</SecHeader>
+        <InfoGrid items={[
+          ["Profession", profession],
+          ["Type de contrat", typeContrat],
+          ["Âge", age!=="—"?`${age} ans`:"—"],
+          ["Revenus nets mensuels", fmt(form.revenusMensuels)],
+          ["Épargne résiduelle", fmt(epargne)],
+          ["Localisation", quartier],
+          ["Type de bien", `${form.typeBien||"—"} · ${form.surface||"—"} m² · ${form.nbPieces||2} p.`],
+          ["DPE", `Classe ${form.dpe||"C"}`],
+          ["Mode d'exploitation", modeExploit],
+          ["Travaux prévus", fmt(form.travaux)],
+        ]} />
       </Card>
 
-      {/* ── FINANCEMENT ── */}
+      {/* ── PLAN DE FINANCEMENT ── */}
       <Card>
-        <SectionTitle icon="🏠" title="Caractéristiques du bien & financement" />
-        <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:8 }}>
-          {[
-            ["Prix d'achat", fmt2(form.prix)],
-            ["Frais de notaire", `${fmt2(form.prix*form.notaire/100)} (${form.notaire}%)`],
-            ["Travaux", fmt2(form.travaux)],
-            ["Mobilier", fmt2(form.mobilier)],
-            ["Apport", `${fmt2(form.apport)} (${pctApport}%)`],
-            ["Capital emprunté", fmt2(capital)],
-            ["Mensualité", `${fmt2(mens)}/mois`],
-            ["Durée", `${form.dureeCredit} ans à ${form.interet}%`],
-            ["Loyer estimé", `${fmt2(form.loyer)}/mois HC`],
-            ["Taux endettement différentiel", `${ratioEndtDiff}%`],
-          ].map(([l,v]) => <InfoBox key={l} label={l} value={v} />)}
-        </div>
+        <SecHeader>II. Plan de financement</SecHeader>
+        <table style={{width:"100%",borderCollapse:"collapse"}}>
+          <tbody>
+            <TRow label="Prix d'acquisition" value={fmt(form.prix)} />
+            <TRow label={`Frais de notaire (${form.notaire}%)`} value={fmt(form.prix*form.notaire/100)} />
+            <TRow label="Travaux / Mobilier" value={fmt(form.travaux+form.mobilier)} />
+            <TRow label="Coût total de l'opération" value={fmt(form.prix+form.travaux+form.mobilier+form.prix*form.notaire/100)} hl />
+            <TRow label={`Apport personnel (${pctApport}%)`} value={fmt(form.apport)} />
+            <TRow label="Capital à emprunter" value={fmt(capital)} hl />
+            <TRow label={`Mensualité à ${form.interet}% sur ${form.dureeCredit} ans`} value={`${fmt(mens)}/mois`} />
+            <TRow label="Charge mensuelle totale (avec assurance)" value={`${fmt(totalMens)}/mois`} hl />
+            <TRow label="Taux d'endettement global" value={`${ratioEndt}%`} color={ratioEndt<=35?"#F97316":"#DC2626"} />
+            <TRow label="Taux d'endettement différentiel (70% loyers)" value={`${ratioEndtDiff}%`} color={ratioEndtDiff<=35?"#F97316":"#DC2626"} />
+            <TRow label="Reste à vivre mensuel" value={`${fmt(rav)}/mois`} color={rav>=1200?"#F97316":"#DC2626"} />
+          </tbody>
+        </table>
       </Card>
 
       {/* ── TABLEAU D'AMORTISSEMENT ── */}
       {amortRows.length > 0 && (
         <Card>
-          <SectionTitle icon="📅" title="Tableau d'Amortissement Prévisionnel" sub={`Capital ${fmt2(capital)} · ${form.interet}% · ${fmt2(mens)}/mois`} />
-          <div style={{ overflowX:"auto" }}>
-            <table style={{ width:"100%", borderCollapse:"collapse", fontSize:12 }}>
+          <SecHeader>III. Tableau d'amortissement prévisionnel</SecHeader>
+          <div style={{overflowX:"auto",padding:"8px 0"}}>
+            <table style={{width:"100%",borderCollapse:"collapse",fontSize:11}}>
               <thead>
-                <tr style={{ background:"#F1F5F9" }}>
-                  {["Année","Mensualité","Intérêts (an)","Capital remb.","Capital restant","% remb."].map(h => (
-                    <th key={h} style={{ padding:"7px 6px", textAlign:h==="Année"?"left":"right", color:C.slate, fontWeight:700, fontSize:11 }}>{h}</th>
+                <tr style={{background:"#F0F4F8"}}>
+                  {["Année","Mensualité","Intérêts (an)","Capital remb.","Capital restant","% remb."].map(h=>(
+                    <th key={h} style={{padding:"7px 10px",textAlign:h==="Année"?"left":"right",color:navy,fontWeight:700,border:"1px solid #CBD5E1",fontSize:10}}>{h}</th>
                   ))}
                 </tr>
               </thead>
               <tbody>
-                {amortRows.map((r,i) => (
-                  <tr key={r.annee} style={{ background:i%2===0?"white":"#F8FAFC" }}>
-                    <td style={{ padding:"7px 6px", fontWeight:700, color:C.blue }}>An {r.annee}</td>
-                    <td style={{ padding:"7px 6px", textAlign:"right" }}>{fmt2(r.mens)}</td>
-                    <td style={{ padding:"7px 6px", textAlign:"right", color:C.red }}>{fmt2(r.interetsAn)}</td>
-                    <td style={{ padding:"7px 6px", textAlign:"right", color:C.green }}>{fmt2(r.amortAn)}</td>
-                    <td style={{ padding:"7px 6px", textAlign:"right", fontWeight:700 }}>{fmt2(r.capRest)}</td>
-                    <td style={{ padding:"7px 6px", textAlign:"right", color:"#7C3AED" }}>{Math.round((1-r.capRest/capital)*100)}%</td>
+                {amortRows.map((r,i)=>(
+                  <tr key={r.annee} style={{background:i%2===0?"white":"#F8FAFC"}}>
+                    <td style={{padding:"6px 10px",border:"1px solid #CBD5E1",fontWeight:700,color:navy}}>An {r.annee}</td>
+                    <td style={{padding:"6px 10px",border:"1px solid #CBD5E1",textAlign:"right"}}>{fmt(r.mens)}</td>
+                    <td style={{padding:"6px 10px",border:"1px solid #CBD5E1",textAlign:"right",color:"#92400E"}}>{fmt(r.interetsAn)}</td>
+                    <td style={{padding:"6px 10px",border:"1px solid #CBD5E1",textAlign:"right",color:"#0C0C10"}}>{fmt(r.amortAn)}</td>
+                    <td style={{padding:"6px 10px",border:"1px solid #CBD5E1",textAlign:"right",fontWeight:700}}>{fmt(r.capRest)}</td>
+                    <td style={{padding:"6px 10px",border:"1px solid #CBD5E1",textAlign:"right",color:navy}}>{Math.round((1-r.capRest/capital)*100)}%</td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
-          <div style={{ background:C.blueLight, borderRadius:8, padding:"10px 14px", marginTop:12, fontSize:11, color:C.blue }}>
-            💡 <strong>Total intérêts sur {form.dureeCredit} ans :</strong> {fmt2(Math.round(mens*form.dureeCredit*12 - capital))} · Coût total : {fmt2(Math.round(mens*form.dureeCredit*12))}
-          </div>
         </Card>
       )}
+
+      {/* ── EXPLOITATION LOCATIVE ── */}
+      <Card>
+        <SecHeader>IV. Exploitation locative et rentabilité</SecHeader>
+        <SubSec>A. Compte de résultat prévisionnel (année 1)</SubSec>
+        <table style={{width:"100%",borderCollapse:"collapse",margin:"0 0 4px"}}>
+          <tbody>
+            <TRow label={`Loyer mensuel brut (${fmt(form.loyer)}/mois × 12)`} value={fmt(form.loyer*12)} />
+            <TRow label={`Vacance locative (${form.vacance||5}%)`} value={`− ${fmt(Math.round(form.loyer*12*(form.vacance||5)/100))}`} />
+            <TRow label="Revenus locatifs nets encaissés" value={fmt(loyerAnnuelNet)} hl />
+            <TRow label="Charges (copro + foncier + PNO + gestion)" value={`− ${fmt(chargesAnnuelles)}`} />
+            <TRow label="Revenu locatif net de charges" value={fmt(loyerAnnuelNet-chargesAnnuelles)} hl />
+          </tbody>
+        </table>
+        <SubSec>B. Indicateurs de performance</SubSec>
+        <div style={{display:"grid",gridTemplateColumns:"repeat(2,1fr)",gap:1,borderTop:"1px solid #E2E8F0"}}>
+          {[
+            ["TRI à "+form.horizon+" ans",`${r0?.tri??"-"}%`],
+            ["Cash-flow mensuel net",`${r0?.cashflowM!=null?((r0.cashflowM>=0?"+":"")+r0.cashflowM+"€"):"-"}/mois`],
+            ["Rendement brut",`${rendBrut.toFixed(2)}%`],
+            ["Rendement net après charges",`${r0?.rendNet!=null?(+r0.rendNet).toFixed(2):"-"}%`],
+          ].map(([l,v])=>(
+            <div key={l} style={{padding:"9px 14px",borderBottom:"1px solid #E2E8F0",borderRight:"1px solid #E2E8F0"}}>
+              <div style={{fontSize:9,color:"#64748B",textTransform:"uppercase",letterSpacing:".04em",marginBottom:2}}>{l}</div>
+              <div style={{fontSize:14,fontWeight:700,color:navy}}>{v}</div>
+            </div>
+          ))}
+        </div>
+
+        {/* Comparaison régimes */}
+        <SubSec>C. Comparaison des régimes fiscaux</SubSec>
+        <table style={{width:"100%",borderCollapse:"collapse",fontSize:11}}>
+          <thead>
+            <tr style={{background:"#F0F4F8"}}>
+              {["Régime","Cash-flow/mois","TRI","Rdt net","Impôt an 1"].map(h=>(
+                <th key={h} style={{padding:"6px 10px",textAlign:h==="Régime"?"left":"right",color:navy,fontWeight:700,border:"1px solid #CBD5E1",fontSize:10}}>{h}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {(results||[]).map((r,i)=>{
+              const labels=["LMNP Réel ★","Micro-BIC","SCI IS","SCI IR"];
+              const cc=(r.cashflowM??0)>=0?"#0C0C10":"#991B1B";
+              return (
+                <tr key={i} style={{background:i===0?"rgba(249,115,22,0.08)":i%2===1?"#F8FAFC":"white",fontWeight:i===0?700:400}}>
+                  <td style={{padding:"6px 10px",border:"1px solid #CBD5E1",fontWeight:600}}>{labels[i]}</td>
+                  <td style={{padding:"6px 10px",border:"1px solid #CBD5E1",textAlign:"right",color:cc,fontWeight:700}}>{r.cashflowM!=null?((r.cashflowM>=0?"+":"")+r.cashflowM+"€"):"-"}/mois</td>
+                  <td style={{padding:"6px 10px",border:"1px solid #CBD5E1",textAlign:"right"}}>{r.tri??"-"}%</td>
+                  <td style={{padding:"6px 10px",border:"1px solid #CBD5E1",textAlign:"right"}}>{r.rendNet!=null?(+r.rendNet).toFixed(2):"-"}%</td>
+                  <td style={{padding:"6px 10px",border:"1px solid #CBD5E1",textAlign:"right"}}>{fmt(r.rows?.[0]?.impot)}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </Card>
 
       {/* ── AMORTISSEMENTS PAR COMPOSANTS ── */}
       {amort?.chartData?.length > 0 && (
         <Card>
-          <SectionTitle icon="🏗️" title={`Amortissement par composants — ${fmt2(amort.totalAnnuel)}/an déductible`} sub="CGI Art. 39 C — Méthode par composants" />
-          <div className="space-y-2">
-            {amort.chartData.map(c => (
-              <div key={c.name} style={{ display:"flex", alignItems:"center", gap:8 }}>
-                <div style={{ width:110, fontSize:11, color:C.slate }}>{c.name}</div>
-                <div style={{ flex:1, background:"#DBEAFE", borderRadius:3, height:6 }}>
-                  <div style={{ height:6, borderRadius:3, background:C.blue, width:`${Math.round(c.montant/amort.totalAnnuel*100)}%` }} />
-                </div>
-                <div style={{ width:56, textAlign:"right", fontSize:11, fontWeight:700 }}>{fmt2(c.montant)}</div>
-                <div style={{ width:34, fontSize:10, color:C.slate }}>{c.duree}ans</div>
-              </div>
-            ))}
-          </div>
-          <div style={{ background:C.blueLight, borderRadius:8, padding:"10px 12px", marginTop:12, fontSize:11, color:C.blue }}>
-            💡 <strong>Économie fiscale annuelle :</strong> {fmt2(amort.totalAnnuel)} × {form.tmi}% = <strong>{fmt2(amort.totalAnnuel * form.tmi/100)}/an</strong> d'impôt évité
+          <SecHeader>V. Amortissement par composants — CGI Art. 39 C</SecHeader>
+          <table style={{width:"100%",borderCollapse:"collapse",fontSize:11}}>
+            <thead>
+              <tr style={{background:"#F0F4F8"}}>
+                {["Composant","Durée","Dotation annuelle déductible"].map(h=>(
+                  <th key={h} style={{padding:"6px 10px",textAlign:h==="Composant"?"left":"right",color:navy,fontWeight:700,border:"1px solid #CBD5E1",fontSize:10}}>{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {amort.chartData.map((c,i)=>(
+                <tr key={c.name} style={{background:i%2===1?"#F8FAFC":"white"}}>
+                  <td style={{padding:"6px 10px",border:"1px solid #CBD5E1"}}>{c.name}</td>
+                  <td style={{padding:"6px 10px",border:"1px solid #CBD5E1",textAlign:"right"}}>{c.duree} ans</td>
+                  <td style={{padding:"6px 10px",border:"1px solid #CBD5E1",textAlign:"right",fontWeight:700}}>{fmt(c.montant)}</td>
+                </tr>
+              ))}
+              <tr style={{background:"rgba(249,115,22,0.08)",fontWeight:700}}>
+                <td colSpan={2} style={{padding:"7px 10px",border:"1px solid #CBD5E1"}}>Total déductible par an</td>
+                <td style={{padding:"7px 10px",border:"1px solid #CBD5E1",textAlign:"right",color:navy}}>{fmt(amort.totalAnnuel)}</td>
+              </tr>
+            </tbody>
+          </table>
+          <div style={{background:"rgba(249,115,22,0.08)",padding:"10px 14px",fontSize:11,color:navy,borderTop:"1px solid #CBD5E1"}}>
+            <strong>Économie fiscale :</strong> {fmt(amort.totalAnnuel)} × {form.tmi}% TMI = <strong>{fmt(amort.totalAnnuel*form.tmi/100)}/an</strong> d'impôt évité
           </div>
         </Card>
       )}
 
-      {/* ── COMPARAISON RÉGIMES ── */}
+      {/* ── RISQUES ── */}
       <Card>
-        <SectionTitle icon="📊" title="Comparaison des 4 régimes fiscaux" />
-        <div className="space-y-2">
-          {(results||[]).map((r,i) => {
-            const labels=["🥇 LMNP Réel","🥈 Micro-BIC","🏅 SCI à l'IS","🏅 SCI à l'IR"];
-            const cc=(r.cashflowM??0)>=0?C.green:C.red;
-            return (
-              <div key={i} style={{ display:"flex", justifyContent:"space-between", alignItems:"center", padding:"12px 14px", borderRadius:10, background:i===0?C.blueLight:"#F8FAFC", border:`1px solid ${i===0?C.blueBorder:"#E2E8F0"}` }}>
-                <div>
-                  <div style={{ fontWeight:700, fontSize:13 }}>{labels[i]}</div>
-                  <div style={{ fontSize:10, color:C.slate, marginTop:2 }}>TRI {r.tri??"-"}% · Rdt {r.rendNet!=null?(+r.rendNet).toFixed(2):"-"}% · Impôt an 1 {fmt2(r.rows?.[0]?.impot)}</div>
-                </div>
-                <div style={{ textAlign:"right" }}>
-                  <div style={{ fontSize:18, fontWeight:800, color:cc }}>{r.cashflowM!=null?((r.cashflowM>=0?"+":"")+r.cashflowM+"€"):"-"}/mois</div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
+        <SecHeader>VI. Analyse des risques</SecHeader>
+        <table style={{width:"100%",borderCollapse:"collapse",fontSize:11}}>
+          <thead>
+            <tr style={{background:"#F0F4F8"}}>
+              {["Facteur","Valeur","Statut"].map(h=>(
+                <th key={h} style={{padding:"6px 10px",textAlign:h==="Valeur"||h==="Statut"?"right":"left",color:navy,fontWeight:700,border:"1px solid #CBD5E1",fontSize:10}}>{h}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {[
+              {l:"Vacance locative",v:`${form.vacance||5}%`,ok:(form.vacance||5)<=7},
+              {l:"Conformité DPE (loi Climat)",v:`Classe ${form.dpe||"C"}`,ok:["A","B","C","D"].includes(form.dpe||"C")},
+              {l:"Taux d'endettement HCSF",v:`${ratioEndt}%`,ok:ratioEndt<=35},
+              {l:"Épargne de précaution",v:fmt(epargne),ok:epargne>=mens*3},
+              {l:"Valorisation patrimoniale",v:`+${((valFinale/form.prix-1)*100).toFixed(1)}% sur ${form.horizon} ans`,ok:valFinale>form.prix},
+            ].map((item,i)=>(
+              <tr key={i} style={{background:i%2===1?"#F8FAFC":"white"}}>
+                <td style={{padding:"7px 10px",border:"1px solid #CBD5E1",fontWeight:600}}>{item.l}</td>
+                <td style={{padding:"7px 10px",border:"1px solid #CBD5E1",textAlign:"right"}}>{item.v}</td>
+                <td style={{padding:"7px 10px",border:"1px solid #CBD5E1",textAlign:"right",fontWeight:700,color:item.ok?"#F97316":"#DC2626"}}>{item.ok?"MAÎTRISÉ":"À SURVEILLER"}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </Card>
 
       {/* ── PROJECTION PATRIMONIALE ── */}
       <Card>
-        <SectionTitle icon="📈" title={`Projection patrimoniale à ${form.horizon} ans`} />
-        <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:10 }}>
-          {[
-            { label:"Valeur du bien", val:fmt2(valFinale), sub:`+${form.revalorisation??1.5}%/an`, bg:C.blueLight, border:C.blueBorder, color:C.blue },
-            { label:"Dette restante", val:fmt2(detteFinale), sub:"Capital dû", bg:C.redLight, border:C.redBorder, color:C.red },
-            { label:"Patrimoine net", val:fmt2(patriFinal), sub:`+${fmt2(valFinale-form.prix)} PV`, bg:C.greenLight, border:C.greenBorder, color:C.green },
-          ].map(k => (
-            <div key={k.label} style={{ background:k.bg, border:`1px solid ${k.border}`, borderRadius:12, padding:"14px 10px", textAlign:"center" }}>
-              <div style={{ fontSize:9, fontWeight:700, textTransform:"uppercase", color:k.color, marginBottom:4 }}>{k.label}</div>
-              <div style={{ fontSize:18, fontWeight:800, color:k.color, lineHeight:1 }}>{k.val}</div>
-              <div style={{ fontSize:10, color:k.color, marginTop:4, opacity:.7 }}>{k.sub}</div>
-            </div>
-          ))}
-        </div>
+        <SecHeader>VII. Projection patrimoniale à {form.horizon} ans</SecHeader>
+        <table style={{width:"100%",borderCollapse:"collapse",fontSize:11}}>
+          <thead>
+            <tr style={{background:"#F0F4F8"}}>
+              {["Indicateur","Valeur initiale",`Dans ${form.horizon} ans`,"Évolution"].map(h=>(
+                <th key={h} style={{padding:"6px 10px",textAlign:h==="Indicateur"?"left":"right",color:navy,fontWeight:700,border:"1px solid #CBD5E1",fontSize:10}}>{h}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style={{padding:"7px 10px",border:"1px solid #CBD5E1",fontWeight:600}}>Valeur vénale du bien</td>
+              <td style={{padding:"7px 10px",border:"1px solid #CBD5E1",textAlign:"right"}}>{fmt(form.prix)}</td>
+              <td style={{padding:"7px 10px",border:"1px solid #CBD5E1",textAlign:"right",fontWeight:700,color:navy}}>{fmt(valFinale)}</td>
+              <td style={{padding:"7px 10px",border:"1px solid #CBD5E1",textAlign:"right",color:"#F97316",fontWeight:700}}>+{fmt(valFinale-form.prix)}</td>
+            </tr>
+            <tr style={{background:"#F8FAFC"}}>
+              <td style={{padding:"7px 10px",border:"1px solid #CBD5E1",fontWeight:600}}>Capital restant dû</td>
+              <td style={{padding:"7px 10px",border:"1px solid #CBD5E1",textAlign:"right"}}>{fmt(capital)}</td>
+              <td style={{padding:"7px 10px",border:"1px solid #CBD5E1",textAlign:"right",fontWeight:700,color:"#DC2626"}}>{fmt(detteFinale)}</td>
+              <td style={{padding:"7px 10px",border:"1px solid #CBD5E1",textAlign:"right",color:"#F97316",fontWeight:700}}>−{fmt(capital-detteFinale)}</td>
+            </tr>
+            <tr style={{background:"rgba(249,115,22,0.08)",fontWeight:700}}>
+              <td style={{padding:"8px 10px",border:"1px solid #CBD5E1"}}>Patrimoine net constitué</td>
+              <td style={{padding:"8px 10px",border:"1px solid #CBD5E1",textAlign:"right"}}>{fmt(form.apport)}</td>
+              <td style={{padding:"8px 10px",border:"1px solid #CBD5E1",textAlign:"right",color:navy,fontSize:14}}>{fmt(patriFinal)}</td>
+              <td style={{padding:"8px 10px",border:"1px solid #CBD5E1",textAlign:"right",color:"#F97316"}}>×{(patriFinal/Math.max(form.apport,1)).toFixed(1)}</td>
+            </tr>
+          </tbody>
+        </table>
       </Card>
 
-      {/* ── CONCLUSION ── */}
-      <Card style={{ border:`2px solid ${scoreColor}44` }}>
-        <SectionTitle icon="🏁" title="Conclusion — Avis Motivé sur la Bancabilité" />
-        <div style={{ display:"flex", alignItems:"flex-start", gap:14, padding:14, background:scoreColor+"0D", borderRadius:12, marginBottom:14 }}>
-          <div style={{ fontSize:32 }}>{scoreTot>=75?"✅":scoreTot>=50?"⚠️":"🔴"}</div>
-          <div>
-            <div style={{ fontSize:15, fontWeight:800, color:scoreColor, marginBottom:6 }}>{scoreLabel} — Score {scoreTot}/100</div>
-            <div style={{ fontSize:12, color:"#475569", lineHeight:1.6 }}>
-              {scoreTot>=75
-                ? `Ce dossier présente toutes les caractéristiques d'un investissement finançable en conditions standards. Le taux d'endettement de ${ratioEndt}% respecte la règle HCSF, l'apport de ${pctApport}% est rassurant, et le cash-flow ${(r0?.cashflowM??0)>=0?"positif de +"+(r0?.cashflowM||0)+"€/mois démontre l'autofinancement":"modéré"}. Recommandation : présenter ce dossier à votre banque ou courtier sans délai.`
-                : scoreTot>=50
-                ? `Ce dossier est acceptable mais perfectible. Quelques ajustements ciblés amélioreront vos chances : ${+ratioEndt>35?"réduire l'endettement ("+ratioEndt+"%) en augmentant l'apport — ":""}${pctApport<15?"renforcer l'apport à 15–20% — ":""}${epargne<mens*3?"constituer 3 mensualités de réserve ("+fmt2(mens*3)+") — ":" "}Recommandation : optimisez 1 ou 2 paramètres avant de soumettre.`
-                : `Ce dossier nécessite une restructuration avant soumission bancaire. Points bloquants : ${+ratioEndt>35?"endettement à "+ratioEndt+"% (seuil HCSF dépassé) — ":""}${pctApport<10?"apport insuffisant à "+pctApport+"% — ":""}${(r0?.tri??0)<4?"rentabilité faible (TRI "+r0?.tri+"%) — ":" "}Recommandation : consultez un conseiller en gestion de patrimoine avant dépôt.`
-              }
-            </div>
-          </div>
-        </div>
-        <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:8 }}>
-          {[
-            ["📋 Pièces à préparer","Relevés 3 mois, bulletins de salaire, avis d'imposition, compromis"],
-            ["🏦 Établissements","Banques généralistes, courtiers (Meilleurtaux, Pretto, Cafpi)"],
-            ["📑 Justificatifs LMNP","Prévisionnel expert-comptable, bail meublé type, statuts SCI si applicable"],
-            ["⏱️ Délai moyen","3–6 semaines entre demande et offre. Sollicitez 2–3 établissements simultanément"],
-          ].map(([l,v]) => (
-            <div key={l} style={{ background:C.slateLight, borderRadius:8, padding:"10px 12px", border:"1px solid #E2E8F0" }}>
-              <div style={{ fontSize:10, fontWeight:700, color:C.blue, marginBottom:4 }}>{l}</div>
-              <div style={{ fontSize:11, color:"#475569", lineHeight:1.4 }}>{v}</div>
-            </div>
-          ))}
-        </div>
-      </Card>
-
-      {/* ── BOUTON TÉLÉCHARGER PDF ── */}
-      <div className="space-y-3 pb-2">
+      {/* ── BOUTON PDF ── */}
+      <div style={{paddingBottom:8}}>
         <button
-          onClick={() => downloadReport(form, results, amort, profession!=="—"?profession:"")}
-          className="w-full py-4 rounded-2xl text-sm font-bold text-white flex items-center justify-center gap-2"
-          style={{ background:"linear-gradient(135deg,#0F172A,#185FA5)" }}>
-          <span style={{ fontSize:18 }}>📄</span>
-          Télécharger le dossier en PDF
+          onClick={()=>downloadReport(form,results,amort,profession!=="—"?profession:"")}
+          style={{width:"100%",padding:"14px",background:navy,color:"white",border:"none",borderRadius:4,fontSize:13,fontWeight:700,cursor:"pointer",letterSpacing:".03em",display:"flex",alignItems:"center",justifyContent:"center",gap:8}}>
+          <span style={{fontSize:16}}>📄</span>
+          TÉLÉCHARGER LE DOSSIER EN PDF
         </button>
-        <p className="text-center text-xs text-slate-400">
-          S'ouvre dans un nouvel onglet → <strong>Imprimer → Enregistrer en PDF</strong> · Format A4
+        <p style={{textAlign:"center",fontSize:11,color:"#94A3B8",marginTop:8,fontFamily:"Arial,sans-serif"}}>
+          S'ouvre dans un nouvel onglet · <strong>Fichier → Imprimer → Enregistrer en PDF</strong> · Format A4
         </p>
       </div>
 
     </div>
   );
 }
-
 function LeadModal({ onClose, form, results }) {
   const [email,   setEmail]   = useState("");
   const [name,    setName]    = useState("");
@@ -4013,7 +3945,7 @@ function LeadModal({ onClose, form, results }) {
               <div className="grid grid-cols-3 gap-2 mb-5 p-3 bg-slate-50 rounded-xl">
                 <div className="text-center">
                   <p className="text-[10px] text-slate-400">TRI</p>
-                  <p className="font-bold text-sm text-blue-600">{results[0].tri}%</p>
+                  <p className="font-bold text-sm text-orange-500">{results[0].tri}%</p>
                 </div>
                 <div className="text-center border-x border-slate-200">
                   <p className="text-[10px] text-slate-400">CF/mois</p>
@@ -4023,18 +3955,18 @@ function LeadModal({ onClose, form, results }) {
                 </div>
                 <div className="text-center">
                   <p className="text-[10px] text-slate-400">Rdt net</p>
-                  <p className="font-bold text-sm text-blue-600">{results[0].rendNet.toFixed(2)}%</p>
+                  <p className="font-bold text-sm text-orange-500">{results[0].rendNet.toFixed(2)}%</p>
                 </div>
               </div>
             )}
             <form onSubmit={submit} className="space-y-3">
               <input value={name} onChange={e=>setName(e.target.value)} placeholder="Prénom (optionnel)"
-                className="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-blue-400 bg-slate-50" />
+                className="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-orange-400 bg-slate-50" />
               <input type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="Votre adresse email *"
-                required className="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-blue-400 bg-slate-50" />
+                required className="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-orange-400 bg-slate-50" />
               <label className="flex items-start gap-2 cursor-pointer">
                 <input type="checkbox" checked={rgpd} onChange={e=>setRgpd(e.target.checked)}
-                  className="mt-0.5 flex-shrink-0 accent-violet-600" />
+                  className="mt-0.5 flex-shrink-0 accent-orange-500" />
                 <span className="text-[10px] text-slate-500 leading-relaxed">
                   J'accepte de recevoir mon rapport et des communications d'ImmoVerdict.
                   Données traitées conformément à notre{" "}
@@ -4044,7 +3976,7 @@ function LeadModal({ onClose, form, results }) {
               </label>
               <button type="submit" disabled={loading || !email || !rgpd}
                 className="w-full py-3 rounded-xl text-sm font-bold text-white transition-opacity"
-                style={{ background:"linear-gradient(135deg, #7C3AED, #2563EB)", opacity: loading||!email||!rgpd ? 0.5 : 1 }}>
+                style={{ background:"linear-gradient(135deg, #F97316, #F97316)", opacity: loading||!email||!rgpd ? 0.5 : 1 }}>
                 {loading ? "⏳ Génération en cours…" : "Recevoir mon rapport gratuit →"}
               </button>
             </form>
@@ -4070,7 +4002,7 @@ function LeadModal({ onClose, form, results }) {
             <button
               onClick={() => downloadReport(form, results, amort, name)}
               className="w-full py-3 rounded-xl text-sm font-bold text-white mb-3"
-              style={{ background:"linear-gradient(135deg, #7C3AED, #2563EB)" }}>
+              style={{ background:"linear-gradient(135deg, #F97316, #F97316)" }}>
               ⬇ Télécharger le rapport (.html)
             </button>
 
@@ -4086,7 +4018,7 @@ function LeadModal({ onClose, form, results }) {
                     { j:"J+7",        icon:"📈", txt:"Alerte : opportunités LMNP dans votre zone" },
                   ].map(({ j, icon, txt }) => (
                     <div key={j} className="flex items-start gap-2">
-                      <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-md shrink-0 mt-0.5" style={{ background:"rgba(124,58,237,0.25)", color:"#A78BFA" }}>{j}</span>
+                      <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-md shrink-0 mt-0.5" style={{ background:"rgba(124,58,237,0.25)", color:"#F97316" }}>{j}</span>
                       <p className="text-[10px]" style={{ color:"rgba(248,250,252,0.65)" }}>{icon} {txt}</p>
                     </div>
                   ))}
@@ -4219,7 +4151,7 @@ function AuthModal({ onAuth, onClose }) {
             {cooldown > 0 ? `Renvoyer dans ${cooldown} s` : "📨 Renvoyer l'email"}
           </button>
           <button onClick={() => { setPending(false); setMode("login"); }}
-            className="w-full py-2.5 mb-2 rounded-xl text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 transition-colors">
+            className="w-full py-2.5 mb-2 rounded-xl text-sm font-bold text-white bg-orange-500 hover:bg-orange-600 transition-colors">
             J&apos;ai confirmé → Se connecter
           </button>
           <button onClick={onClose} className="text-xs text-slate-400 hover:text-slate-600 mt-1">
@@ -4243,11 +4175,11 @@ function AuthModal({ onAuth, onClose }) {
         <form onSubmit={submit} className="space-y-3">
           <input type="email" value={email} onChange={e=>{setEmail(e.target.value);setError("");}}
             placeholder="Email" required autoComplete="email"
-            className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-blue-400 bg-slate-50 focus:bg-white transition-colors" />
+            className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-orange-400 bg-slate-50 focus:bg-slate-900 transition-colors" />
           <input type="password" value={password} onChange={e=>{setPass(e.target.value);setError("");}}
             placeholder={mode==="register" ? "Mot de passe (6 car. min.)" : "Mot de passe"}
             required minLength={mode==="register" ? 6 : undefined} autoComplete={mode==="login" ? "current-password" : "new-password"}
-            className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-blue-400 bg-slate-50 focus:bg-white transition-colors" />
+            className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-orange-400 bg-slate-50 focus:bg-slate-900 transition-colors" />
 
           {error && (
             <div className="bg-red-50 border border-red-100 rounded-lg px-3 py-2">
@@ -4261,14 +4193,14 @@ function AuthModal({ onAuth, onClose }) {
           )}
 
           <button type="submit" disabled={loading}
-            className="w-full py-2.5 rounded-xl text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 transition-colors disabled:opacity-60">
+            className="w-full py-2.5 rounded-xl text-sm font-bold text-white bg-orange-500 hover:bg-orange-600 transition-colors disabled:opacity-60">
             {loading ? "⏳ …" : mode==="login" ? "Se connecter" : "Créer le compte"}
           </button>
         </form>
 
         <div className="mt-3 space-y-1.5 text-center">
           <button onClick={() => { setMode(m => m==="login"?"register":"login"); setError(""); setInfoMsg(""); }}
-            className="text-xs text-blue-500 hover:underline block w-full">
+            className="text-xs text-orange-400 hover:underline block w-full">
             {mode==="login" ? "Pas encore de compte ? Créer un compte →" : "← Déjà un compte ? Se connecter"}
           </button>
           {mode==="login" && (
@@ -4438,9 +4370,9 @@ export default function App() {
 
   /* ── Simulateur ── */
   return (
-    <div className="min-h-screen" style={{ background:"#07071A" }}>
+    <div className="min-h-screen" style={{ background:"#0C0C10" }}>
       {/* ── HEADER ── */}
-      <header style={{ background:"linear-gradient(135deg, #1a0533 0%, #4C1D95 60%, #7C3AED 100%)" }}
+      <header style={{ background:"#131318" }}
         className="sticky top-0 z-40">
         <div className="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -4448,19 +4380,19 @@ export default function App() {
               <span className="text-xl">🏢</span>
               <div>
                 <p className="text-white font-bold text-sm leading-tight">Simulateur LMNP</p>
-                <p className="text-blue-200 text-[10px]">Analyse fiscale · 4 régimes</p>
+                <p className="text-orange-200 text-[10px]">Analyse fiscale · 4 régimes</p>
               </div>
             </button>
           </div>
           <div className="flex items-center gap-2">
             {user ? (
               <button onClick={() => sb && sb.auth.signOut()}
-                className="text-[11px] text-blue-200 hover:text-white bg-white/10 px-3 py-1.5 rounded-lg transition-colors">
+                className="text-[11px] text-orange-200 hover:text-white bg-white/10 px-3 py-1.5 rounded-lg transition-colors">
                 {user.email?.split("@")[0]} · Déco
               </button>
             ) : (
               <button onClick={() => setShowAuth(true)}
-                className="text-[11px] font-semibold bg-white text-blue-700 px-3 py-1.5 rounded-lg hover:bg-blue-50 transition-colors">
+                className="text-[11px] font-semibold bg-white text-orange-400 px-3 py-1.5 rounded-lg hover:bg-orange-50 transition-colors">
                 🔒 Connexion
               </button>
             )}
@@ -4474,9 +4406,9 @@ export default function App() {
               <div key={s.id} className="flex items-center gap-1 flex-1">
                 <button onClick={() => i < step && setStep(i)}
                   className={`flex items-center gap-1 px-2 py-1 rounded-lg text-[11px] font-semibold transition-colors ${
-                    i===step ? "bg-white text-blue-700" :
+                    i===step ? "bg-white text-orange-400" :
                     i<step   ? "bg-white/20 text-white cursor-pointer hover:bg-white/30" :
-                               "bg-white/10 text-blue-300 cursor-default"
+                               "bg-white/10 text-orange-300 cursor-default"
                   }`}>
                   <span>{s.icon}</span>
                   <span className="hidden sm:inline">{s.label}</span>
@@ -4526,19 +4458,19 @@ export default function App() {
           {step < 3 ? (
             <button onClick={goNext} disabled={!canNext}
               className="flex-1 py-3 rounded-xl text-sm font-bold text-white transition-opacity disabled:opacity-50"
-              style={{ background:"linear-gradient(135deg, #7C3AED, #2563EB)" }}>
+              style={{ background:"linear-gradient(135deg, #F97316, #F97316)" }}>
               {step===2 ? "📊 Voir mes résultats →" : "Continuer →"}
             </button>
           ) : step === 3 ? (
             <button onClick={goNext}
               className="flex-1 py-3 rounded-xl text-sm font-bold text-white"
-              style={{ background:"linear-gradient(135deg, #7C3AED, #2563EB)" }}>
+              style={{ background:"linear-gradient(135deg, #F97316, #F97316)" }}>
               📋 Voir mon dossier bancaire →
             </button>
           ) : (
             <button onClick={() => downloadReport(form, results, amort, "")}
               className="flex-1 py-3 rounded-xl text-sm font-bold text-white"
-              style={{ background:"linear-gradient(135deg, #10B981, #059669)" }}>
+              style={{ background:"linear-gradient(135deg, #10B981, #F97316)" }}>
               📄 Télécharger PDF →
             </button>
           )}
