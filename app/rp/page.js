@@ -1395,7 +1395,7 @@ function DossierBancaireRP() {
   );
 
   return(
-    <div style={{fontFamily:"Arial,'Helvetica Neue',sans-serif",color:"#1a1a2e"}}>
+    <div className="light-panel" style={{fontFamily:"Arial,'Helvetica Neue',sans-serif",color:"#1a1a2e"}}>
       {/* En-tête */}
       <div style={{background:navy,color:"white",borderRadius:4,padding:"16px 14px",marginBottom:12}}>
         <div style={{fontSize:15,fontWeight:700,marginBottom:3}}>DOSSIER DE FINANCEMENT — RÉSIDENCE PRINCIPALE</div>
