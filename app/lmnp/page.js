@@ -41,6 +41,10 @@ const LEXIQUE = {
   "Ratio d'endettement": "Part de vos revenus consacrée à toutes vos mensualités de crédit. La règle HCSF impose un maximum de 35 % (assurance incluse). Au-delà, les banques refusent généralement le financement.",
   "Frais de notaire": "En neuf : ~2–3 %. En ancien : ~7–8 % du prix. Comprend les droits de mutation (majoritaires), les émoluments du notaire et diverses taxes. Non récupérables à la revente.",
   "Vacance locative": "Période sans locataire, exprimée en % annuel. 5 % ≈ 18 jours/an. Prévoir 5–8 % selon le marché. Réduit directement le rendement effectif.",
+  "Taxe foncière": "Impôt local annuel dû par le propriétaire, même si le bien est loué. Calculée sur la valeur locative cadastrale. Compte en moyenne 1 à 2 mois de loyer selon la commune. Non récupérable sur le locataire en meublé.",
+  "Charges de copropriété": "Charges mensuelles de la copropriété (entretien parties communes, gardien, ascenseur…). Seule la partie non récupérable sur le locataire est déductible en LMNP Réel (généralement 20–40 % du total).",
+  "Taux de distribution SCI IS": "En SCI à l'IS, les bénéfices restent dans la société jusqu'à leur distribution en dividendes. La flat tax (PFU) de 30 % s'applique alors (12,8 % IR + 17,2 % PS). Vous pouvez aussi réinvestir sans distribution.",
+  "Flat Tax": "Prélèvement Forfaitaire Unique de 30 % sur les dividendes et revenus du capital (12,8 % d'IR + 17,2 % de prélèvements sociaux). S'applique lors de la distribution des bénéfices d'une SCI IS à ses associés.",
 };
 
 /* ── Steps ── */
@@ -71,6 +75,7 @@ const DEFAULTS = {
   assurancePNO:200,    // Assurance Propriétaire Non Occupant (€/an)
   fraisGestion:0,      // Frais de gestion locative (€/an)
   objetTravaux:"",     // Description des travaux (rénovation énergétique, rafraîchissement…)
+  tauxDistributionSCI:100, // % des bénéfices SCI IS distribués en dividendes (flat tax 30%)
 };
 
 /* ── Presets de biens ── */
@@ -213,10 +218,21 @@ function runCalc(p, type="lmnp") {
     const cashflowM    = cashflowBrut / 12;
     cumCashflow += cashflowBrut;
 
+    // Flat Tax SCI IS : calculée sur le CF distribué (dividendes)
+    let flatTax = 0;
+    let cashflowApresFlatTax = cashflowBrut;
+    if (type === "sciis" && cashflowBrut > 0) {
+      const tauxDist = (p.tauxDistributionSCI ?? 100) / 100;
+      const dividendes = cashflowBrut * tauxDist;
+      flatTax = dividendes * 0.30; // PFU 30% = 12.8% IR + 17.2% PS
+      cashflowApresFlatTax = cashflowBrut - flatTax;
+    }
+
     rows.push({ an:yr, loyers:Math.round(loyers), charges:Math.round(charges),
       vacance:Math.round(vacance), interets:Math.round(interets),
       mensualite:Math.round(mensualite), impot:Math.round(impot),
       cashflow:Math.round(cashflowBrut), cashflowM:Math.round(cashflowM),
+      flatTax:Math.round(flatTax), cashflowApresFlatTaxM:Math.round(cashflowApresFlatTax/12),
       capRestant:Math.round(capRest), cumCashflow:Math.round(cumCashflow),
     });
   }
@@ -229,6 +245,7 @@ function runCalc(p, type="lmnp") {
   const rendBrut    = loyers0 / prixTotal * 100;
   const rendNet     = (loyers0 - charges0) / prixTotal * 100;  // base prixTotal, pas apport
   const cashflowM0  = rows[0]?.cashflowM ?? 0;
+  const cashflowApresFlatTaxM0 = rows[0]?.cashflowApresFlatTaxM ?? cashflowM0;
   // Ratio d'endettement HCSF : inclut crédits existants
   const totalMens   = mensualite + (+p.chargesCredit || 0);
   const ratioEndt   = totalMens / (p.revenusMensuels || 1) * 100;
@@ -253,7 +270,9 @@ function runCalc(p, type="lmnp") {
   }
 
   return { type, rows, tri:+((tri*100).toFixed(2)), rendBrut:+rendBrut.toFixed(2),
-    rendNet:+rendNet.toFixed(2), cashflowM:cashflowM0, ratioEndt:+ratioEndt.toFixed(1),
+    rendNet:+rendNet.toFixed(2), cashflowM:cashflowM0,
+    cashflowApresFlatTaxM: cashflowApresFlatTaxM0,
+    ratioEndt:+ratioEndt.toFixed(1),
     mensualite, amort, investTotal };
 }
 
@@ -336,11 +355,20 @@ function feuxTricolores(tri, cashflowM, ratioEndt) {
 ════════════════════════════════════════ */
 
 function Tip({ text }) {
+  const [open, setOpen] = useState(false);
   return (
-    <span className="tip-trigger ml-1 cursor-help" tabIndex={0}>
+    <span
+      className={`tip-trigger ml-1 cursor-help${open ? " tip-open" : ""}`}
+      tabIndex={0}
+      onClick={e => { e.stopPropagation(); setOpen(v => !v); }}
+      onBlur={() => setOpen(false)}
+      onKeyDown={e => e.key === "Enter" && setOpen(v => !v)}
+    >
       <span style={{ display:"inline-flex", alignItems:"center", justifyContent:"center",
-        width:16, height:16, borderRadius:"50%", background:"rgba(249,115,22,0.12)",
-        color:"#F97316", fontSize:10, fontWeight:700, lineHeight:1, flexShrink:0 }}>ⓘ</span>
+        width:16, height:16, borderRadius:"50%",
+        background: open ? "rgba(249,115,22,0.25)" : "rgba(249,115,22,0.12)",
+        color:"#F97316", fontSize:10, fontWeight:700, lineHeight:1, flexShrink:0,
+        transition:"background .15s" }}>ⓘ</span>
       <span className="tip-bubble">{text}</span>
     </span>
   );
@@ -355,12 +383,14 @@ function Card({ children, className="", style={} }) {
   );
 }
 
-function SectionTitle({ icon, title, sub }) {
+function SectionTitle({ icon, title, sub, help }) {
   return (
     <div className="mb-5">
       <div className="flex items-center gap-2 mb-1">
         <span className="text-xl">{icon}</span>
-        <h2 className="text-base font-bold text-slate-800">{title}</h2>
+        <h2 className="text-base font-bold text-slate-800 flex items-center">
+          {title}{help && <Tip text={help} />}
+        </h2>
       </div>
       {sub && <p className="text-xs text-slate-400 ml-7">{sub}</p>}
     </div>
@@ -1223,6 +1253,114 @@ function VeilleFiscale() {
 }
 
 /* ════════════════════════════════════════
+   ESTIMATEUR TRAVAUX DPE (budget au m² par poste)
+════════════════════════════════════════ */
+const DPE_WORKS = {
+  // [dpe_class]: array of work items needed to reach class C/D
+  "E": [
+    { poste:"Isolation combles / toiture",    minM2:15, maxM2:35,  icon:"🏠", priorite:"haute" },
+    { poste:"Isolation des murs extérieurs",  minM2:50, maxM2:120, icon:"🧱", priorite:"haute" },
+    { poste:"Remplacement fenêtres DV",       minM2:150, maxM2:350, icon:"🪟", priorite:"moyenne", note:"par fenêtre" },
+    { poste:"Régulation chauffage (thermostat smart)", minM2:0, maxM2:0, icon:"🌡️", priorite:"basse", fixe:[150,400] },
+  ],
+  "F": [
+    { poste:"Isolation combles / toiture",    minM2:15, maxM2:35,  icon:"🏠", priorite:"haute" },
+    { poste:"Isolation des murs extérieurs",  minM2:50, maxM2:120, icon:"🧱", priorite:"haute" },
+    { poste:"Remplacement fenêtres DV",       minM2:150, maxM2:350, icon:"🪟", priorite:"haute",  note:"par fenêtre" },
+    { poste:"Changement chaudière (PAC/gaz condensation)", minM2:8, maxM2:20, icon:"🔥", priorite:"haute" },
+    { poste:"VMC double-flux",                minM2:20, maxM2:50,  icon:"💨", priorite:"moyenne" },
+  ],
+  "G": [
+    { poste:"Isolation combles / toiture",    minM2:15, maxM2:35,  icon:"🏠", priorite:"urgente" },
+    { poste:"Isolation des murs extérieurs",  minM2:50, maxM2:120, icon:"🧱", priorite:"urgente" },
+    { poste:"Remplacement fenêtres DV",       minM2:150, maxM2:350, icon:"🪟", priorite:"urgente", note:"par fenêtre" },
+    { poste:"Changement chaudière (PAC/gaz condensation)", minM2:8, maxM2:20, icon:"🔥", priorite:"urgente" },
+    { poste:"VMC double-flux",                minM2:20, maxM2:50,  icon:"💨", priorite:"haute" },
+    { poste:"Isolation plancher bas",         minM2:10, maxM2:25,  icon:"⬇️", priorite:"haute" },
+  ],
+};
+const PRIORITE_COLOR = { urgente:"#EF4444", haute:"#F97316", moyenne:"#F59E0B", basse:"#10B981" };
+
+function DPEWorksEstimator({ dpe, surface }) {
+  const [open, setOpen] = useState(false);
+  const works = DPE_WORKS[dpe];
+  if (!works) return null;
+
+  const totalMin = works.reduce((s,w) => s + (w.fixe ? w.fixe[0] : w.minM2 * surface), 0);
+  const totalMax = works.reduce((s,w) => s + (w.fixe ? w.fixe[1] : w.maxM2 * surface), 0);
+  const cible    = dpe === "G" ? "C ou D" : "C";
+
+  return (
+    <div className="mt-2 rounded-xl border overflow-hidden"
+      style={{ borderColor: dpe === "G" ? "#FCA5A5" : "#FCD34D", background: dpe === "G" ? "#FFF5F5" : "#FFFBEB" }}>
+      <button
+        onClick={() => setOpen(v => !v)}
+        className="w-full flex items-center justify-between px-3 py-2.5 text-left"
+        style={{ background:"transparent" }}>
+        <div>
+          <p className="text-xs font-bold" style={{ color: dpe === "G" ? "#B91C1C" : "#92400E" }}>
+            🛠️ Estimateur travaux — DPE {dpe} → {cible}
+          </p>
+          <p className="text-[10px] mt-0.5" style={{ color: dpe === "G" ? "#DC2626" : "#B45309" }}>
+            Enveloppe estimée : <strong>{Math.round(totalMin/1000)}k€ – {Math.round(totalMax/1000)}k€</strong> pour {surface} m²
+          </p>
+        </div>
+        <span className="text-slate-400 text-xs ml-2">{open ? "▲" : "▼"}</span>
+      </button>
+
+      {open && (
+        <div className="px-3 pb-3 space-y-2 border-t" style={{ borderColor: dpe === "G" ? "#FCA5A5" : "#FCD34D" }}>
+          <p className="text-[10px] text-slate-500 pt-2">
+            Estimations indicatives (source : ANAH, Obs. prix rénovation 2024). Obtenez 3 devis pour affiner.
+          </p>
+          {works.map((w, idx) => {
+            const min = w.fixe ? w.fixe[0] : Math.round(w.minM2 * surface);
+            const max = w.fixe ? w.fixe[1] : Math.round(w.maxM2 * surface);
+            return (
+              <div key={idx} className="flex items-start justify-between rounded-lg px-2.5 py-2 bg-white border border-slate-100">
+                <div className="flex items-start gap-2">
+                  <span className="text-base leading-none mt-0.5">{w.icon}</span>
+                  <div>
+                    <p className="text-[11px] font-semibold text-slate-800">{w.poste}</p>
+                    {w.note && <p className="text-[9px] text-slate-400">{w.note}</p>}
+                    <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full"
+                      style={{ background:`${PRIORITE_COLOR[w.priorite]}18`, color:PRIORITE_COLOR[w.priorite] }}>
+                      {w.priorite}
+                    </span>
+                  </div>
+                </div>
+                <div className="text-right shrink-0 ml-2">
+                  <p className="text-[11px] font-bold text-slate-700">
+                    {min >= 1000 ? `${Math.round(min/1000)}k` : min}€
+                    {" – "}
+                    {max >= 1000 ? `${Math.round(max/1000)}k` : max}€
+                  </p>
+                  {!w.fixe && <p className="text-[9px] text-slate-400">{w.minM2}–{w.maxM2} €/m²</p>}
+                </div>
+              </div>
+            );
+          })}
+          {/* Total */}
+          <div className="flex justify-between items-center rounded-lg px-3 py-2 mt-1"
+            style={{ background: dpe === "G" ? "rgba(239,68,68,0.08)" : "rgba(245,158,11,0.08)",
+                     border:`1px solid ${dpe==="G"?"#FCA5A5":"#FCD34D"}` }}>
+            <p className="text-xs font-bold" style={{ color: dpe === "G" ? "#B91C1C" : "#92400E" }}>
+              Total estimé ({surface} m²)
+            </p>
+            <p className="text-sm font-bold" style={{ color: dpe === "G" ? "#EF4444" : "#F97316" }}>
+              {Math.round(totalMin/1000)}k€ – {Math.round(totalMax/1000)}k€
+            </p>
+          </div>
+          <p className="text-[9px] text-slate-400 text-center">
+            💡 Ces travaux sont amortissables en LMNP Réel (sur 12 ans) et peuvent réduire votre base imposable.
+          </p>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ════════════════════════════════════════
    WIDGET DVF (prix marché via API officielle)
 ════════════════════════════════════════ */
 function DVFWidget({ adresse, prixSaisi, surface }) {
@@ -1447,13 +1585,19 @@ function StepProjet({ form, set }) {
         <SelectField label="DPE actuel" value={form.dpe} onChange={set("dpe")}
           options={["A","B","C","D","E","F","G"]}
           help={LEXIQUE["DPE"]} />
-        {(form.dpe === "F" || form.dpe === "G") && (
-          <div className="rounded-xl bg-red-50 border border-red-100 p-3 -mt-1">
-            <p className="text-xs font-semibold text-red-700">⚠️ DPE {form.dpe} — Attention réglementation</p>
-            <p className="text-[10px] text-red-600 mt-0.5">
-              Les logements G sont interdits à la location depuis 2025, les F en 2028.
-              Prévoyez un budget travaux de rénovation énergétique pour passer en D ou C.
-            </p>
+        {(form.dpe === "E" || form.dpe === "F" || form.dpe === "G") && (
+          <div className="-mt-1">
+            {(form.dpe === "F" || form.dpe === "G") && (
+              <div className="rounded-xl bg-red-50 border border-red-100 p-3 mb-2">
+                <p className="text-xs font-semibold text-red-700">⚠️ DPE {form.dpe} — Location interdite ou imminente</p>
+                <p className="text-[10px] text-red-600 mt-0.5">
+                  {form.dpe === "G"
+                    ? "Interdiction de louer depuis le 1er janvier 2025 (loi Climat). Des travaux sont obligatoires."
+                    : "Interdiction de louer au 1er janvier 2028. Anticipez les travaux pour maintenir la rentabilité."}
+                </p>
+              </div>
+            )}
+            <DPEWorksEstimator dpe={form.dpe} surface={form.surface ?? 45} />
           </div>
         )}
         <InputField label="Quartier / Atouts de la zone" value={form.quartier ?? ""}
@@ -1744,9 +1888,11 @@ function StepExploitation({ form, set }) {
           min={300} max={5000} step={25} format={fmt}
           help="Loyer hors charges récupérables. Vérifiez les loyers de marché (DVF, SeLoger…)." />
         <SliderField label="Charges de copropriété" value={form.charges} onChange={set("charges")}
-          min={0} max={500} step={10} format={n=>`${n} €/mois`} />
+          min={0} max={500} step={10} format={n=>`${n} €/mois`}
+          help={LEXIQUE["Charges de copropriété"]} />
         <SliderField label="Taxe foncière annuelle" value={form.taxeFonciere} onChange={set("taxeFonciere")}
-          min={0} max={5000} step={50} format={fmt} />
+          min={0} max={5000} step={50} format={fmt}
+          help={LEXIQUE["Taxe foncière"]} />
         <SliderField label="Taux de vacance locative" value={form.vacance} onChange={set("vacance")}
           min={0} max={20} step={0.5} format={n=>`${n} %`}
           help="Temps sans locataire en pourcentage. 5% = ~18 jours/an." color="#F59E0B" />
@@ -2127,6 +2273,139 @@ const CGI_REFS = [
     lien: "https://www.hcsf.fr/hcsf/recommandation-r-hcsf-2021-r-6/",
   },
 ];
+
+/* ════════════════════════════════════════
+   SECTION PARTENAIRES — visible après simulation
+   Courtiers, comptables LMNP, CGP
+════════════════════════════════════════ */
+const PARTENAIRES = [
+  {
+    categorie: "Courtier en crédit immobilier",
+    icon: "🏦",
+    description: "Comparez les meilleures offres de crédit parmi 200+ banques. Service 100 % gratuit, sans engagement.",
+    partners: [
+      { name:"Pretto",       tag:"100% digital",            url:"https://www.pretto.fr?utm_source=immoverdict&utm_medium=partenaires", badge:"Recommandé" },
+      { name:"MeilleurTaux", tag:"Leader du marché",         url:"https://www.meilleurtaux.com?utm_source=immoverdict&utm_medium=partenaires" },
+      { name:"CAFPI",        tag:"Spécialiste investisseurs", url:"https://www.cafpi.fr?utm_source=immoverdict&utm_medium=partenaires", badge:"Expert LMNP" },
+    ],
+    color: "#3B82F6",
+  },
+  {
+    categorie: "Expert-comptable spécialisé LMNP",
+    icon: "🧮",
+    description: "Un comptable LMNP optimise vos amortissements par composants, gère votre liasse fiscale et peut vous faire économiser plusieurs milliers d'euros par an.",
+    partners: [
+      { name:"Compta-LMNP",    tag:"Spécialiste meublé",      url:"https://www.compta-lmnp.fr?utm_source=immoverdict&utm_medium=partenaires", badge:"Partenaire" },
+      { name:"Dougs",          tag:"Comptabilité en ligne",    url:"https://www.dougs.fr?utm_source=immoverdict&utm_medium=partenaires" },
+    ],
+    color: "#10B981",
+  },
+  {
+    categorie: "Conseiller en gestion de patrimoine",
+    icon: "💼",
+    description: "Un CGP indépendant vous accompagne dans la structuration de votre patrimoine (LMNP, SCI, démembrement) et l'optimisation fiscale globale.",
+    partners: [
+      { name:"Ramify",  tag:"CGP digital & transparent",  url:"https://www.ramify.fr?utm_source=immoverdict&utm_medium=partenaires", badge:"Recommandé" },
+      { name:"Nalo",    tag:"Gestion patrimoniale pilotée", url:"https://www.nalo.fr?utm_source=immoverdict&utm_medium=partenaires" },
+    ],
+    color: "#8B5CF6",
+  },
+];
+
+function PartenairesCard({ results, form }) {
+  const [catOpen, setCatOpen] = useState(null);
+  const r0 = results?.[0];
+
+  // Message contextuel selon le profil
+  const contextMsg = r0?.tri >= 6
+    ? `Votre TRI de ${r0.tri}% est excellent. Un courtier peut encore optimiser votre financement.`
+    : r0?.tri >= 4
+    ? `TRI ${r0?.tri}%  — un courtier ou un CGP peut vous aider à améliorer la rentabilité.`
+    : `Ces professionnels peuvent vous aider à restructurer votre projet pour le rendre plus rentable.`;
+
+  return (
+    <div className="rounded-2xl overflow-hidden" style={{ background:"#131318", border:"1px solid rgba(249,115,22,0.2)" }}>
+      {/* En-tête */}
+      <div className="px-5 pt-5 pb-4 border-b" style={{ borderColor:"rgba(255,255,255,0.07)" }}>
+        <div className="flex items-center gap-2 mb-1">
+          <span className="text-xl">🤝</span>
+          <h3 className="text-base font-bold text-white">Nos partenaires de confiance</h3>
+        </div>
+        <p className="text-xs leading-relaxed" style={{ color:"rgba(255,255,255,0.5)" }}>
+          {contextMsg}
+        </p>
+        <p className="text-[9px] mt-2" style={{ color:"rgba(255,255,255,0.25)" }}>
+          ImmoVerdict est gratuit. Ces liens partenaires nous permettent de maintenir le service — sans surcoût pour vous.
+        </p>
+      </div>
+
+      {/* Catégories */}
+      <div className="divide-y" style={{ borderColor:"rgba(255,255,255,0.06)" }}>
+        {PARTENAIRES.map((cat, ci) => (
+          <div key={ci}>
+            <button
+              onClick={() => setCatOpen(catOpen === ci ? null : ci)}
+              className="w-full flex items-center justify-between px-5 py-3.5 text-left transition-all"
+              style={{ background: catOpen === ci ? "rgba(255,255,255,0.04)" : "transparent" }}>
+              <div className="flex items-center gap-3">
+                <span className="text-xl">{cat.icon}</span>
+                <div>
+                  <p className="text-sm font-semibold text-white">{cat.categorie}</p>
+                  <p className="text-[10px]" style={{ color:"rgba(255,255,255,0.4)" }}>
+                    {cat.partners.length} partenaire{cat.partners.length > 1 ? "s" : ""} sélectionné{cat.partners.length > 1 ? "s" : ""}
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] px-2 py-0.5 rounded-full font-bold"
+                  style={{ background:`${cat.color}25`, color:cat.color }}>
+                  {cat.partners.length > 1 ? `${cat.partners.length} offres` : "1 offre"}
+                </span>
+                <span className="text-slate-500 text-xs">{catOpen === ci ? "▲" : "▼"}</span>
+              </div>
+            </button>
+
+            {catOpen === ci && (
+              <div className="px-5 pb-4 space-y-2">
+                <p className="text-[11px] mb-3 leading-relaxed" style={{ color:"rgba(255,255,255,0.45)" }}>
+                  {cat.description}
+                </p>
+                {cat.partners.map((p, pi) => (
+                  <a key={pi} href={p.url} target="_blank" rel="noopener noreferrer"
+                    onClick={() => { try { window.gtag?.("event","clic_partenaire",{ categorie:cat.categorie, partenaire:p.name }); } catch(_){} }}
+                    className="flex items-center justify-between rounded-xl px-3 py-2.5 transition-all active:scale-98"
+                    style={{ background:"rgba(255,255,255,0.05)", border:"1px solid rgba(255,255,255,0.08)" }}>
+                    <div>
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-sm font-bold text-white">{p.name}</span>
+                        {p.badge && (
+                          <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full"
+                            style={{ background:`${cat.color}25`, color:cat.color }}>
+                            {p.badge}
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-[10px]" style={{ color:"rgba(255,255,255,0.4)" }}>{p.tag}</p>
+                    </div>
+                    <span className="text-xs font-bold shrink-0 ml-3" style={{ color:cat.color }}>
+                      Voir →
+                    </span>
+                  </a>
+                ))}
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+
+      <div className="px-5 py-3 text-center" style={{ borderTop:"1px solid rgba(255,255,255,0.06)" }}>
+        <p className="text-[9px]" style={{ color:"rgba(255,255,255,0.2)" }}>
+          Liens partenaires · Comparaison gratuite · Sans engagement · ImmoVerdict ne perçoit pas de commissions sur vos contrats
+        </p>
+      </div>
+    </div>
+  );
+}
 
 /* ── Alerte LF 2026 — capture email ── */
 function AlerteLF2026() {
@@ -2939,6 +3218,7 @@ function StepResultats({ form, results, comparaison, amort, onLead, onArgumentai
             const helpMap = [LEXIQUE["LMNP Réel"], LEXIQUE["Micro-BIC"], LEXIQUE["SCI IS"], LEXIQUE["SCI IR"]];
             const isWin   = i===0;
             const isSciIS = r.type === "sciis";
+            const cfApres = r.cashflowApresFlatTaxM ?? r.cashflowM;
             return (
               <div key={r.type} className={`rounded-xl p-3 border ${isWin?"bg-orange-50 border-orange-200":"bg-slate-50 border-slate-100"}`}>
                 <div className="flex items-center justify-between">
@@ -2957,10 +3237,37 @@ function StepResultats({ form, results, comparaison, amort, onLead, onArgumentai
                   </div>
                 </div>
                 {isSciIS && (
-                  <p className="mt-1.5 text-[10px] rounded-lg px-2 py-1"
-                    style={{ background:"rgba(245,158,11,0.1)", color:"#B45309" }}>
-                    ⚠️ Cash perso après distribution = CF × 70 % (flat tax 30 % sur dividendes). Plus-value à la revente taxée à l'IS sans exonération durée.
-                  </p>
+                  <div className="mt-2 rounded-lg px-3 py-2 space-y-1.5"
+                    style={{ background:"rgba(245,158,11,0.08)", border:"1px solid rgba(245,158,11,0.2)" }}>
+                    {/* Slider taux de distribution */}
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] font-semibold text-amber-700 flex items-center">
+                        Taux de distribution dividendes
+                        <Tip text={LEXIQUE["Taux de distribution SCI IS"]} />
+                      </span>
+                      <span className="text-[10px] font-bold text-amber-800">{form.tauxDistributionSCI ?? 100}%</span>
+                    </div>
+                    <input type="range" min={0} max={100} step={5}
+                      value={form.tauxDistributionSCI ?? 100}
+                      onChange={e => set("tauxDistributionSCI")(+e.target.value)}
+                      style={{ width:"100%", accentColor:"#F59E0B" }} />
+                    {/* Décomposition CF → flat tax → CF net */}
+                    <div className="grid grid-cols-3 gap-1 mt-1">
+                      <div className="rounded-md p-1.5 text-center" style={{ background:"rgba(16,185,129,0.1)" }}>
+                        <p className="text-[9px] text-slate-500 leading-tight">CF société</p>
+                        <p className="text-[11px] font-bold text-green-700">{fmtK(r.cashflowM)}/mois</p>
+                      </div>
+                      <div className="rounded-md p-1.5 text-center" style={{ background:"rgba(239,68,68,0.08)" }}>
+                        <p className="text-[9px] text-slate-500 leading-tight">Flat Tax 30%<Tip text={LEXIQUE["Flat Tax"]} /></p>
+                        <p className="text-[11px] font-bold text-red-600">−{fmtK(Math.round(Math.max(0,r.cashflowM)*(form.tauxDistributionSCI??100)/100*0.30))}/mois</p>
+                      </div>
+                      <div className="rounded-md p-1.5 text-center" style={{ background:"rgba(249,115,22,0.1)" }}>
+                        <p className="text-[9px] text-slate-500 leading-tight">CF net perso</p>
+                        <p className="text-[11px] font-bold" style={{ color:"#F97316" }}>{fmtK(cfApres)}/mois</p>
+                      </div>
+                    </div>
+                    <p className="text-[9px] text-amber-600 mt-0.5">⚠️ Plus-value à la revente taxée à l'IS (pas d'exonération durée)</p>
+                  </div>
                 )}
               </div>
             );
@@ -2985,6 +3292,9 @@ function StepResultats({ form, results, comparaison, amort, onLead, onArgumentai
 
       {/* Veille fiscale */}
       <VeilleFiscale />
+
+      {/* Partenaires — courtiers, comptables LMNP, CGP */}
+      <PartenairesCard results={results} form={form} />
 
       {/* Social Proof */}
       <Card>
@@ -4302,6 +4612,22 @@ export default function App() {
 
   const set = (k) => (v) => setForm(f => ({ ...f, [k]: v }));
 
+  /* ── PWA Install prompt ── */
+  const [installPrompt, setInstallPrompt] = useState(null);
+  const [pwaInstalled,  setPwaInstalled]  = useState(false);
+  useEffect(() => {
+    const handler = (e) => { e.preventDefault(); setInstallPrompt(e); };
+    window.addEventListener("beforeinstallprompt", handler);
+    window.addEventListener("appinstalled", () => { setInstallPrompt(null); setPwaInstalled(true); });
+    return () => window.removeEventListener("beforeinstallprompt", handler);
+  }, []);
+  const handleInstall = async () => {
+    if (!installPrompt) return;
+    installPrompt.prompt();
+    const { outcome } = await installPrompt.userChoice;
+    if (outcome === "accepted") { setInstallPrompt(null); setPwaInstalled(true); }
+  };
+
   /* ── localStorage autosave ── */
   useEffect(() => {
     try {
@@ -4385,6 +4711,16 @@ export default function App() {
             </button>
           </div>
           <div className="flex items-center gap-2">
+            {/* Bouton d'installation PWA — affiché uniquement si disponible */}
+            {installPrompt && !pwaInstalled && (
+              <button onClick={handleInstall}
+                title="Installer ImmoVerdict sur votre écran d'accueil pour l'utiliser hors connexion"
+                className="flex items-center gap-1 text-[11px] font-semibold px-2.5 py-1.5 rounded-lg transition-all active:scale-95"
+                style={{ background:"rgba(249,115,22,0.15)", color:"#F97316", border:"1px solid rgba(249,115,22,0.3)" }}>
+                <span>📲</span>
+                <span className="hidden xs:inline">Installer</span>
+              </button>
+            )}
             {user ? (
               <button onClick={() => sb && sb.auth.signOut()}
                 className="text-[11px] text-orange-200 hover:text-white bg-white/10 px-3 py-1.5 rounded-lg transition-colors">

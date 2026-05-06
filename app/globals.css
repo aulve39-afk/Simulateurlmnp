@@ -387,7 +387,8 @@ input[type="range"]::-moz-range-thumb {
 .tip-trigger:last-child .tip-bubble::after,
 .tip-trigger:only-child .tip-bubble::after { left: auto; right: 10px; transform: none; }
 .tip-trigger:hover .tip-bubble,
-.tip-trigger:focus .tip-bubble { display: block; }
+.tip-trigger:focus .tip-bubble,
+.tip-trigger.tip-open .tip-bubble { display: block; }
 
 /* ════════════════════════════════════════
    ACCORDION FAQ
