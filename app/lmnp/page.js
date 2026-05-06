@@ -4677,6 +4677,80 @@ function FAQ() {
 }
 
 /* ════════════════════════════════════════
+   PORTFOLIO DASHBOARD — multi-biens
+════════════════════════════════════════ */
+
+function PortfolioDashboard({ biens, activeBien, onSwitch }) {
+  const calc = biens.map(b => {
+    const r   = runCalc(b.form, "lmnp");
+    const prix = b.form.prix * (1 + b.form.notaire / 100) + b.form.travaux;
+    return { name: b.name, r, prix };
+  });
+
+  const totalCF     = calc.reduce((s, c) => s + (c.r.cashflowM || 0), 0);
+  const totalInvest = calc.reduce((s, c) => s + c.prix, 0);
+  const triPondere  = totalInvest > 0
+    ? calc.reduce((s, c) => s + (c.r.tri || 0) * c.prix, 0) / totalInvest
+    : 0;
+
+  return (
+    <div className="mt-6 rounded-2xl overflow-hidden"
+      style={{ background:"#131318", border:"1px solid rgba(249,115,22,0.2)" }}>
+
+      {/* En-tête */}
+      <div className="px-4 py-3 flex items-center justify-between"
+        style={{ borderBottom:"1px solid rgba(249,115,22,0.12)" }}>
+        <div>
+          <p className="text-white font-bold text-sm">📊 Portfolio consolidé</p>
+          <p className="text-orange-200 text-[11px]">{biens.length} biens — résultats agrégés (régime Réel)</p>
+        </div>
+      </div>
+
+      {/* KPIs */}
+      <div className="grid grid-cols-3 divide-x" style={{ borderColor:"rgba(255,255,255,0.07)" }}>
+        {[
+          { label:"Cash-flow total", val: `${totalCF >= 0 ? "+" : ""}${Math.round(totalCF)} €/m`,
+            color: totalCF >= 0 ? "#34D399" : "#F87171" },
+          { label:"TRI moyen pondéré", val:`${triPondere.toFixed(1)} %`, color:"#fff" },
+          { label:"Investi total",      val:`${(totalInvest/1000).toFixed(0)}k€`, color:"#fff" },
+        ].map(({ label, val, color }) => (
+          <div key={label} className="p-3 text-center">
+            <p className="text-[15px] font-bold" style={{ color }}>{val}</p>
+            <p className="text-[10px] text-orange-200 mt-0.5">{label}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* Ligne par bien */}
+      <div className="p-3 space-y-2">
+        {calc.map((c, i) => (
+          <button key={i} onClick={() => onSwitch(i)}
+            className="w-full flex items-center justify-between p-3 rounded-xl transition-all text-left"
+            style={{
+              background: i === activeBien ? "rgba(249,115,22,0.12)" : "rgba(255,255,255,0.04)",
+              border:`1px solid ${i === activeBien ? "rgba(249,115,22,0.35)" : "rgba(255,255,255,0.07)"}`,
+            }}>
+            <div>
+              <p className="text-white text-[12px] font-semibold">{c.name}</p>
+              <p className="text-orange-200 text-[10px]">
+                {(c.prix/1000).toFixed(0)}k€ · {c.r.rendBrut}% brut
+              </p>
+            </div>
+            <div className="text-right">
+              <p className="text-[13px] font-bold"
+                style={{ color: c.r.cashflowM >= 0 ? "#34D399" : "#F87171" }}>
+                {c.r.cashflowM >= 0 ? "+" : ""}{Math.round(c.r.cashflowM)} €/m
+              </p>
+              <p className="text-[10px] text-orange-200">TRI {c.r.tri} %</p>
+            </div>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* ════════════════════════════════════════
    APP PRINCIPALE
 ════════════════════════════════════════ */
 
@@ -4693,6 +4767,57 @@ export default function App() {
   const topRef = useRef(null);
 
   const set = (k) => (v) => setForm(f => ({ ...f, [k]: v }));
+
+  /* ── Multi-biens ── */
+  const [biens,      setBiens]      = useState([{ name:"Bien 1", form:{ ...DEFAULTS } }]);
+  const [activeBien, setActiveBien] = useState(0);
+  const isSwitching = useRef(false);
+
+  // Sync form → biens[activeBien] à chaque changement de formulaire
+  useEffect(() => {
+    if (isSwitching.current) return;
+    setBiens(bs => bs.map((b, i) => i === activeBien ? { ...b, form:{ ...form } } : b));
+  }, [form, activeBien]);
+
+  const switchBien = (idx) => {
+    if (idx === activeBien) return;
+    isSwitching.current = true;
+    setBiens(bs => {
+      const saved = bs.map((b, i) => i === activeBien ? { ...b, form:{ ...form } } : b);
+      setTimeout(() => {
+        setActiveBien(idx);
+        setForm({ ...saved[idx].form });
+        setTimeout(() => { isSwitching.current = false; }, 50);
+      }, 0);
+      return saved;
+    });
+  };
+
+  const addBien = () => {
+    if (biens.length >= 5) return;
+    const newIdx  = biens.length;
+    const newName = `Bien ${newIdx + 1}`;
+    isSwitching.current = true;
+    setBiens(bs => [
+      ...bs.map((b, i) => i === activeBien ? { ...b, form:{ ...form } } : b),
+      { name:newName, form:{ ...DEFAULTS } },
+    ]);
+    setActiveBien(newIdx);
+    setForm({ ...DEFAULTS });
+    setStep(0);
+    setTimeout(() => { isSwitching.current = false; }, 50);
+  };
+
+  const removeBien = (idx) => {
+    if (biens.length <= 1) return;
+    isSwitching.current = true;
+    const newBiens  = biens.filter((_, i) => i !== idx);
+    const newActive = idx >= newBiens.length ? newBiens.length - 1 : idx;
+    setBiens(newBiens);
+    setActiveBien(newActive);
+    setForm({ ...newBiens[newActive].form });
+    setTimeout(() => { isSwitching.current = false; }, 50);
+  };
 
   /* ── PWA Install prompt ── */
   const [installPrompt, setInstallPrompt] = useState(null);
@@ -4918,6 +5043,39 @@ export default function App() {
 
       <div ref={topRef} />
 
+      {/* ── TABS MULTI-BIENS ── */}
+      <div className="max-w-2xl mx-auto px-4 pt-3">
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar">
+          {biens.map((b, i) => (
+            <div key={i} className="flex items-center gap-0.5 shrink-0">
+              <button onClick={() => switchBien(i)}
+                className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-[12px] font-semibold transition-all"
+                style={{
+                  background: i === activeBien ? "#F97316" : "rgba(255,255,255,0.09)",
+                  color:      i === activeBien ? "white"   : "rgba(255,255,255,0.55)",
+                }}>
+                🏠 {b.name}
+              </button>
+              {biens.length > 1 && (
+                <button onClick={() => removeBien(i)}
+                  className="text-[11px] px-1 py-1 rounded hover:bg-white/10 transition-colors"
+                  style={{ color:"rgba(255,255,255,0.35)" }}
+                  title={`Supprimer ${b.name}`}>
+                  ✕
+                </button>
+              )}
+            </div>
+          ))}
+          {biens.length < 5 && (
+            <button onClick={addBien}
+              className="shrink-0 flex items-center gap-1 px-3 py-1.5 rounded-lg text-[12px] font-semibold transition-all"
+              style={{ background:"rgba(249,115,22,0.13)", color:"#F97316", border:"1px solid rgba(249,115,22,0.28)" }}>
+              + Ajouter un bien
+            </button>
+          )}
+        </div>
+      </div>
+
       {/* ── MAIN CONTENT ── */}
       <main className="max-w-2xl mx-auto px-4 py-4 pb-32">
         {step===0 && <StepProjet form={form} set={set} />}
@@ -4931,6 +5089,15 @@ export default function App() {
 
         {step===4 && results && (
           <StepDossier form={form} results={results} amort={amort} />
+        )}
+
+        {/* Portfolio dashboard — visible quand ≥ 2 biens */}
+        {biens.length >= 2 && step <= 3 && (
+          <PortfolioDashboard
+            biens={biens.map((b, i) => i === activeBien ? { ...b, form } : b)}
+            activeBien={activeBien}
+            onSwitch={switchBien}
+          />
         )}
 
         {/* FAQ on last step */}
