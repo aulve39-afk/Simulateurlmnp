@@ -90,7 +90,7 @@ function SliderInput({ label, value, onChange, min, max, step = 1, format = fmt,
         style={{
           width: "100%", WebkitAppearance: "none", appearance: "none",
           height: 6, borderRadius: 4, outline: "none", cursor: "pointer",
-          background: `linear-gradient(to right, ${color} ${pct}%, #E2E8F0 ${pct}%)`,
+          background: `linear-gradient(to right, ${color} ${pct}%, rgba(240,235,224,0.12) ${pct}%)`,
         }}
       />
       <div style={{ display: "flex", justifyContent: "space-between", marginTop: 3 }}>
@@ -240,14 +240,14 @@ function LoueurVsAcheteur() {
 
       {/* Verdict */}
       <div style={{
-        background: verdictAchat ? "rgba(249,115,22,0.08)" : "#FEF2F2",
-        border: `1px solid ${verdictAchat ? "#A7F3D0" : "#FECACA"}`,
+        background: verdictAchat ? "rgba(249,115,22,0.08)" : "rgba(239,68,68,0.08)",
+        border: `1px solid ${verdictAchat ? "rgba(74,222,128,0.35)" : "rgba(239,68,68,0.25)"}`,
         borderRadius: 14, padding: "14px 16px", marginBottom: 20,
         display: "flex", alignItems: "center", gap: 12,
       }}>
         <span style={{ fontSize: 28 }}>{verdictAchat ? "🟢" : "🟡"}</span>
         <div>
-          <div style={{ fontSize: 14, fontWeight: 800, color: verdictAchat ? "#0C0C10" : "#92400E" }}>
+          <div style={{ fontSize: 14, fontWeight: 800, color: verdictAchat ? "#F0EBE0" : "#F87171" }}>
             {verdictAchat
               ? `Acheter est plus rentable de ${fmt(avantage)} sur ${horizon} ans`
               : `Louer conserve ${fmt(Math.abs(avantage))} de plus sur ${horizon} ans`}
@@ -272,7 +272,7 @@ function LoueurVsAcheteur() {
                 <stop offset="95%" stopColor="#F97316" stopOpacity={0} />
               </linearGradient>
             </defs>
-            <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" />
+            <CartesianGrid strokeDasharray="3 3" stroke="rgba(240,235,224,0.08)" />
             <XAxis dataKey="an" tick={{ fontSize: 10, fill: "#94A3B8" }} />
             <YAxis tickFormatter={v => `${Math.round(v / 1000)}k`} tick={{ fontSize: 10, fill: "#94A3B8" }} />
             <RTooltip formatter={(v, n) => [fmt(v), n]} contentStyle={{ borderRadius: 10, fontSize: 12 }} />
@@ -306,13 +306,13 @@ function LoueurVsAcheteur() {
    OUTIL 2 — DPE + BUDGET TRAVAUX
 ══════════════════════════════════════ */
 const DPE_DATA = {
-  A: { label: "Très performant", color: "#F97316", bg: "#ECFDF5", reno: 0, conseil: "Félicitations ! Pas de travaux obligatoires. Le bien est déjà très économe." },
+  A: { label: "Très performant", color: "#F97316", bg: "rgba(74,222,128,0.10)", reno: 0, conseil: "Félicitations ! Pas de travaux obligatoires. Le bien est déjà très économe." },
   B: { label: "Performant", color: "#10B981", bg: "#D1FAE5", reno: 0, conseil: "Très bon DPE. Aucun travaux obligatoire prévu par la loi Climat & Résilience." },
-  C: { label: "Assez performant", color: "#F59E0B", bg: "#FEF3C7", reno: 5000, conseil: "Bon état général. Quelques optimisations possibles pour économiser sur la facture énergie." },
-  D: { label: "Peu performant", color: "#F97316", bg: "#FFF7ED", reno: 15000, conseil: "Travaux d'isolation recommandés. Ce bien reste louable sans restriction jusqu'en 2034." },
-  E: { label: "Énergivore", color: "#EF4444", bg: "#FEF2F2", reno: 30000, conseil: "⚠️ Interdit à la location depuis 2025 si l'étiquette chute en F/G. Prévoir isolation + VMC." },
-  F: { label: "Très énergivore 🚫", color: "#DC2626", bg: "#FEF2F2", reno: 50000, conseil: "🚫 Interdit à la location (passoire thermique). Travaux obligatoires avant mise en location." },
-  G: { label: "Passoire thermique 🚫", color: "#991B1B", bg: "#FEF2F2", reno: 70000, conseil: "🚫 Interdit à la location depuis 2025. Investissement travaux important mais indispensable." },
+  C: { label: "Assez performant", color: "#F59E0B", bg: "rgba(249,115,22,0.10)", reno: 5000, conseil: "Bon état général. Quelques optimisations possibles pour économiser sur la facture énergie." },
+  D: { label: "Peu performant", color: "#F97316", bg: "rgba(249,115,22,0.08)", reno: 15000, conseil: "Travaux d'isolation recommandés. Ce bien reste louable sans restriction jusqu'en 2034." },
+  E: { label: "Énergivore", color: "#EF4444", bg: "rgba(239,68,68,0.08)", reno: 30000, conseil: "⚠️ Interdit à la location depuis 2025 si l'étiquette chute en F/G. Prévoir isolation + VMC." },
+  F: { label: "Très énergivore 🚫", color: "#DC2626", bg: "rgba(239,68,68,0.08)", reno: 50000, conseil: "🚫 Interdit à la location (passoire thermique). Travaux obligatoires avant mise en location." },
+  G: { label: "Passoire thermique 🚫", color: "#991B1B", bg: "rgba(239,68,68,0.08)", reno: 70000, conseil: "🚫 Interdit à la location depuis 2025. Investissement travaux important mais indispensable." },
 };
 
 const TRAVAUX_POSTES = [
@@ -606,7 +606,7 @@ function CalculateurPTZ() {
 
       {/* Résultat */}
       {result.eligible ? (
-        <div style={{ background:"linear-gradient(135deg, #4C1D95, #F97316)", borderRadius:16, padding:"20px", color:"white" }}>
+        <div style={{ background:"linear-gradient(135deg, #131318, #F97316)", borderRadius:16, padding:"20px", color:"white" }}>
           <div style={{ fontSize:11, color:"rgba(255,255,255,0.7)", marginBottom:8 }}>✅ Vous êtes éligible au PTZ !</div>
           <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10, marginBottom:12 }}>
             <div style={{ background:"rgba(255,255,255,0.12)", borderRadius:12, padding:14 }}>
@@ -718,7 +718,7 @@ function AssistantNegociation() {
 
   return (
     <div>
-      <SectionBadge icon="📍" label="DVF & Négociation" color="#DC2626" bg="#FEF2F2" />
+      <SectionBadge icon="📍" label="DVF & Négociation" color="#F87171" bg="rgba(239,68,68,0.10)" />
       <h2 style={{ fontSize: 18, fontWeight: 800, color: "#F8FAFC", marginBottom: 6 }}>Négocier avec les données réelles</h2>
       <p style={{ fontSize: 13, color: "rgba(248,250,252,0.5)", marginBottom: 20, lineHeight: 1.6 }}>
         Comparez le prix affiché aux transactions réelles (DVF) et générez un argumentaire de négociation.
@@ -758,7 +758,7 @@ function AssistantNegociation() {
       {dvfData && (
         <div style={{ marginBottom: 20 }}>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 8, marginBottom: 12 }}>
-            <KPIBox label="Prix moyen" value={`${dvfData.prixMoyen} €/m²`} sub={`${dvfData.nbTransactions} ventes`} color="#DC2626" bg="#FEF2F2" help={LEXIQUE_RP["DVF"]} />
+            <KPIBox label="Prix moyen" value={`${dvfData.prixMoyen} €/m²`} sub={`${dvfData.nbTransactions} ventes`} color="#F87171" bg="rgba(239,68,68,0.10)" help={LEXIQUE_RP["DVF"]} />
             <KPIBox label="Prix min" value={`${dvfData.prixMin} €/m²`} sub="Marché" color="#64748B" bg="rgba(255,255,255,0.06)" help="Prix le plus bas constaté parmi les ventes DVF dans ce code postal. Peut correspondre à un logement atypique ou dégradé." />
             <KPIBox label="Prix max" value={`${dvfData.prixMax} €/m²`} sub="Marché" color="#64748B" bg="rgba(255,255,255,0.06)" help="Prix le plus élevé constaté. Peut correspondre à un bien d'exception, refait à neuf ou très bien situé." />
           </div>
@@ -768,7 +768,7 @@ function AssistantNegociation() {
             {dvfData.recent.map((t, i) => (
               <div key={i} style={{
                 display: "flex", justifyContent: "space-between", alignItems: "center",
-                padding: "6px 0", borderBottom: i < dvfData.recent.length - 1 ? "1px solid #E2E8F0" : "none",
+                padding: "6px 0", borderBottom: i < dvfData.recent.length - 1 ? "1px solid rgba(240,235,224,0.08)" : "none",
               }}>
                 <span style={{ fontSize: 11, color: "rgba(248,250,252,0.5)" }}>{t.date} · {t.surface}m²</span>
                 <div style={{ textAlign: "right" }}>
@@ -791,14 +791,14 @@ function AssistantNegociation() {
       <div style={{
         display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 20,
       }}>
-        <KPIBox label="Prix affiché /m²" value={`${prixM2} €/m²`} sub="Bien analysé" color="#DC2626" bg="#FEF2F2" />
+        <KPIBox label="Prix affiché /m²" value={`${prixM2} €/m²`} sub="Bien analysé" color="#F87171" bg="rgba(239,68,68,0.10)" />
         {dvfPrixM2 ? (
           <KPIBox
             label={ecart !== null && ecart > 3 ? `Surcote +${ecart}%` : "Prix du marché"}
             value={`${dvfPrixM2} €/m²`}
             sub="Données DVF"
             color={ecart !== null && ecart > 3 ? "#DC2626" : "#F97316"}
-            bg={ecart !== null && ecart > 3 ? "#FEF2F2" : "rgba(249,115,22,0.08)"}
+            bg={ecart !== null && ecart > 3 ? "rgba(239,68,68,0.10)" : "rgba(249,115,22,0.08)"}
           />
         ) : (
           <KPIBox label="Prix marché" value="—" sub="Recherchez un code postal" color="#94A3B8" bg="rgba(255,255,255,0.06)" />
@@ -855,7 +855,7 @@ const CHECKLIST_ITEMS = [
 ];
 
 const POIDS_COLOR = { Critique: "#DC2626", Important: "#F59E0B", Mineur: "#F97316" };
-const POIDS_BG    = { Critique: "#FEF2F2", Important: "#FFFBEB", Mineur: "rgba(249,115,22,0.08)" };
+const POIDS_BG    = { Critique: "rgba(239,68,68,0.10)", Important: "rgba(249,115,22,0.08)", Mineur: "rgba(249,115,22,0.05)" };
 
 function ChecklistVisite() {
   const [checked, setChecked] = useState({});
@@ -940,7 +940,7 @@ function ChecklistVisite() {
                   />
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{
-                      fontSize: 13, fontWeight: 500, color: checked[item.id] ? "#94A3B8" : "#334155",
+                      fontSize: 13, fontWeight: 500, color: checked[item.id] ? "rgba(240,235,224,0.3)" : "#F0EBE0",
                       textDecoration: checked[item.id] ? "line-through" : "none",
                     }}>{item.label}</div>
                   </div>
@@ -994,7 +994,7 @@ const TOOLS = [
   { id: "louer",   label: "Louer vs Acheter",  icon: "🏠", color: "#F97316", bg: "rgba(249,115,22,0.12)" },
   { id: "dpe",     label: "DPE & Travaux",      icon: "🌿", color: "#F97316", bg: "rgba(249,115,22,0.08)" },
   { id: "ptz",     label: "PTZ",                icon: "🏦", color: "#F97316", bg: "rgba(249,115,22,0.06)" },
-  { id: "dvf",     label: "Négociation DVF",    icon: "📍", color: "#DC2626", bg: "#FEF2F2" },
+  { id: "dvf",     label: "Négociation DVF",    icon: "📍", color: "#DC2626", bg: "rgba(239,68,68,0.08)" },
   { id: "visite",  label: "Checklist Visite",   icon: "✅", color: "#F97316", bg: "rgba(249,115,22,0.06)" },
   { id: "dossier", label: "Dossier Bancaire",   icon: "🏦", color: "#F97316", bg: "rgba(249,115,22,0.06)" },
 ];
@@ -1045,7 +1045,7 @@ function downloadReportRP(p) {
   const scoreEpg   = epargne>=mens*6?20:epargne>=mens*3?14:epargne>=mens?8:2;
   const scoreDPE   = ["A","B","C","D"].includes(p.dpe||"C")?10:3;
   const scoreTot   = scoreEndt+scoreAppt+scoreRav+scoreEpg+scoreDPE;
-  const scoreClass = scoreTot>=75?"#F97316":scoreTot>=50?"#92400E":"#991B1B";
+  const scoreClass = scoreTot>=75?"#F97316":scoreTot>=50?"#FB923C":"#F87171";
   const scoreVerdict = scoreTot>=75?"FAVORABLE":scoreTot>=50?"RÉSERVÉ":"DÉFAVORABLE";
 
   // Tableau amort jalons
@@ -1379,7 +1379,7 @@ function DossierBancaireRP() {
   const scoreEpg=(form.epargne||0)>=mens*6?20:(form.epargne||0)>=mens*3?14:(form.epargne||0)>=mens?8:2;
   const scoreDPE=["A","B","C","D"].includes(form.dpe||"C")?10:3;
   const scoreTot=scoreEndt+scoreAppt+scoreRav+scoreEpg+scoreDPE;
-  const scoreColor=scoreTot>=75?"#F97316":scoreTot>=50?"#92400E":"#991B1B";
+  const scoreColor=scoreTot>=75?"#F97316":scoreTot>=50?"#FB923C":"#F87171";
   const scoreVerdict=scoreTot>=75?"FAVORABLE":scoreTot>=50?"RÉSERVÉ":"DÉFAVORABLE";
 
   // Helpers définis en dehors du composant (DRP_InputRow, DRP_Card, DRP_SecH)

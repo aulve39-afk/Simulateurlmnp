@@ -1,6 +1,16 @@
 @import "tailwindcss";
 
 /* ════════════════════════════════════════
+   BLOG CARD HOVER (Server Component safe)
+════════════════════════════════════════ */
+.article-card {
+  transition: background .2s;
+}
+.article-card:hover {
+  background: rgba(249,115,22,0.04) !important;
+}
+
+/* ════════════════════════════════════════
    BLOG / PROSE STYLES
 ════════════════════════════════════════ */
 .prose-article {
@@ -170,34 +180,43 @@ body {
 /* ════════════════════════════════════════
    BACKGROUND OVERRIDES
 ════════════════════════════════════════ */
-.bg-white           { background: rgba(255,255,255,0.06)   !important; backdrop-filter: blur(16px); }
-.bg-slate-50        { background: rgba(255,255,255,0.04)   !important; }
-.bg-slate-100       { background: rgba(255,255,255,0.07)   !important; }
-.bg-slate-200       { background: rgba(255,255,255,0.1)    !important; }
-.bg-blue-50         { background: rgba(249,115,22,0.1)     !important; }
-.bg-green-50        { background: rgba(74,222,128,0.1)     !important; }
-.bg-emerald-50      { background: rgba(74,222,128,0.1)     !important; }
-.bg-amber-50        { background: rgba(251,191,36,0.1)     !important; }
-.bg-red-50          { background: rgba(248,113,113,0.1)    !important; }
-.bg-orange-50       { background: rgba(249,115,22,0.1)     !important; }
-.bg-purple-50       { background: rgba(249,115,22,0.1)     !important; }
-.bg-blue-100        { background: rgba(249,115,22,0.15)    !important; }
-.bg-slate-800       { background: rgba(10,10,30,0.9)       !important; }
-.bg-slate-900       { background: rgba(5,5,20,0.95)        !important; }
+.bg-white           { background: #1C1C22                  !important; }
+.bg-slate-50        { background: #131318                  !important; }
+.bg-slate-100       { background: #1C1C22                  !important; }
+.bg-slate-200       { background: rgba(240,235,224,0.08)   !important; }
+.bg-blue-50         { background: rgba(249,115,22,0.08)    !important; }
+.bg-green-50        { background: rgba(74,222,128,0.08)    !important; }
+.bg-green-100       { background: rgba(74,222,128,0.12)    !important; }
+.bg-emerald-50      { background: rgba(74,222,128,0.08)    !important; }
+.bg-amber-50        { background: rgba(249,115,22,0.08)    !important; }
+.bg-amber-100       { background: rgba(249,115,22,0.12)    !important; }
+.bg-amber-200       { background: rgba(249,115,22,0.18)    !important; }
+.bg-red-50          { background: rgba(239,68,68,0.08)     !important; }
+.bg-red-100         { background: rgba(239,68,68,0.12)     !important; }
+.bg-orange-50       { background: rgba(249,115,22,0.08)    !important; }
+.bg-purple-50       { background: rgba(249,115,22,0.08)    !important; }
+.bg-blue-100        { background: rgba(249,115,22,0.12)    !important; }
+.bg-slate-800       { background: #131318                  !important; }
+.bg-slate-900       { background: #0C0C10                  !important; }
 
 /* ════════════════════════════════════════
    BORDER OVERRIDES
 ════════════════════════════════════════ */
-.border-slate-100   { border-color: rgba(255,255,255,0.08) !important; }
-.border-slate-200   { border-color: rgba(255,255,255,0.1)  !important; }
-.border-slate-300   { border-color: rgba(255,255,255,0.14) !important; }
-.border-blue-100    { border-color: rgba(249,115,22,0.2)   !important; }
-.border-blue-200    { border-color: rgba(249,115,22,0.3)   !important; }
-.border-amber-200   { border-color: rgba(245,158,11,0.35)  !important; }
-.border-green-200   { border-color: rgba(16,185,129,0.35)  !important; }
+.border-slate-100   { border-color: rgba(240,235,224,0.08) !important; }
+.border-slate-200   { border-color: rgba(240,235,224,0.10) !important; }
+.border-slate-300   { border-color: rgba(240,235,224,0.14) !important; }
+.border-slate-600   { border-color: rgba(240,235,224,0.20) !important; }
+.border-blue-100    { border-color: rgba(249,115,22,0.20)  !important; }
+.border-blue-200    { border-color: rgba(249,115,22,0.30)  !important; }
+.border-amber-100   { border-color: rgba(249,115,22,0.15)  !important; }
+.border-amber-200   { border-color: rgba(249,115,22,0.30)  !important; }
+.border-amber-300   { border-color: rgba(249,115,22,0.40)  !important; }
+.border-green-100   { border-color: rgba(74,222,128,0.20)  !important; }
+.border-green-200   { border-color: rgba(74,222,128,0.35)  !important; }
+.border-red-100     { border-color: rgba(239,68,68,0.20)   !important; }
 .border-red-200     { border-color: rgba(239,68,68,0.35)   !important; }
-.border-t           { border-top-color: rgba(255,255,255,0.08) !important; }
-.border-b           { border-bottom-color: rgba(255,255,255,0.08) !important; }
+.border-t           { border-top-color:    rgba(240,235,224,0.08) !important; }
+.border-b           { border-bottom-color: rgba(240,235,224,0.08) !important; }
 
 /* Divide */
 .divide-y > * + *         { border-color: rgba(255,255,255,0.06) !important; }
@@ -207,33 +226,45 @@ body {
 /* ════════════════════════════════════════
    TEXT OVERRIDES
 ════════════════════════════════════════ */
-.text-slate-900 { color: rgba(248,250,252,0.97) !important; }
-.text-slate-800 { color: rgba(248,250,252,0.92) !important; }
-.text-slate-700 { color: rgba(248,250,252,0.8)  !important; }
-.text-slate-600 { color: rgba(248,250,252,0.65) !important; }
-.text-slate-500 { color: rgba(248,250,252,0.5)  !important; }
-.text-slate-400 { color: rgba(248,250,252,0.4)  !important; }
-.text-slate-300 { color: rgba(248,250,252,0.35) !important; }
-.text-amber-800 { color: rgba(251,191,36,0.9)   !important; }
-.text-blue-600  { color: #F97316 !important; }
-.text-blue-700  { color: #FB923C !important; }
-.text-blue-800  { color: #FDBA74 !important; }
-.text-blue-900  { color: #FED7AA !important; }
-.text-green-600 { color: #34D399 !important; }
-.text-red-600   { color: #F87171 !important; }
-.text-orange-600 { color: #FB923C !important; }
+.text-slate-900 { color: #F0EBE0                  !important; }
+.text-slate-800 { color: rgba(240,235,224,0.92)  !important; }
+.text-slate-700 { color: rgba(240,235,224,0.80)  !important; }
+.text-slate-600 { color: rgba(240,235,224,0.65)  !important; }
+.text-slate-500 { color: rgba(240,235,224,0.50)  !important; }
+.text-slate-400 { color: rgba(240,235,224,0.40)  !important; }
+.text-slate-300 { color: rgba(240,235,224,0.30)  !important; }
+.text-amber-800 { color: #F97316                 !important; }
+.text-amber-700 { color: rgba(249,115,22,0.90)   !important; }
+.text-amber-600 { color: rgba(249,115,22,0.75)   !important; }
+.text-amber-500 { color: rgba(249,115,22,0.65)   !important; }
+.text-amber-400 { color: rgba(249,115,22,0.55)   !important; }
+.text-green-700 { color: #4ADE80                 !important; }
+.text-green-600 { color: #34D399                 !important; }
+.text-red-700   { color: #F87171                 !important; }
+.text-red-600   { color: #F87171                 !important; }
+.text-blue-600  { color: #F97316                 !important; }
+.text-blue-700  { color: #FB923C                 !important; }
+.text-blue-800  { color: #FDBA74                 !important; }
+.text-blue-900  { color: #FED7AA                 !important; }
+.text-orange-600 { color: #FB923C               !important; }
 
 /* ════════════════════════════════════════
    FOCUS / HOVER STATES
 ════════════════════════════════════════ */
-.focus-within\:border-blue-400:focus-within { border-color: rgba(249,115,22,0.6)  !important; }
-.focus-within\:bg-white:focus-within        { background:   rgba(255,255,255,0.07) !important; }
-.focus\:border-blue-400:focus               { border-color: rgba(249,115,22,0.6)  !important; }
-.focus\:bg-white:focus                      { background:   rgba(255,255,255,0.07) !important; }
-.hover\:border-blue-200:hover               { border-color: rgba(249,115,22,0.4)  !important; }
-.hover\:bg-blue-50:hover                    { background:   rgba(249,115,22,0.1)  !important; }
-.hover\:bg-amber-50:hover                   { background:   rgba(249,115,22,0.08) !important; }
-.hover\:bg-slate-50:hover                   { background:   rgba(255,255,255,0.06) !important; }
+.focus-within\:border-blue-400:focus-within   { border-color: rgba(249,115,22,0.6)  !important; }
+.focus-within\:border-orange-400:focus-within { border-color: #F97316              !important; }
+.focus-within\:bg-white:focus-within          { background:   #131318              !important; }
+.focus-within\:bg-slate-900:focus-within      { background:   #0C0C10             !important; }
+.focus\:border-blue-400:focus                 { border-color: rgba(249,115,22,0.6) !important; }
+.focus\:border-orange-400:focus               { border-color: #F97316              !important; }
+.focus\:bg-white:focus                        { background:   #131318              !important; }
+.focus\:bg-slate-900:focus                    { background:   #0C0C10             !important; }
+.hover\:border-blue-200:hover                 { border-color: rgba(249,115,22,0.4) !important; }
+.hover\:bg-blue-50:hover                      { background:   rgba(249,115,22,0.1) !important; }
+.hover\:bg-amber-50:hover                     { background:   rgba(249,115,22,0.08)!important; }
+.hover\:text-amber-600:hover                  { color: #FB923C                     !important; }
+.hover\:bg-slate-50:hover                     { background:   #1C1C22             !important; }
+.hover\:bg-slate-100:hover                    { background:   #1C1C22             !important; }
 
 /* ════════════════════════════════════════
    SHADOWS

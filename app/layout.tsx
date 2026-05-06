@@ -8,7 +8,7 @@ const GA_ID = process.env.NEXT_PUBLIC_GA_ID ?? "";
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#0C0C10",
+  themeColor: "#07071A",
 };
 
 export const metadata: Metadata = {

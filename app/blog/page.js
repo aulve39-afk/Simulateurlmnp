@@ -119,14 +119,10 @@ function ArticleCard({ post, index }) {
   const borderBottom = "1px solid rgba(240,235,224,0.08)";
 
   return (
-    <Link href={`/blog/${post.slug}`} style={{
+    <Link href={`/blog/${post.slug}`} className="article-card" style={{
       display:"flex", flexDirection:"column", textDecoration:"none",
       padding:0, borderRight, borderBottom,
-      transition:"background .2s",
-    }}
-      onMouseEnter={e => e.currentTarget.style.background="rgba(249,115,22,0.04)"}
-      onMouseLeave={e => e.currentTarget.style.background="transparent"}
-    >
+    }}>
       {/* Orange top accent */}
       <div style={{ height:3, background:"#F97316", width:"100%" }} />
 

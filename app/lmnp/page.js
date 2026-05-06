@@ -420,7 +420,7 @@ function SelectField({ label, value, onChange, options, help }) {
   );
 }
 
-function KPICard({ label, value, sub, color="#F97316", bg="rgba(124,58,237,0.12)", icon, help }) {
+function KPICard({ label, value, sub, color="#F97316", bg="rgba(249,115,22,0.10)", icon, help }) {
   return (
     <div className="rounded-2xl p-4 border" style={{ background:bg, borderColor:color+"33" }}>
       <div className="flex items-start justify-between mb-1">
@@ -847,7 +847,7 @@ function AffiliationBanner({ taux, mensualite }) {
   const [dismissed, setDismissed] = useState(false);
   if (dismissed || taux < 3.3) return null;
   return (
-    <div className="rounded-2xl border border-amber-200 overflow-hidden" style={{ background:"rgba(245,158,11,0.08)" }}>
+    <div className="rounded-2xl border border-amber-200 overflow-hidden" style={{ background:"rgba(249,115,22,0.08)" }}>
       <div className="p-4">
         <div className="flex items-start justify-between gap-2 mb-2">
           <div className="flex items-center gap-2">
@@ -2261,7 +2261,7 @@ function AffiliationContextuelle({ results, form }) {
 
       {/* ── Bloc courtiers enrichi ── */}
       {showCourtier && (
-        <div className="rounded-2xl overflow-hidden" style={{ background:"rgba(255,255,255,0.05)", border:"1px solid rgba(124,58,237,0.25)" }}>
+        <div className="rounded-2xl overflow-hidden" style={{ background:"rgba(255,255,255,0.05)", border:"1px solid rgba(249,115,22,0.25)" }}>
           {/* Header contextuel */}
           <div className="px-4 pt-4 pb-3">
             <div className="flex items-center gap-2 mb-1">
@@ -2317,7 +2317,7 @@ function AffiliationContextuelle({ results, form }) {
 
       {/* ── CTA Comptable — contextuel travaux ── */}
       {showComptable && (
-        <div className="rounded-2xl p-4" style={{ background:"rgba(124,58,237,0.08)", border:"1px solid rgba(124,58,237,0.2)" }}>
+        <div className="rounded-2xl p-4" style={{ background:"rgba(249,115,22,0.08)", border:"1px solid rgba(249,115,22,0.20)" }}>
           <div className="flex items-start gap-3">
             <span className="text-2xl">🧮</span>
             <div className="flex-1">
@@ -2795,7 +2795,7 @@ function StepResultats({ form, results, comparaison, amort, onLead, onArgumentai
         <KPICard label="Rendement net" value={`${best.rendNet.toFixed(2)} %`}
           sub="(loyers − charges) / prix total achat" icon="🏠"
           help={LEXIQUE["Rendement net"]}
-          color="#F97316" bg="rgba(124,58,237,0.12)" />
+          color="#F97316" bg="rgba(249,115,22,0.10)" />
         <KPICard label="Taux d'endettement" value={`${best.ratioEndt} %`}
           sub={best.ratioEndt<=35?"✅ Règle HCSF OK":"⚠ Dépasse 35%"} icon="⚖️"
           help={LEXIQUE["Ratio d'endettement"]}
@@ -4008,7 +4008,7 @@ function LeadModal({ onClose, form, results }) {
 
             {/* Timeline email séquence */}
             {emailOk && (
-              <div className="text-left mb-3 rounded-xl p-3 mt-1" style={{ background:"rgba(124,58,237,0.10)", border:"1px solid rgba(124,58,237,0.2)" }}>
+              <div className="text-left mb-3 rounded-xl p-3 mt-1" style={{ background:"rgba(249,115,22,0.08)", border:"1px solid rgba(249,115,22,0.20)" }}>
                 <p className="text-[10px] font-bold mb-2" style={{ color:"rgba(167,139,250,0.9)" }}>📬 Ce que vous allez recevoir :</p>
                 <div className="space-y-2">
                   {[
@@ -4018,7 +4018,7 @@ function LeadModal({ onClose, form, results }) {
                     { j:"J+7",        icon:"📈", txt:"Alerte : opportunités LMNP dans votre zone" },
                   ].map(({ j, icon, txt }) => (
                     <div key={j} className="flex items-start gap-2">
-                      <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-md shrink-0 mt-0.5" style={{ background:"rgba(124,58,237,0.25)", color:"#F97316" }}>{j}</span>
+                      <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-md shrink-0 mt-0.5" style={{ background:"rgba(249,115,22,0.15)", color:"#F97316" }}>{j}</span>
                       <p className="text-[10px]" style={{ color:"rgba(248,250,252,0.65)" }}>{icon} {txt}</p>
                     </div>
                   ))}
