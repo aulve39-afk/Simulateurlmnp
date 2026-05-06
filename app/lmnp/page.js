@@ -4677,6 +4677,178 @@ function FAQ() {
 }
 
 /* ════════════════════════════════════════
+   MODE COMPARAISON CÔTE-À-CÔTE
+════════════════════════════════════════ */
+
+function CompareView({ biens, onClose }) {
+  const [mobileTab, setMobileTab] = useState(0); // 0 = A, 1 = B
+
+  // On compare les deux premiers biens de la liste
+  const fA = biens[0]?.form ?? DEFAULTS;
+  const fB = biens[1]?.form ?? DEFAULTS;
+  const nameA = biens[0]?.name ?? "Bien A";
+  const nameB = biens[1]?.name ?? "Bien B";
+
+  const rA = runCalc(fA, "lmnp");
+  const rB = runCalc(fB, "lmnp");
+
+  const prixA = fA.prix * (1 + fA.notaire / 100) + fA.travaux;
+  const prixB = fB.prix * (1 + fB.notaire / 100) + fB.travaux;
+
+  const dA = {
+    prixTotal:   prixA,
+    rendBrut:    rA.rendBrut,
+    rendNet:     rA.rendNet,
+    cashflowM:   Math.round(rA.cashflowM),
+    tri:         rA.tri,
+    mensualite:  Math.round(rA.mensualite),
+    effort:      Math.round(rA.mensualite - rA.cashflowM),
+    impot:       rA.rows[0] ? Math.round((rA.rows[0].impotIR||0)+(rA.rows[0].ps||0)) : 0,
+    investTotal: rA.investTotal,
+  };
+  const dB = {
+    prixTotal:   prixB,
+    rendBrut:    rB.rendBrut,
+    rendNet:     rB.rendNet,
+    cashflowM:   Math.round(rB.cashflowM),
+    tri:         rB.tri,
+    mensualite:  Math.round(rB.mensualite),
+    effort:      Math.round(rB.mensualite - rB.cashflowM),
+    impot:       rB.rows[0] ? Math.round((rB.rows[0].impotIR||0)+(rB.rows[0].ps||0)) : 0,
+    investTotal: rB.investTotal,
+  };
+
+  const ROWS = [
+    { label:"Prix total acquis.",     key:"prixTotal",   fmt:(v)=>`${(v/1000).toFixed(0)}k€`,  lower:true  },
+    { label:"Apport investi",         key:"investTotal", fmt:(v)=>`${(v/1000).toFixed(0)}k€`,  lower:true  },
+    { label:"Rendement brut",         key:"rendBrut",    fmt:(v)=>`${v} %`,                    lower:false },
+    { label:"Rendement net charges",  key:"rendNet",     fmt:(v)=>`${v} %`,                    lower:false },
+    { label:"Cash-flow mensuel",      key:"cashflowM",   fmt:(v)=>`${v>=0?"+":""}${v} €`,      lower:false },
+    { label:`TRI (${Math.max(fA.horizon,fB.horizon)} ans)`, key:"tri", fmt:(v)=>`${v} %`,     lower:false },
+    { label:"Mensualité crédit",      key:"mensualite",  fmt:(v)=>`${v} €/m`,                  lower:true  },
+    { label:"Effort mensuel net",     key:"effort",      fmt:(v)=>`${v} €/m`,                  lower:true  },
+    { label:"Impôt an 1 (Réel)",      key:"impot",       fmt:(v)=>`${v} €`,                    lower:true  },
+  ];
+
+  // Compte les victoires globales
+  let wA = 0, wB = 0;
+  ROWS.forEach(({ key, lower }) => {
+    const a = dA[key], b = dB[key];
+    if (a === b) return;
+    (lower ? a < b : a > b) ? wA++ : wB++;
+  });
+
+  const winner = wA > wB ? nameA : wB > wA ? nameB : null;
+
+  const CellVal = ({ val, opp, lower, fmt }) => {
+    const better = lower ? val < opp : val > opp;
+    const equal  = val === opp;
+    const color  = equal ? "rgba(255,255,255,0.55)"
+                 : better ? "#34D399" : "rgba(255,255,255,0.45)";
+    return (
+      <div className="flex items-center justify-center gap-1">
+        <span className="text-[13px] font-bold" style={{ color }}>{fmt(val)}</span>
+        {!equal && better && <span className="text-[12px]">🏆</span>}
+      </div>
+    );
+  };
+
+  return (
+    <div className="min-h-screen pb-24" style={{ background:"#0C0C10" }}>
+      {/* Header */}
+      <div className="sticky top-0 z-40 px-4 py-3 flex items-center justify-between"
+        style={{ background:"#131318", borderBottom:"1px solid rgba(249,115,22,0.15)" }}>
+        <div>
+          <p className="text-white font-bold text-sm">⚖️ Comparaison côte à côte</p>
+          <p className="text-orange-200 text-[10px]">Régime LMNP Réel · {nameA} vs {nameB}</p>
+        </div>
+        <button onClick={onClose}
+          className="text-[12px] font-semibold px-3 py-1.5 rounded-lg transition-all"
+          style={{ background:"rgba(255,255,255,0.08)", color:"rgba(255,255,255,0.7)" }}>
+          ✕ Fermer
+        </button>
+      </div>
+
+      <div className="max-w-2xl mx-auto px-4 pt-4 space-y-4">
+
+        {/* Score synthétique */}
+        {winner && (
+          <div className="rounded-xl px-4 py-3 text-center"
+            style={{ background:"rgba(249,115,22,0.12)", border:"1px solid rgba(249,115,22,0.25)" }}>
+            <p className="text-white text-sm font-bold">
+              🏆 {winner} gagne {Math.max(wA,wB)}/{ROWS.length} critères
+            </p>
+            <p className="text-orange-200 text-[10px] mt-0.5">sur les indicateurs LMNP Réel</p>
+          </div>
+        )}
+        {!winner && (
+          <div className="rounded-xl px-4 py-3 text-center"
+            style={{ background:"rgba(255,255,255,0.05)", border:"1px solid rgba(255,255,255,0.1)" }}>
+            <p className="text-white text-sm font-bold">🤝 Égalité — {wA}/{ROWS.length} chacun</p>
+          </div>
+        )}
+
+        {/* Toggle mobile */}
+        <div className="flex sm:hidden gap-2">
+          {[nameA, nameB].map((n, i) => (
+            <button key={i} onClick={() => setMobileTab(i)}
+              className="flex-1 py-2 rounded-lg text-[12px] font-bold transition-all"
+              style={{
+                background: mobileTab===i ? "#F97316" : "rgba(255,255,255,0.08)",
+                color:      mobileTab===i ? "white"   : "rgba(255,255,255,0.5)",
+              }}>
+              {n}
+            </button>
+          ))}
+        </div>
+
+        {/* Table comparaison */}
+        <div className="rounded-2xl overflow-hidden"
+          style={{ border:"1px solid rgba(255,255,255,0.08)" }}>
+
+          {/* En-tête colonnes */}
+          <div className="grid grid-cols-3 text-center"
+            style={{ background:"#1a1a24", borderBottom:"1px solid rgba(255,255,255,0.08)" }}>
+            <div className="py-3 text-[11px] text-orange-200 font-semibold">Critère</div>
+            <div className={`py-3 text-[12px] font-bold ${mobileTab===1?"hidden sm:block":""}`}
+              style={{ color: wA >= wB ? "#F97316" : "rgba(255,255,255,0.55)" }}>
+              {nameA}
+              <span className="block text-[10px] font-normal text-orange-200">{wA} victoires</span>
+            </div>
+            <div className={`py-3 text-[12px] font-bold ${mobileTab===0?"hidden sm:block":""}`}
+              style={{ color: wB >= wA ? "#F97316" : "rgba(255,255,255,0.55)" }}>
+              {nameB}
+              <span className="block text-[10px] font-normal text-orange-200">{wB} victoires</span>
+            </div>
+          </div>
+
+          {ROWS.map(({ label, key, fmt, lower }, idx) => (
+            <div key={key}
+              className="grid grid-cols-3 text-center items-center"
+              style={{
+                background: idx%2===0 ? "#131318" : "#0f0f17",
+                borderBottom:"1px solid rgba(255,255,255,0.05)",
+              }}>
+              <div className="py-3 px-2 text-[11px] text-orange-200 text-left">{label}</div>
+              <div className={`py-3 ${mobileTab===1?"hidden sm:block":""}`}>
+                <CellVal val={dA[key]} opp={dB[key]} lower={lower} fmt={fmt} />
+              </div>
+              <div className={`py-3 ${mobileTab===0?"hidden sm:block":""}`}>
+                <CellVal val={dB[key]} opp={dA[key]} lower={lower} fmt={fmt} />
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <p className="text-[10px] text-center" style={{ color:"rgba(255,255,255,0.25)" }}>
+          Régime LMNP Réel · Année 1 · Calculs à titre indicatif — non contractuels
+        </p>
+      </div>
+    </div>
+  );
+}
+
+/* ════════════════════════════════════════
    PORTFOLIO DASHBOARD — multi-biens
 ════════════════════════════════════════ */
 
@@ -4818,6 +4990,9 @@ export default function App() {
     setForm({ ...newBiens[newActive].form });
     setTimeout(() => { isSwitching.current = false; }, 50);
   };
+
+  /* ── Mode comparaison ── */
+  const [compareMode, setCompareMode] = useState(false);
 
   /* ── PWA Install prompt ── */
   const [installPrompt, setInstallPrompt] = useState(null);
@@ -5073,11 +5248,30 @@ export default function App() {
               + Ajouter un bien
             </button>
           )}
+          {biens.length >= 2 && (
+            <button onClick={() => setCompareMode(m => !m)}
+              className="shrink-0 flex items-center gap-1 px-3 py-1.5 rounded-lg text-[12px] font-semibold transition-all"
+              style={{
+                background: compareMode ? "#F97316"              : "rgba(255,255,255,0.09)",
+                color:      compareMode ? "white"                : "rgba(255,255,255,0.7)",
+                border:     compareMode ? "none"                 : "1px solid rgba(255,255,255,0.12)",
+              }}>
+              ⚖️ Comparer
+            </button>
+          )}
         </div>
       </div>
 
+      {/* ── MODE COMPARAISON ── */}
+      {compareMode && biens.length >= 2 && (
+        <CompareView
+          biens={biens.map((b, i) => i === activeBien ? { ...b, form } : b)}
+          onClose={() => setCompareMode(false)}
+        />
+      )}
+
       {/* ── MAIN CONTENT ── */}
-      <main className="max-w-2xl mx-auto px-4 py-4 pb-32">
+      <main className={`max-w-2xl mx-auto px-4 py-4 pb-32 ${compareMode ? "hidden" : ""}`}>
         {step===0 && <StepProjet form={form} set={set} />}
         {step===1 && <StepFinancement form={form} set={set} />}
         {step===2 && <StepExploitation form={form} set={set} />}
@@ -5105,7 +5299,7 @@ export default function App() {
       </main>
 
       {/* ── BOTTOM NAV ── */}
-      <div className="fixed bottom-0 left-0 right-0 z-30 bg-white border-t border-slate-100 shadow-lg pb-safe">
+      <div className={`fixed bottom-0 left-0 right-0 z-30 bg-white border-t border-slate-100 shadow-lg pb-safe ${compareMode ? "hidden" : ""}`}>
         <div className="max-w-2xl mx-auto px-4 py-3 flex items-center gap-3">
           <button onClick={goBack}
             className="flex-1 py-3 rounded-xl border border-slate-200 text-sm font-semibold text-slate-600 hover:bg-slate-50 transition-colors">
