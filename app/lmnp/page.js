@@ -4710,6 +4710,14 @@ export default function App() {
     if (outcome === "accepted") { setInstallPrompt(null); setPwaInstalled(true); }
   };
 
+  /* ── URL State : clés numériques encodées dans l'URL ── */
+  const URL_NUM_KEYS = [
+    "prix","notaire","travaux","mobilier","terrain","apport","interet",
+    "dureeCredit","differe","loyer","charges","taxeFonciere","vacance",
+    "revalorisation","tmi","horizon","cfe","tauxDistributionSCI",
+    "assurancePNO","fraisGestion",
+  ];
+
   /* ── localStorage autosave ── */
   useEffect(() => {
     try {
@@ -4720,6 +4728,55 @@ export default function App() {
   useEffect(() => {
     try { localStorage.setItem("lmnp_form", JSON.stringify(form)); } catch {}
   }, [form]);
+
+  /* ── URL State : lecture au montage (priorité sur localStorage) ── */
+  useEffect(() => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      if (params.size === 0) return;
+      const urlForm = {};
+      URL_NUM_KEYS.forEach(k => {
+        if (params.has(k)) {
+          const v = parseFloat(params.get(k));
+          if (!isNaN(v)) urlForm[k] = v;
+        }
+      });
+      if (params.has("tourismeClass")) urlForm.tourismeClass = params.get("tourismeClass") === "1";
+      const urlStep = params.has("step") ? Math.min(4, Math.max(0, parseInt(params.get("step")))) : null;
+      if (Object.keys(urlForm).length > 0) {
+        setForm(f => ({ ...f, ...urlForm }));
+        setPhase("sim");
+        if (urlStep !== null) setStep(urlStep);
+      }
+    } catch {}
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  /* ── URL State : mise à jour de l'URL à chaque changement ── */
+  useEffect(() => {
+    if (phase !== "sim") return;
+    try {
+      const params = new URLSearchParams();
+      URL_NUM_KEYS.forEach(k => {
+        if (form[k] !== undefined && form[k] !== DEFAULTS[k]) params.set(k, form[k]);
+      });
+      if (form.tourismeClass !== DEFAULTS.tourismeClass) params.set("tourismeClass", form.tourismeClass ? "1" : "0");
+      if (step > 0) params.set("step", step);
+      const qs = params.toString();
+      const newUrl = qs ? `${window.location.pathname}?${qs}` : window.location.pathname;
+      window.history.replaceState(null, "", newUrl);
+    } catch {}
+  }, [form, phase, step]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  /* ── Copier le lien ── */
+  const [linkCopied, setLinkCopied] = useState(false);
+  const copyLink = () => {
+    try {
+      navigator.clipboard.writeText(window.location.href);
+      setLinkCopied(true);
+      setTimeout(() => setLinkCopied(false), 2500);
+    } catch {}
+  };
 
   useEffect(() => {
     if (!sb) return;
@@ -4793,6 +4850,20 @@ export default function App() {
             </button>
           </div>
           <div className="flex items-center gap-2">
+            {/* Bouton partage de simulation via URL */}
+            {phase === "sim" && (
+              <button onClick={copyLink}
+                title="Copier le lien de cette simulation pour la partager"
+                className="flex items-center gap-1 text-[11px] font-semibold px-2.5 py-1.5 rounded-lg transition-all active:scale-95"
+                style={{
+                  background: linkCopied ? "rgba(34,197,94,0.15)" : "rgba(249,115,22,0.12)",
+                  color:      linkCopied ? "#22C55E" : "#F97316",
+                  border:     `1px solid ${linkCopied ? "rgba(34,197,94,0.35)" : "rgba(249,115,22,0.25)"}`,
+                }}>
+                <span>{linkCopied ? "✅" : "🔗"}</span>
+                <span className="hidden xs:inline">{linkCopied ? "Copié !" : "Partager"}</span>
+              </button>
+            )}
             {/* Bouton d'installation PWA — affiché uniquement si disponible */}
             {installPrompt && !pwaInstalled && (
               <button onClick={handleInstall}
