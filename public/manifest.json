@@ -1,0 +1,50 @@
+{
+  "name": "ImmoVerdict — Simulateur immobilier",
+  "short_name": "ImmoVerdict",
+  "description": "Simulateur LMNP, PTZ, DPE, DVF — votre copilote immobilier gratuit",
+  "start_url": "/lmnp",
+  "display": "standalone",
+  "background_color": "#0C0C10",
+  "theme_color": "#F97316",
+  "orientation": "portrait-primary",
+  "lang": "fr",
+  "categories": ["finance", "productivity"],
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/og-image.png",
+      "sizes": "1200x630",
+      "type": "image/png"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/og-image.png",
+      "sizes": "1200x630",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Simulateur LMNP — 4 régimes fiscaux"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Simulateur LMNP",
+      "short_name": "LMNP",
+      "description": "Ouvrir le simulateur LMNP",
+      "url": "/lmnp",
+      "icons": [{ "src": "/favicon.svg", "sizes": "any" }]
+    },
+    {
+      "name": "Résidence principale",
+      "short_name": "RP",
+      "description": "Simulateur achat résidence principale",
+      "url": "/rp",
+      "icons": [{ "src": "/favicon.svg", "sizes": "any" }]
+    }
+  ]
+}

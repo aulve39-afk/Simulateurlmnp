@@ -8,15 +8,22 @@ const GA_ID = process.env.NEXT_PUBLIC_GA_ID ?? "";
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#07071A",
+  themeColor: "#0C0C10",
 };
 
 export const metadata: Metadata = {
   title: "ImmoVerdict — Simulateur LMNP & Résidence Principale",
   description: "Votre copilote pour l'achat immobilier. Simulateur LMNP (4 régimes fiscaux, dossier bancaire), achat résidence principale (PTZ, DPE, DVF, louer vs acheter). 100 % gratuit.",
+  manifest: "/manifest.json",
   icons: {
     icon: "/favicon.svg",
     shortcut: "/favicon.svg",
+    apple: "/favicon.svg",
+  },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "ImmoVerdict",
   },
   openGraph: {
     title: "ImmoVerdict — Simulateur immobilier gratuit",
@@ -59,6 +66,17 @@ export default function RootLayout({
             </Script>
           </>
         )}
+        {/* Service Worker — PWA / mode offline */}
+        <Script id="sw-register" strategy="afterInteractive">
+          {`
+            if ('serviceWorker' in navigator) {
+              window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js', { scope: '/' })
+                  .catch(() => {});
+              });
+            }
+          `}
+        </Script>
         {children}
       </body>
     </html>

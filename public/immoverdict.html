@@ -43,8 +43,8 @@
   --surface-2: #1A1A22;
   --surface-3: #202028;
   --off-white: #F0EBE0;
-  --muted:     rgba(240,235,224,0.45);
-  --dim:       rgba(240,235,224,0.18);
+  --muted:     rgba(240,235,224,0.65);
+  --dim:       rgba(240,235,224,0.35);
   --line:      rgba(240,235,224,0.08);
   --orange:    #F97316;
   --orange-2:  #FB923C;
@@ -287,8 +287,8 @@ h2 em{font-style:italic;color:var(--orange)}
   padding:40px 36px;
   border-right:1px solid var(--line);
   transition:background .2s;
-  cursor:pointer;
   position:relative;
+  color:inherit;
 }
 .service-card:last-child{border-right:none}
 .service-card::before{
@@ -842,7 +842,7 @@ footer{
     </div>
 
     <div class="services-grid">
-      <div class="service-card reveal" onclick="location.href='/lmnp'" role="button" tabindex="0">
+      <a href="/lmnp" class="service-card reveal" style="text-decoration:none;display:block">
         <div class="service-num">01</div>
         <div class="service-tag">Investisseur</div>
         <h3 class="service-h">Investissement LMNP</h3>
@@ -854,10 +854,10 @@ footer{
           <li>Dossier bancaire PDF 7 pages</li>
           <li>Bouclier fiscal & projection patrimoniale</li>
         </ul>
-        <a href="/lmnp" class="service-link">Lancer le simulateur →</a>
-      </div>
+        <span class="service-link">Lancer le simulateur →</span>
+      </a>
 
-      <div class="service-card reveal" onclick="location.href='/rp'" role="button" tabindex="0">
+      <a href="/rp" class="service-card reveal" style="text-decoration:none;display:block">
         <div class="service-num">02</div>
         <div class="service-tag">Primo-accédant</div>
         <h3 class="service-h">Résidence Principale</h3>
@@ -869,10 +869,10 @@ footer{
           <li>Comparaison Louer vs Acheter sur 25 ans</li>
           <li>Checklist de visite interactive</li>
         </ul>
-        <a href="/rp" class="service-link">Accéder aux outils →</a>
-      </div>
+        <span class="service-link">Accéder aux outils →</span>
+      </a>
 
-      <div class="service-card reveal" onclick="location.href='/blog'" role="button" tabindex="0">
+      <a href="/blog" class="service-card reveal" style="text-decoration:none;display:block">
         <div class="service-num">03</div>
         <div class="service-tag">Ressources</div>
         <h3 class="service-h">Guides & Blog</h3>
@@ -884,8 +884,8 @@ footer{
           <li>Veille réglementaire (DPE, Micro-BIC)</li>
           <li>Conseils selon votre TMI</li>
         </ul>
-        <a href="/blog" class="service-link">Voir les guides →</a>
-      </div>
+        <span class="service-link">Voir les guides →</span>
+      </a>
     </div>
   </div>
 </section>
@@ -1080,9 +1080,14 @@ footer{
         <p class="testi-text">«&nbsp;On hésitait entre Micro-BIC et Réel. La comparaison sur 10 ans était <strong>flagrante : 18 700 € d'économie cumulée</strong>. On a pris rdv avec un expert-comptable LMNP dès le lendemain.&nbsp;»</p>
         <div class="testi-divider"></div>
         <div class="testi-author">
-          <div class="testi-avatar">MR</div>
+          <div class="testi-avatar" style="background:rgba(249,115,22,0.18);">
+            <svg width="40" height="40" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <circle cx="20" cy="15" r="7" fill="#F97316" opacity="0.85"/>
+              <ellipse cx="20" cy="34" rx="12" ry="8" fill="#F97316" opacity="0.55"/>
+            </svg>
+          </div>
           <div>
-            <div class="testi-name">Marie R.</div>
+            <div class="testi-name">Marie Rousseau</div>
             <div class="testi-role">Investisseur LMNP · Lyon · ★★★★★</div>
           </div>
         </div>
@@ -1093,9 +1098,14 @@ footer{
         <p class="testi-text">«&nbsp;Le simulateur PTZ m'a montré que j'étais éligible à <strong>68 000 € sans intérêts</strong> alors que ma banque ne m'en avait pas parlé. J'ai économisé presque 14 000 € d'intérêts.&nbsp;»</p>
         <div class="testi-divider"></div>
         <div class="testi-author">
-          <div class="testi-avatar">TD</div>
+          <div class="testi-avatar" style="background:rgba(74,222,128,0.15);">
+            <svg width="40" height="40" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <circle cx="20" cy="15" r="7" fill="#4ADE80" opacity="0.85"/>
+              <ellipse cx="20" cy="34" rx="12" ry="8" fill="#4ADE80" opacity="0.55"/>
+            </svg>
+          </div>
           <div>
-            <div class="testi-name">Thomas D.</div>
+            <div class="testi-name">Thomas Dumont</div>
             <div class="testi-role">Primo-accédant · Nantes · ★★★★★</div>
           </div>
         </div>
@@ -1106,9 +1116,14 @@ footer{
         <p class="testi-text">«&nbsp;Les données DVF m'ont permis de négocier <strong>12 000 € en dessous du prix affiché</strong>. L'argumentaire était béton. Le vendeur a accepté en 48h.&nbsp;»</p>
         <div class="testi-divider"></div>
         <div class="testi-author">
-          <div class="testi-avatar">SL</div>
+          <div class="testi-avatar" style="background:rgba(251,191,36,0.15);">
+            <svg width="40" height="40" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <circle cx="20" cy="15" r="7" fill="#FBBF24" opacity="0.85"/>
+              <ellipse cx="20" cy="34" rx="12" ry="8" fill="#FBBF24" opacity="0.55"/>
+            </svg>
+          </div>
           <div>
-            <div class="testi-name">Sophie L.</div>
+            <div class="testi-name">Sophie Lambert</div>
             <div class="testi-role">Achat RP · Bordeaux · ★★★★★</div>
           </div>
         </div>
@@ -1132,12 +1147,12 @@ footer{
       </ul>
     </div>
     <div class="cta-right reveal">
-      <div class="cta-form-label">Votre accès gratuit</div>
+      <div class="cta-form-label">Guides LMNP gratuits par email</div>
       <input id="cta-email-input" class="cta-input" type="email" placeholder="Votre adresse email"/>
       <p id="cta-error" style="display:none;color:#F87171;font-size:12px;margin-bottom:8px;">⚠️ Merci de saisir une adresse email valide.</p>
-      <p id="cta-confirm" style="display:none;color:#4ADE80;font-size:12px;margin-bottom:8px;">✓ Email enregistré — redirection en cours…</p>
-      <button class="cta-btn" onclick="ctaStart()">Accéder aux simulateurs →</button>
-      <p style="font-size:11px;color:var(--dim);margin-top:12px;line-height:1.6">En soumettant ce formulaire vous acceptez de recevoir nos analyses LMNP. Désabonnement en 1 clic.</p>
+      <p id="cta-confirm" style="display:none;color:#4ADE80;font-size:12px;margin-bottom:8px;">✓ Inscription confirmée — vérifiez votre boîte.</p>
+      <button class="cta-btn" onclick="ctaStart()">Recevoir les guides LMNP par email →</button>
+      <p style="font-size:11px;color:var(--dim);margin-top:12px;line-height:1.6">Guides, études de cas et veille fiscale 2026. Désabonnement en 1 clic — les <a href="/lmnp" style="color:var(--muted);text-decoration:underline">simulateurs sont accessibles ici</a> sans email.</p>
     </div>
   </div>
 </section>
@@ -1150,7 +1165,7 @@ footer{
       <h2>Une question ?<br/><em>Écrivez-nous.</em></h2>
       <p>Partenariat, suggestion, bug technique — on répond sous 24h ouvrées.</p>
       <ul class="contact-info">
-        <li><strong>Email</strong><a href="mailto:aulve39@gmail.com">aulve39@gmail.com</a></li>
+        <li><strong>Email</strong><a href="mailto:contact@immoverdict.com">contact@immoverdict.com</a></li>
         <li><strong>Réponse</strong>Sous 24h ouvrées</li>
         <li><strong>Bugs</strong>Signalement prioritaire</li>
       </ul>
@@ -1164,7 +1179,7 @@ footer{
         <textarea id="cf-message" class="cf-textarea" placeholder="Votre message *" required></textarea>
         <button type="submit" id="cf-btn" class="cf-btn">Envoyer le message →</button>
         <p id="cf-ok" style="display:none;color:#4ADE80;font-size:12px;font-weight:600">✓ Message envoyé ! On vous répond sous 24h.</p>
-        <p id="cf-err" style="display:none;color:#F87171;font-size:12px">✗ Erreur. Écrivez directement à <a href="mailto:aulve39@gmail.com" style="color:var(--orange)">aulve39@gmail.com</a></p>
+        <p id="cf-err" style="display:none;color:#F87171;font-size:12px">✗ Erreur. Écrivez directement à <a href="mailto:contact@immoverdict.com" style="color:var(--orange)">contact@immoverdict.com</a></p>
       </form>
     </div>
   </div>
@@ -1256,11 +1271,12 @@ window.addEventListener('scroll', () => {
     window.scrollY > 40 ? 'rgba(240,235,224,0.12)' : 'rgba(240,235,224,0.08)';
 }, { passive: true });
 
-/* ── CTA email ── */
+/* ── CTA email (newsletter) ── */
 function ctaStart() {
   const email = document.getElementById('cta-email-input').value.trim();
   const errEl = document.getElementById('cta-error');
   const okEl  = document.getElementById('cta-confirm');
+  const btn   = document.querySelector('.cta-btn');
   const valid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   if (!valid) {
     errEl.style.display = 'block';
@@ -1270,8 +1286,14 @@ function ctaStart() {
   }
   errEl.style.display = 'none';
   try { localStorage.setItem('immoverdict_email', email); } catch(e) {}
+  /* Envoi newsletter via formsubmit */
+  fetch('https://formsubmit.co/ajax/contact@immoverdict.com', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+    body: JSON.stringify({ email, _subject: 'ImmoVerdict — Nouvelle inscription newsletter' }),
+  }).catch(() => {}); /* silencieux — l'UX ne dépend pas du succès réseau */
   okEl.style.display = 'block';
-  setTimeout(() => { window.location.href = '/lmnp'; }, 900);
+  if (btn) { btn.disabled = true; btn.style.opacity = '0.6'; }
 }
 document.getElementById('cta-email-input')?.addEventListener('keydown', e => {
   if (e.key === 'Enter') ctaStart();
@@ -1291,7 +1313,7 @@ async function submitContact(e) {
   btn.disabled = true;
   ok.style.display = err.style.display = 'none';
   try {
-    const res = await fetch('https://formsubmit.co/ajax/aulve39@gmail.com', {
+    const res = await fetch('https://formsubmit.co/ajax/contact@immoverdict.com', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
       body: JSON.stringify({ name, email, message, _subject: 'ImmoVerdict — Message de contact' }),
