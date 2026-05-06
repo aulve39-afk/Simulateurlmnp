@@ -282,6 +282,7 @@ body {
 input[type="text"],
 input[type="number"],
 input[type="email"],
+input[type="password"],
 textarea {
   background: rgba(255,255,255,0.07) !important;
   color: #F8FAFC !important;
@@ -298,6 +299,24 @@ select {
 select option {
   background: #1a1a2e;
   color: #F8FAFC;
+}
+
+/* ── Exception : modal / panneau à fond clair ── */
+.light-panel input[type="text"],
+.light-panel input[type="number"],
+.light-panel input[type="email"],
+.light-panel input[type="password"],
+.light-panel textarea {
+  background: #F8FAFC !important;
+  color: #1e293b !important;
+  border-color: #e2e8f0 !important;
+}
+.light-panel input::placeholder,
+.light-panel textarea::placeholder { color: #94a3b8 !important; }
+.light-panel select {
+  background: #F8FAFC !important;
+  color: #1e293b !important;
+  border-color: #e2e8f0 !important;
 }
 
 /* ════════════════════════════════════════

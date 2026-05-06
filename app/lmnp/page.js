@@ -388,11 +388,11 @@ function SectionTitle({ icon, title, sub, help }) {
     <div className="mb-5">
       <div className="flex items-center gap-2 mb-1">
         <span className="text-xl">{icon}</span>
-        <h2 className="text-base font-bold text-slate-800 flex items-center">
+        <h2 className="text-base font-bold flex items-center" style={{ color: "rgba(248,250,252,0.95)" }}>
           {title}{help && <Tip text={help} />}
         </h2>
       </div>
-      {sub && <p className="text-xs text-slate-400 ml-7">{sub}</p>}
+      {sub && <p className="text-xs ml-7" style={{ color: "rgba(248,250,252,0.45)" }}>{sub}</p>}
     </div>
   );
 }
@@ -402,7 +402,7 @@ function SliderField({ label, value, onChange, min, max, step=1, format=fmt, hel
   return (
     <div className="mb-5">
       <div className="flex justify-between items-center mb-2">
-        <label className="text-sm font-semibold text-slate-700 flex items-center">
+        <label className="text-sm font-semibold flex items-center" style={{ color: "rgba(248,250,252,0.8)" }}>
           {label}{help && <Tip text={help} />}
         </label>
         <span className="text-sm font-bold" style={{ color }}>{format(value)}</span>
@@ -422,15 +422,20 @@ function SliderField({ label, value, onChange, min, max, step=1, format=fmt, hel
 function InputField({ label, value, onChange, type="text", suffix="", help, small=false }) {
   return (
     <div className={small ? "mb-3" : "mb-4"}>
-      <label className="block text-sm font-semibold text-slate-700 mb-1 flex items-center">
+      <label className="block text-sm font-semibold mb-1 flex items-center" style={{ color: "rgba(248,250,252,0.8)" }}>
         {label}{help && <Tip text={help} />}
       </label>
-      <div className="flex items-center border border-slate-200 rounded-xl bg-slate-50 focus-within:border-orange-400 focus-within:bg-slate-900 transition-colors">
+      <div className="flex items-center rounded-xl transition-colors"
+        style={{ background: "rgba(255,255,255,0.07)", border: "1.5px solid rgba(255,255,255,0.12)" }}
+        onFocus={e => e.currentTarget.style.borderColor = "#F97316"}
+        onBlur={e => e.currentTarget.style.borderColor = "rgba(255,255,255,0.12)"}
+      >
         <input type={type} value={value}
           onChange={e => onChange(type==="number" ? +e.target.value : e.target.value)}
-          className="flex-1 bg-transparent px-3 py-2.5 text-sm text-slate-800 outline-none rounded-xl"
+          className="flex-1 bg-transparent px-3 py-2.5 text-sm outline-none rounded-xl"
+          style={{ color: "#F8FAFC" }}
         />
-        {suffix && <span className="pr-3 text-sm text-slate-400 font-medium">{suffix}</span>}
+        {suffix && <span className="pr-3 text-sm font-medium" style={{ color: "rgba(248,250,252,0.45)" }}>{suffix}</span>}
       </div>
     </div>
   );
@@ -439,12 +444,16 @@ function InputField({ label, value, onChange, type="text", suffix="", help, smal
 function SelectField({ label, value, onChange, options, help }) {
   return (
     <div className="mb-4">
-      <label className="block text-sm font-semibold text-slate-700 mb-1 flex items-center">
+      <label className="block text-sm font-semibold mb-1 flex items-center" style={{ color: "rgba(248,250,252,0.8)" }}>
         {label}{help && <Tip text={help} />}
       </label>
       <select value={value} onChange={e => onChange(e.target.value)}
-        className="w-full border border-slate-200 rounded-xl bg-slate-50 px-3 py-2.5 text-sm text-slate-800 outline-none focus:border-orange-400 focus:bg-slate-900 transition-colors">
-        {options.map(o => <option key={o.v ?? o} value={o.v ?? o}>{o.l ?? o}</option>)}
+        className="w-full rounded-xl px-3 py-2.5 text-sm outline-none transition-colors"
+        style={{ background: "rgba(255,255,255,0.07)", border: "1.5px solid rgba(255,255,255,0.12)", color: "#F8FAFC" }}
+        onFocus={e => e.target.style.borderColor = "#F97316"}
+        onBlur={e => e.target.style.borderColor = "rgba(255,255,255,0.12)"}
+      >
+        {options.map(o => <option key={o.v ?? o} value={o.v ?? o} style={{ background: "#1C1C22", color: "#F8FAFC" }}>{o.l ?? o}</option>)}
       </select>
     </div>
   );
@@ -2469,7 +2478,10 @@ function AlerteLF2026() {
                   onChange={e => setEmail(e.target.value)}
                   placeholder="votre@email.fr"
                   required
-                  className="flex-1 text-sm px-3 py-2.5 rounded-xl border border-orange-200 bg-white focus:outline-none focus:ring-2 focus:ring-orange-400"
+                  className="flex-1 text-sm px-3 py-2.5 rounded-xl outline-none transition-colors"
+                  style={{ background: "rgba(255,255,255,0.07)", border: "1.5px solid rgba(249,115,22,0.35)", color: "#F8FAFC" }}
+                  onFocus={e => e.target.style.borderColor = "#F97316"}
+                  onBlur={e => e.target.style.borderColor = "rgba(249,115,22,0.35)"}
                 />
                 <button type="submit" disabled={loading}
                   className="px-4 py-2.5 rounded-xl text-sm font-bold text-white bg-orange-500 hover:bg-orange-600 transition-colors disabled:opacity-60 whitespace-nowrap">
@@ -4271,13 +4283,19 @@ function LeadModal({ onClose, form, results }) {
             )}
             <form onSubmit={submit} className="space-y-3">
               <input value={name} onChange={e=>setName(e.target.value)} placeholder="Prénom (optionnel)"
-                className="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-orange-400 bg-slate-50" />
+                className="w-full rounded-xl px-4 py-3 text-sm outline-none transition-colors"
+                style={{ background: "rgba(255,255,255,0.07)", border: "1.5px solid rgba(255,255,255,0.12)", color: "#F8FAFC" }}
+                onFocus={e => e.target.style.borderColor = "#F97316"}
+                onBlur={e => e.target.style.borderColor = "rgba(255,255,255,0.12)"} />
               <input type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="Votre adresse email *"
-                required className="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-orange-400 bg-slate-50" />
+                required className="w-full rounded-xl px-4 py-3 text-sm outline-none transition-colors"
+                style={{ background: "rgba(255,255,255,0.07)", border: "1.5px solid rgba(255,255,255,0.12)", color: "#F8FAFC" }}
+                onFocus={e => e.target.style.borderColor = "#F97316"}
+                onBlur={e => e.target.style.borderColor = "rgba(255,255,255,0.12)"} />
               <label className="flex items-start gap-2 cursor-pointer">
                 <input type="checkbox" checked={rgpd} onChange={e=>setRgpd(e.target.checked)}
                   className="mt-0.5 flex-shrink-0 accent-orange-500" />
-                <span className="text-[10px] text-slate-500 leading-relaxed">
+                <span className="text-[10px] leading-relaxed" style={{ color: "rgba(248,250,252,0.5)" }}>
                   J'accepte de recevoir mon rapport et des communications d'ImmoVerdict.
                   Données traitées conformément à notre{" "}
                   <a href="/mentions-legales" target="_blank" className="underline">politique de confidentialité</a>.
@@ -4478,18 +4496,24 @@ function AuthModal({ onAuth, onClose }) {
     <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background:"rgba(0,0,0,.55)", backdropFilter:"blur(3px)" }}>
       <div className="bg-white rounded-2xl p-6 w-80 shadow-2xl">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="font-bold text-slate-800">{mode==="login" ? "Connexion" : "Créer un compte"}</h2>
-          <button onClick={onClose} className="text-slate-400 hover:text-slate-600 text-2xl leading-none">×</button>
+          <h2 className="font-bold" style={{ color: "rgba(248,250,252,0.95)" }}>{mode==="login" ? "Connexion" : "Créer un compte"}</h2>
+          <button onClick={onClose} className="text-2xl leading-none" style={{ color: "rgba(248,250,252,0.4)" }}>×</button>
         </div>
 
         <form onSubmit={submit} className="space-y-3">
           <input type="email" value={email} onChange={e=>{setEmail(e.target.value);setError("");}}
             placeholder="Email" required autoComplete="email"
-            className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-orange-400 bg-slate-50 focus:bg-slate-900 transition-colors" />
+            className="w-full rounded-xl px-3 py-2.5 text-sm outline-none transition-colors"
+            style={{ background: "rgba(255,255,255,0.07)", border: "1.5px solid rgba(255,255,255,0.12)", color: "#F8FAFC" }}
+            onFocus={e => e.target.style.borderColor = "#F97316"}
+            onBlur={e => e.target.style.borderColor = "rgba(255,255,255,0.12)"} />
           <input type="password" value={password} onChange={e=>{setPass(e.target.value);setError("");}}
             placeholder={mode==="register" ? "Mot de passe (6 car. min.)" : "Mot de passe"}
             required minLength={mode==="register" ? 6 : undefined} autoComplete={mode==="login" ? "current-password" : "new-password"}
-            className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-orange-400 bg-slate-50 focus:bg-slate-900 transition-colors" />
+            className="w-full rounded-xl px-3 py-2.5 text-sm outline-none transition-colors"
+            style={{ background: "rgba(255,255,255,0.07)", border: "1.5px solid rgba(255,255,255,0.12)", color: "#F8FAFC" }}
+            onFocus={e => e.target.style.borderColor = "#F97316"}
+            onBlur={e => e.target.style.borderColor = "rgba(255,255,255,0.12)"} />
 
           {error && (
             <div className="bg-red-50 border border-red-100 rounded-lg px-3 py-2">

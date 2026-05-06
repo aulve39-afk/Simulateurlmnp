@@ -740,7 +740,10 @@ function AssistantNegociation() {
             style={{
               flex: 1, border: "1.5px solid rgba(255,255,255,0.1)", borderRadius: 10,
               padding: "10px 12px", fontSize: 13, outline: "none",
+              background: "rgba(255,255,255,0.07)", color: "#F8FAFC",
             }}
+            onFocus={e => e.target.style.borderColor = "#F97316"}
+            onBlur={e => e.target.style.borderColor = "rgba(255,255,255,0.1)"}
           />
           <button onClick={fetchDVF} disabled={loading || codePostal.length < 5}
             style={{
