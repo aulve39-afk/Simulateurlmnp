@@ -154,6 +154,50 @@ function calcAmortComposants(prix, notaire, mobilier, travaux, terrainPct=15) {
   };
 }
 
+/* ── Impôt sur plus-value immobilière (CGI Art. 150 U) ──────────────────────
+   Régime des particuliers — applicable au LMNP, Micro-BIC, SCI IR, location nue.
+   SCI IS utilise le régime des bénéfices d'entreprise (pas d'abattement temporel).
+
+   Barème abattements IR (taux 19 %) :
+     • Années 1–5  : 0 %
+     • Années 6–21 : 6 % / an   →  max 96 % à la 21e année
+     • Année 22    : 4 %        →  exonération totale IR dès la 22e année
+
+   Barème abattements PS (taux 17,2 %) :
+     • Années 1–5  : 0 %
+     • Années 6–21 : 1,65 % / an
+     • Année 22    : 1,60 %
+     • Années 23–30: 9 % / an   →  exonération totale PS dès la 30e année
+   ──────────────────────────────────────────────────────────────────────────── */
+function calcTaxePlusValue(pvBrute, annees) {
+  if (pvBrute <= 0) return 0;
+
+  // Abattement IR
+  let abattIR = 0;
+  if (annees >= 22) {
+    abattIR = 1; // exonéré IR
+  } else if (annees >= 6) {
+    abattIR = (annees - 5) * 0.06; // 6 %/an à partir de la 6e année
+  }
+
+  // Abattement PS
+  let abattPS = 0;
+  if (annees >= 30) {
+    abattPS = 1; // exonéré PS
+  } else if (annees >= 23) {
+    abattPS = 16 * 0.0165 + 0.016 + (annees - 22) * 0.09;
+  } else if (annees >= 22) {
+    abattPS = 16 * 0.0165 + 0.016; // 28 %
+  } else if (annees >= 6) {
+    abattPS = (annees - 5) * 0.0165;
+  }
+  abattPS = Math.min(abattPS, 1);
+
+  const taxeIR = pvBrute * Math.max(0, 1 - abattIR) * 0.19;
+  const taxePS = pvBrute * Math.max(0, 1 - abattPS) * 0.172;
+  return Math.round(taxeIR + taxePS);
+}
+
 function runCalc(p, type="lmnp") {
   const capital    = p.prix + p.travaux + p.prix*(p.notaire/100) - p.apport;
   const creditRows = amortCredit(capital, p.interet, p.dureeCredit, p.differe, p.typeDiffere);
@@ -241,7 +285,7 @@ function runCalc(p, type="lmnp") {
   const prixTotal   = p.prix + p.prix*(p.notaire/100) + p.travaux;
   const investTotal = p.apport + p.mobilier; // flux initial cash (TRI)
   const loyers0     = p.loyer * 12;
-  const charges0    = p.charges * 12 + p.taxeFonciere;
+  const charges0    = p.charges * 12 + p.taxeFonciere + (p.cfe || 200); // CFE incluse comme dans le moteur annuel
   const rendBrut    = loyers0 / prixTotal * 100;
   const rendNet     = (loyers0 - charges0) / prixTotal * 100;  // base prixTotal, pas apport
   const cashflowM0  = rows[0]?.cashflowM ?? 0;
@@ -251,12 +295,24 @@ function runCalc(p, type="lmnp") {
   const ratioEndt   = totalMens / (p.revenusMensuels || 1) * 100;
 
   // TRI approché (Newton-Raphson simplifié)
-  // Prix de revente : revalorisation composée (Math.pow) × (1 - 5,5 % frais de cession)
-  const prixRevente = p.prix * Math.pow(1 + p.revalorisation/100, p.horizon) * 0.945;
+  // Prix de revente : revalorisation composée × (1 − 5,5 % frais de cession)
+  const prixVenteBrut   = p.prix * Math.pow(1 + p.revalorisation/100, p.horizon);
+  const prixRevente     = prixVenteBrut * 0.945; // net après 5,5 % frais d'agence/actes
+  // Impôt sur plus-value (CGI Art. 150 U) — régimes des particuliers uniquement
+  // SCI IS : PV taxée comme bénéfice d'entreprise (taux IS, sans abattement temporel)
+  const prixAcqFiscal   = p.prix * (1 + p.notaire / 100) + p.travaux; // CGI Art. 150 VB
+  const pvBrute         = Math.max(0, prixVenteBrut - prixAcqFiscal);
+  const taxePV          = (type === "sciis")
+    ? 0 // SCI IS : taxation IS déjà incluse dans le résultat annuel (amortissements réintégrés)
+    : calcTaxePlusValue(pvBrute, p.horizon);
+  const produitNetCession = prixRevente - taxePV;
+  // Pour SCI IS : le TRI doit utiliser le cashflow net perso (après flat tax 30%),
+  // car c'est le vrai flux encaissé par l'investisseur lors de la distribution.
+  const cfNetInvestisseur = (r) => r.cashflow - (r.flatTax ?? 0);
   const fluxes = [-investTotal, ...rows.map((r,i) => {
     const rv = i===rows.length-1
-      ? r.cashflow + prixRevente - (r.capRestant??0)
-      : r.cashflow;
+      ? cfNetInvestisseur(r) + produitNetCession - (r.capRestant??0)
+      : cfNetInvestisseur(r);
     return rv;
   })];
   let tri=0.05;
@@ -3239,11 +3295,13 @@ function StepResultats({ form, results, comparaison, amort, onLead, onArgumentai
                       {icons[i]} <span className="ml-1">{labels[i]}</span>
                       <Tip text={helpMap[i]} />
                     </p>
-                    <p className="text-[11px] text-slate-500">TRI {r.tri}% · CF {fmtK(r.cashflowM)}/mois</p>
+                    <p className="text-[11px] text-slate-500">
+                      TRI {r.tri}% · CF {isSciIS ? fmtK(cfApres) : fmtK(r.cashflowM)}/mois{isSciIS ? " net" : ""}
+                    </p>
                   </div>
                   <div className="text-right">
-                    <p className="text-sm font-bold" style={{ color:r.cashflowM>=0?"#10B981":"#EF4444" }}>
-                      {fmtK(r.cashflowM)}/mois
+                    <p className="text-sm font-bold" style={{ color:(isSciIS ? cfApres : r.cashflowM)>=0?"#10B981":"#EF4444" }}>
+                      {isSciIS ? fmtK(cfApres) : fmtK(r.cashflowM)}/mois
                     </p>
                     <p className="text-[10px] text-slate-400">Rdt net {r.rendNet.toFixed(2)}%</p>
                   </div>

@@ -1,4 +1,8 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://simulateur-lmnp-v2.vercel.app/sitemap.xml
+# Bloquer les pages sans valeur SEO
+Disallow: /api/
+Disallow: /_next/
+
+Sitemap: https://immoverdict.com/sitemap.xml

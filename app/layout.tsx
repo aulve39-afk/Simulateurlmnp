@@ -14,6 +14,9 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   title: "ImmoVerdict — Simulateur LMNP & Résidence Principale",
   description: "Votre copilote pour l'achat immobilier. Simulateur LMNP (4 régimes fiscaux, dossier bancaire), achat résidence principale (PTZ, DPE, DVF, louer vs acheter). 100 % gratuit.",
+  verification: {
+    google: "8ux-a3OYOEP4EDelmDTvT7tIHIyBcbhdjzarQtPUJCQ",
+  },
   manifest: "/manifest.json",
   icons: {
     icon: "/favicon.svg",

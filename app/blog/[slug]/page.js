@@ -50,8 +50,70 @@ export default async function BlogPostPage({ params }) {
     ? new Date(post.date).toLocaleDateString("fr-FR", { day:"numeric", month:"long", year:"numeric" })
     : "";
 
+  // JSON-LD : Article + BreadcrumbList pour les rich snippets Google
+  const articleSchema = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": post.title,
+    "description": post.description || "",
+    "datePublished": post.date || "",
+    "dateModified": post.date || "",
+    "author": {
+      "@type": "Organization",
+      "name": "ImmoVerdict",
+      "url": "https://immoverdict.com"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "ImmoVerdict",
+      "url": "https://immoverdict.com",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://immoverdict.com/favicon.svg"
+      }
+    },
+    "image": {
+      "@type": "ImageObject",
+      "url": `https://immoverdict.com${post.image || "/og-image.png"}`,
+      "width": 1200,
+      "height": 630
+    },
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": `https://immoverdict.com/blog/${slug}`
+    }
+  };
+
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Accueil",
+        "item": "https://immoverdict.com"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Blog",
+        "item": "https://immoverdict.com/blog"
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": post.category || "Article",
+        "item": `https://immoverdict.com/blog/${slug}`
+      }
+    ]
+  };
+
   return (
     <div style={{ minHeight:"100vh", background:"#0C0C10", color:"#F0EBE0", fontFamily:"'DM Sans',system-ui,sans-serif" }}>
+      {/* ── SCHEMA.ORG : Article + BreadcrumbList ── */}
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }} />
 
       {/* ── NAV ── */}
       <nav style={{ borderBottom:"1px solid rgba(240,235,224,0.08)", padding:"0 48px", height:60, display:"flex", alignItems:"center", justifyContent:"space-between", position:"sticky", top:0, background:"rgba(12,12,16,0.92)", backdropFilter:"blur(20px)", zIndex:50 }}>
