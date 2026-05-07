@@ -1029,7 +1029,7 @@ function VeilleFiscale() {
           email, nom: "Alerte Veille Fiscale",
           params: { source:"veille_fiscale" },
           created_at: new Date().toISOString(),
-        });
+        }, { onConflict: "email", ignoreDuplicates: false });
       }
       setDone(true);
     } catch { setDone(true); }
@@ -2235,11 +2235,11 @@ function AlerteLF2026() {
     setLoading(true);
     try {
       if (sb) {
-        await sb.from("leads").insert({
+        await sb.from("leads").upsert({
           email,
           source: "alerte_fiscale_lf2026",
           created_at: new Date().toISOString(),
-        });
+        }, { onConflict: "email", ignoreDuplicates: false });
       }
       setSent(true);
     } catch {}
@@ -4026,7 +4026,7 @@ function LeadModal({ onClose, form, results }) {
           tri: results?.[0]?.tri,
           cashflow_m: results?.[0]?.cashflowM,
           created_at: new Date().toISOString(),
-        });
+        }, { onConflict: "email", ignoreDuplicates: false });
       }
       // 2. Envoyer l'email via API route
       let emailSent = false;
