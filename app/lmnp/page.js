@@ -3170,6 +3170,7 @@ function StepResultats({ form, results, comparaison, amort, onLead, onArgumentai
    Format : document Word/banque, sections numérotées, tableaux formels
 ══════════════════════════════════════════════════════════════════ */
 function downloadReport(form, results, amort, nom) {
+  try { window.gtag?.("event", "pdf_downloaded", { regime: results?.[0]?.regime ?? "unknown", tri: results?.[0]?.tri ?? 0 }); } catch(_) {}
   const r0      = results?.[0];
   const fmt     = (n) => new Intl.NumberFormat("fr-FR",{style:"currency",currency:"EUR",maximumFractionDigits:0}).format(n??0);
   const dateStr = new Date().toLocaleDateString("fr-FR",{day:"2-digit",month:"long",year:"numeric"});
@@ -4894,6 +4895,7 @@ export default function App() {
       navigator.clipboard.writeText(window.location.href);
       setLinkCopied(true);
       setTimeout(() => setLinkCopied(false), 2500);
+      window.gtag?.("event", "simulation_shared", { step, regime: results?.[0]?.regime ?? "unknown" });
     } catch {}
   };
 
@@ -4911,9 +4913,22 @@ export default function App() {
     if (answers.tmi !== undefined) {
       setForm(f => ({ ...f, tmi: answers.tmi }));
     }
+    try { window.gtag?.("event", "simulation_started", { objectif: answers.objectif ?? "unknown", tmi: answers.tmi ?? 0 }); } catch(_) {}
     setPhase("sim");
     window.scrollTo(0, 0);
   };
+
+  /* ── results_viewed tracking ── */
+  useEffect(() => {
+    if (step !== 3 || !results) return;
+    try {
+      window.gtag?.("event", "results_viewed", {
+        regime_optimal: results[0]?.regime ?? "unknown",
+        tri: results[0]?.tri ?? 0,
+        cashflow_m: results[0]?.cashflowM ?? 0,
+      });
+    } catch(_) {}
+  }, [step, results]); // eslint-disable-line react-hooks/exhaustive-deps
 
   /* ── A/B impression tracking ── */
   useEffect(() => {
@@ -4978,7 +4993,11 @@ export default function App() {
   const amort = useMemo(() => calcAmortComposants(form.prix, form.notaire, form.mobilier, form.travaux, form.terrain ?? 15), [form]);
 
   const goNext = () => {
-    if (step < 4) { setStep(s => s+1); topRef.current?.scrollIntoView({ behavior:"smooth" }); }
+    if (step < 4) {
+      try { window.gtag?.("event", "step_completed", { step_from: step, step_to: step + 1 }); } catch(_) {}
+      setStep(s => s+1);
+      topRef.current?.scrollIntoView({ behavior:"smooth" });
+    }
   };
   const goBack = () => {
     if (step > 0) { setStep(s => s-1); topRef.current?.scrollIntoView({ behavior:"smooth" }); }
@@ -4989,7 +5008,10 @@ export default function App() {
 
   /* ── Landing ── */
   if (phase === "landing") {
-    return <LandingPage onStart={() => setPhase("quiz")} />;
+    return <LandingPage onStart={() => {
+      try { window.gtag?.("event", "quiz_started", { source: "landing_cta" }); } catch(_) {}
+      setPhase("quiz");
+    }} />;
   }
 
   /* ── Quiz ── */
@@ -5113,7 +5135,7 @@ export default function App() {
             </button>
           )}
           {biens.length >= 2 && (
-            <button onClick={() => setCompareMode(m => !m)}
+            <button onClick={() => { setCompareMode(m => { try { window.gtag?.("event", "compare_toggled", { action: m ? "off" : "on", nb_biens: biens.length }); } catch(_) {} return !m; }); }}
               className="shrink-0 flex items-center gap-1 px-3 py-1.5 rounded-lg text-[12px] font-semibold transition-all"
               style={{
                 background: compareMode ? "#F97316"              : "rgba(255,255,255,0.09)",

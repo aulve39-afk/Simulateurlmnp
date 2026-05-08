@@ -37,7 +37,7 @@
 | Q2-7 | ✅ Blog — articles TRI + rendement locatif | P1 | 2j | Q2-1 | **Done** |
 | Q2-8 | Tests unitaires runCalc + amort | P0 | 5j | — | **Done** |
 | Q2-9 | ✅ Leads Supabase — formulaire + séquence Resend | P1 | 3j | — | **Done** |
-| Q2-10 | GA4 : events tracking (simul. lancée, résultats vus) | P1 | 1j | — | **Not started** |
+| Q2-10 | ✅ GA4 : events tracking (simul. lancée, résultats vus) | P1 | 1j | — | **Done** |
 | Q2-11 | Export PDF du dossier bancaire (HTML → PDF) | P1 | 3j | Q2-6 | **Not started** |
 
 **Charge estimée restante Q2 :** ~12 jours · Capacité restante : ~30h soit ~4j  
