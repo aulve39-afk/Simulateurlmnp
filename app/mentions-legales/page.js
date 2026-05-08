@@ -64,7 +64,7 @@ export default function MentionsLegales() {
           <p style={{marginTop:8}}>L'éditeur décline toute responsabilité quant aux décisions d'investissement prises sur la base des simulations affichées.</p>
         </Section>
 
-        <Section title="4. Politique de confidentialité (RGPD)">
+        <Section title="4. Politique de confidentialité (RGPD)" id="politique-confidentialite">
           <SubSection title="4.1 Responsable du traitement">
             <p>Alex Ulve — aulve39@gmail.com</p>
           </SubSection>
@@ -148,9 +148,9 @@ export default function MentionsLegales() {
   );
 }
 
-function Section({ title, children }) {
+function Section({ title, children, id }) {
   return (
-    <div style={{ marginBottom:44 }}>
+    <div id={id} style={{ marginBottom:44, scrollMarginTop:80 }}>
       <h2 style={{ fontSize:15, fontWeight:700, color:"#F0EBE0", marginBottom:14, paddingBottom:12, borderBottom:"1px solid rgba(240,235,224,0.08)" }}>
         {title}
       </h2>

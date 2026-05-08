@@ -58,8 +58,8 @@
 | # | Item | Priorité | Effort | Dépendances | Statut |
 |---|------|---------|--------|-------------|--------|
 | Q3-1 | Export PDF dossier bancaire (report de Q2) | P1 | 3j | Q2-8 | Not started |
-| Q3-2 | Blog — 4 articles fiscalité LMNP (keywords ~500-2k/mois) | P1 | 4j | — | Not started |
-| Q3-3 | Blog — 4 articles résidence principale + PTZ | P1 | 4j | — | Not started |
+| Q3-2 | ✅ Blog — 4 articles fiscalité LMNP (plus-value, CFE, meublé tourisme, 2031) | P1 | 4j | — | **Done** |
+| Q3-3 | ✅ Blog — 3 articles résidence principale (frais notaire, primo-accédant, DPE) | P1 | 4j | — | **Done** |
 | Q3-4 | Simulateur /rp : intégration DVF (prix réels) | P2 | 5j | — | Not started |
 | Q3-5 | Mode sombre / thème adaptatif | P2 | 2j | — | Not started |
 | Q3-6 | ✅ Page /lmnp/comparer URL canonique + SEO | P1 | 1j | Q2-5, Q2-6 | **Done** |

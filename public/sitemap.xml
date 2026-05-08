@@ -36,7 +36,13 @@
     <loc>https://immoverdict.com/mentions-legales</loc>
     <changefreq>yearly</changefreq>
     <priority>0.2</priority>
-    <lastmod>2026-04-26</lastmod>
+    <lastmod>2026-05-09</lastmod>
+  </url>
+  <url>
+    <loc>https://immoverdict.com/politique-confidentialite</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.2</priority>
+    <lastmod>2026-05-09</lastmod>
   </url>
 
   <!-- Articles de blog -->
@@ -147,6 +153,48 @@
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
     <lastmod>2026-05-07</lastmod>
+  </url>
+  <url>
+    <loc>https://immoverdict.com/blog/plus-value-lmnp-revente</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <lastmod>2026-05-09</lastmod>
+  </url>
+  <url>
+    <loc>https://immoverdict.com/blog/cfe-lmnp-2026</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <lastmod>2026-05-09</lastmod>
+  </url>
+  <url>
+    <loc>https://immoverdict.com/blog/lmnp-meuble-tourisme-airbnb</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <lastmod>2026-05-09</lastmod>
+  </url>
+  <url>
+    <loc>https://immoverdict.com/blog/declaration-lmnp-formulaire-2031</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+    <lastmod>2026-05-09</lastmod>
+  </url>
+  <url>
+    <loc>https://immoverdict.com/blog/frais-notaire-achat-immobilier</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <lastmod>2026-05-09</lastmod>
+  </url>
+  <url>
+    <loc>https://immoverdict.com/blog/primo-accedant-aides-2026</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <lastmod>2026-05-09</lastmod>
+  </url>
+  <url>
+    <loc>https://immoverdict.com/blog/dpe-achat-immobilier</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <lastmod>2026-05-09</lastmod>
   </url>
 
 </urlset>
