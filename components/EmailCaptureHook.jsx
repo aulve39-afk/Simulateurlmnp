@@ -71,7 +71,7 @@
  *      };
  */
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const fmt    = (n) => new Intl.NumberFormat("fr-FR", { style:"currency", currency:"EUR", maximumFractionDigits:0 }).format(n ?? 0);
 const fmtK   = (n) => Math.abs(n ?? 0) >= 1000 ? `${((n ?? 0) / 1000).toFixed(1)}k€` : fmt(n);
@@ -237,13 +237,21 @@ function VersionA({ previewMetrics, onCapture, onSkip }) {
    Banner sticky en bas de page, non-intrusif,
    déclenché après 30 secondes ou scroll jusqu'au bas.
 ───────────────────────────────────────────── */
-function VersionB({ metrics, onCapture, onSkip }) {
+function VersionB({ metrics, onCapture, onSkip, initialMinimized = false }) {
   const [email,     setEmail]     = useState("");
   const [nom,       setNom]       = useState("");
   const [loading,   setLoading]   = useState(false);
-  const [minimized, setMinimized] = useState(false);
+  const [minimized, setMinimized] = useState(initialMinimized);
   const [sent,      setSent]      = useState(false);
   const [rgpd,      setRgpd]      = useState(false);
+
+  /* Auto-expand after 30s if still minimized */
+  useEffect(() => {
+    if (!initialMinimized) return;
+    const t = setTimeout(() => setMinimized(false), 30_000);
+    return () => clearTimeout(t);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const submit = async (e) => {
     e.preventDefault();
@@ -277,8 +285,8 @@ function VersionB({ metrics, onCapture, onSkip }) {
     return (
       <button
         onClick={() => setMinimized(false)}
-        className="fixed bottom-4 right-4 z-40 rounded-2xl px-4 py-3 shadow-2xl flex items-center gap-2 text-sm font-bold text-white"
-        style={{ background: "linear-gradient(135deg, #F97316, #EA580C)", boxShadow: "0 4px 20px rgba(249,115,22,0.4)" }}>
+        className="fixed right-4 z-40 rounded-2xl px-4 py-3 shadow-2xl flex items-center gap-2 text-sm font-bold text-white"
+        style={{ bottom: "76px", background: "linear-gradient(135deg, #F97316, #EA580C)", boxShadow: "0 4px 20px rgba(249,115,22,0.4)" }}>
         <span>📊</span>
         <span>Recevoir le rapport</span>
       </button>
@@ -388,9 +396,9 @@ function VersionB({ metrics, onCapture, onSkip }) {
 /* ─────────────────────────────────────────────
    EXPORT PRINCIPAL
 ───────────────────────────────────────────── */
-export default function EmailCaptureHook({ variant = "B", previewMetrics, metrics, onCapture, onSkip }) {
+export default function EmailCaptureHook({ variant = "B", previewMetrics, metrics, onCapture, onSkip, initialMinimized = false }) {
   if (variant === "A") {
     return <VersionA previewMetrics={previewMetrics} onCapture={onCapture} onSkip={onSkip} />;
   }
-  return <VersionB metrics={metrics} onCapture={onCapture} onSkip={onSkip} />;
+  return <VersionB metrics={metrics} onCapture={onCapture} onSkip={onSkip} initialMinimized={initialMinimized} />;
 }

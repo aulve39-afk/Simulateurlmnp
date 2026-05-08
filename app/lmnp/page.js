@@ -1,6 +1,7 @@
 "use client";
 import { useState, useMemo, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
+import EmailCaptureHook from "@/components/EmailCaptureHook";
 import {
   BarChart, Bar, AreaChart, Area, LineChart, Line,
   XAxis, YAxis, CartesianGrid, Tooltip as RTooltip,
@@ -3592,17 +3593,81 @@ ${amort?.chartData?.length?`
 
 </div></body></html>`;
 
-  const htmlWithPrint = html.replace("</body>",
-    `<script>window.addEventListener('load',function(){setTimeout(function(){window.print();window.addEventListener('afterprint',function(){window.close();});},800);});</scr`+`ipt></body>`);
-  const blob = new Blob([htmlWithPrint],{type:"text/html"});
+  const filename = `dossier-bancaire-lmnp-${new Date().toISOString().slice(0,10)}`;
+
+  /* Overlay de progression (caché dans le PDF via .no-print) */
+  const overlay = `
+<div id="pdf-overlay" class="no-print" style="position:fixed;inset:0;background:rgba(12,12,16,0.92);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;font-family:Arial,sans-serif;">
+  <div style="background:#1C2B3A;border:1px solid rgba(249,115,22,0.3);border-radius:16px;padding:32px 40px;text-align:center;max-width:360px;">
+    <div style="font-size:40px;margin-bottom:12px;">📄</div>
+    <p id="pdf-msg" style="color:#F8FAFC;font-size:15px;font-weight:700;margin-bottom:6px;">Génération du PDF…</p>
+    <p id="pdf-sub" style="color:rgba(248,250,252,0.5);font-size:12px;margin-bottom:20px;">Votre dossier est en cours de préparation</p>
+    <div style="height:4px;background:rgba(255,255,255,0.1);border-radius:2px;overflow:hidden;margin-bottom:20px;">
+      <div id="pdf-bar" style="height:4px;background:linear-gradient(90deg,#F97316,#EA580C);border-radius:2px;width:0%;transition:width 2s ease;"></div>
+    </div>
+    <button id="pdf-print-btn" onclick="window.print()" style="display:none;margin-top:8px;padding:10px 20px;background:rgba(249,115,22,0.15);border:1px solid rgba(249,115,22,0.3);border-radius:8px;color:#F97316;font-size:12px;cursor:pointer;">
+      🖨️ Imprimer à la place
+    </button>
+  </div>
+</div>`;
+
+  const script =
+`<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script>
+(function(){
+  var msg = document.getElementById('pdf-msg');
+  var sub = document.getElementById('pdf-sub');
+  var bar = document.getElementById('pdf-bar');
+  var printBtn = document.getElementById('pdf-print-btn');
+  var overlay = document.getElementById('pdf-overlay');
+  function setStatus(m,s){ if(msg) msg.textContent=m; if(sub) sub.textContent=s||''; }
+  setTimeout(function(){ if(bar) bar.style.width='60%'; },200);
+
+  window.addEventListener('load', function(){
+    if(typeof html2pdf === 'undefined'){
+      setStatus('Ouverture impression…','html2pdf non disponible (hors ligne ?)');
+      if(printBtn) printBtn.style.display='block';
+      setTimeout(function(){ window.print(); }, 600);
+      return;
+    }
+    setStatus('Génération du PDF…','Peut prendre quelques secondes');
+    if(bar) bar.style.width='80%';
+    var el = document.querySelector('.page');
+    var opt = {
+      margin: [8, 10, 8, 10],
+      filename: '${filename}.pdf',
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2, logging: false, useCORS: true, allowTaint: true },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    };
+    html2pdf().set(opt).from(el).save()
+      .then(function(){
+        if(bar) bar.style.width='100%';
+        setStatus('✅ PDF téléchargé !','Vous pouvez fermer cette fenêtre');
+        setTimeout(function(){ if(overlay) overlay.style.display='none'; window.close(); }, 2000);
+      })
+      .catch(function(err){
+        setStatus('Fallback impression','Une erreur s\\'est produite');
+        if(printBtn) printBtn.style.display='block';
+        console.error('html2pdf error:', err);
+      });
+  });
+})();
+</scr`+`ipt>`;
+
+  const htmlFinal = html.replace("</body>", overlay + script + "</body>");
+  const blob = new Blob([htmlFinal], { type: "text/html" });
   const url  = URL.createObjectURL(blob);
-  const w    = window.open(url,"_blank");
+  const w    = window.open(url, "_blank");
   if (!w) {
+    /* Popup bloqué → fallback: télécharger le HTML avec instructions */
     const a = document.createElement("a");
-    a.href = url; a.download = `dossier-bancaire-lmnp-${new Date().toISOString().slice(0,10)}.html`;
+    a.href = url;
+    a.download = `${filename}.html`;
     document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    alert("Le téléchargement a démarré. Ouvrez le fichier dans votre navigateur puis Fichier → Imprimer → Enregistrer en PDF.");
   }
-  setTimeout(()=>URL.revokeObjectURL(url),30000);
+  setTimeout(() => URL.revokeObjectURL(url), 60000);
 }
 
 /* ════════════════════════════════════════
@@ -3994,7 +4059,7 @@ function StepDossier({ form, results, amort }) {
           TÉLÉCHARGER LE DOSSIER EN PDF
         </button>
         <p style={{textAlign:"center",fontSize:11,color:"#94A3B8",marginTop:8,fontFamily:"Arial,sans-serif"}}>
-          S'ouvre dans un nouvel onglet · <strong>Fichier → Imprimer → Enregistrer en PDF</strong> · Format A4
+          Le PDF se télécharge automatiquement · Format A4 · Dossier officiel
         </p>
       </div>
 
@@ -4688,6 +4753,10 @@ export default function App() {
   const [showArgumentaire,setShowArgumentaire]= useState(false);
   const topRef = useRef(null);
 
+  /* ── A/B Email Capture Hook ── */
+  const [abVariant]      = useState(() => Math.random() < 0.5 ? "A" : "B");
+  const [emailCaptured,  setEmailCaptured]   = useState(false);
+
   const set = (k) => (v) => setForm(f => ({ ...f, [k]: v }));
 
   /* ── Multi-biens ── */
@@ -4844,6 +4913,51 @@ export default function App() {
     }
     setPhase("sim");
     window.scrollTo(0, 0);
+  };
+
+  /* ── A/B impression tracking ── */
+  useEffect(() => {
+    if (step !== 3) return;
+    if (typeof window !== "undefined" && typeof window.gtag !== "undefined") {
+      window.gtag("event", "ab_impression", { variant: abVariant, page: "lmnp" });
+    }
+  }, [step, abVariant]);
+
+  /* ── Email capture handler (Supabase + Resend) ── */
+  const handleEmailCapture = async (email, nom) => {
+    // Tracking GA4
+    if (typeof window !== "undefined" && typeof window.gtag !== "undefined") {
+      window.gtag("event", "email_capture", { variant: abVariant, method: "hook" });
+    }
+    // Supabase
+    if (sb) {
+      try {
+        await sb.from("leads").upsert({
+          email, nom,
+          params: form,
+          tri:        results?.[0]?.tri,
+          cashflow_m: results?.[0]?.cashflowM,
+          source:     `email_hook_${abVariant}`,
+          created_at: new Date().toISOString(),
+        });
+      } catch (err) {
+        console.error("Supabase leads insert:", err);
+      }
+    }
+    // Resend via API route
+    try {
+      await fetch("/api/send-report", {
+        method:  "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email, nom,
+          params: form,
+          tri:    results?.[0]?.tri,
+        }),
+      });
+    } catch (err) {
+      console.error("send-report API:", err);
+    }
   };
 
   const results = useMemo(() => {
@@ -5082,6 +5196,21 @@ export default function App() {
       {showLead && <LeadModal onClose={() => setShowLead(false)} form={form} results={results} />}
       {showArgumentaire && results && (
         <ArgumentaireModal form={form} results={results} onClose={() => setShowArgumentaire(false)} />
+      )}
+
+      {/* ── EMAIL CAPTURE HOOK (A/B test) ── */}
+      {step === 3 && results && !emailCaptured && (
+        <EmailCaptureHook
+          variant={abVariant}
+          previewMetrics={results[0]}
+          metrics={results[0]}
+          initialMinimized={true}
+          onCapture={async (email, nom) => {
+            await handleEmailCapture(email, nom);
+            setEmailCaptured(true);
+          }}
+          onSkip={() => setEmailCaptured(true)}
+        />
       )}
     </div>
   );

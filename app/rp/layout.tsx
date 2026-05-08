@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Simulateur Résidence Principale — PTZ, DPE, DVF, Louer vs Acheter | ImmoVerdict",
   description:
-    "Calculez votre capacité d'emprunt, simulez votre PTZ 2024, analysez le DPE & budget travaux, consultez les prix DVF et comparez louer vs acheter. Gratuit.",
+    "Calculez votre capacité d'emprunt, simulez votre PTZ 2026, analysez le DPE & budget travaux, consultez les prix DVF et comparez louer vs acheter. Gratuit.",
   openGraph: {
     title: "Simulateur Résidence Principale — PTZ, DPE, DVF | ImmoVerdict",
     description:
