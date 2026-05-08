@@ -756,6 +756,21 @@ footer{
     transition-duration:.01ms!important;scroll-behavior:auto!important}
 }
 </style>
+
+<!-- PWA manifest -->
+<link rel="manifest" href="/manifest.json"/>
+<meta name="theme-color" content="#F97316"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+
+<!-- Google Analytics 4 -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-TCKL45LSQS"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-TCKL45LSQS', { page_path: window.location.pathname });
+</script>
 </head>
 <body>
 
@@ -1416,6 +1431,21 @@ const verdictObs = new IntersectionObserver(entries => {
 }, { threshold: 0.3 });
 const heroRight = document.querySelector('.hero-right');
 if (heroRight) verdictObs.observe(heroRight);
+
+/* ── Service Worker ── */
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function() {
+    navigator.serviceWorker.register('/sw.js', { scope: '/' })
+      .then(function(reg) { console.log('[SW] enregistré:', reg.scope); })
+      .catch(function(err) { console.warn('[SW] échec:', err); });
+  });
+}
+/* ── GA4 home page event ── */
+window.addEventListener('load', function() {
+  try {
+    window.gtag?.('event', 'page_view', { page_title: 'home', page_location: window.location.href });
+  } catch(_) {}
+});
 </script>
 </body>
 </html>
