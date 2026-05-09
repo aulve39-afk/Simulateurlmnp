@@ -118,32 +118,41 @@ export default async function BlogPostPage({ params }) {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }} />
 
       {/* ── NAV ── */}
-      <nav style={{ borderBottom:"1px solid rgba(240,235,224,0.08)", padding:"0 48px", height:60, display:"flex", alignItems:"center", justifyContent:"space-between", position:"sticky", top:0, background:"rgba(12,12,16,0.92)", backdropFilter:"blur(20px)", zIndex:50 }}>
+      <a href="#article-main" className="skip-nav">Aller au contenu</a>
+      <nav className="site-nav" style={{ borderBottom:"1px solid rgba(240,235,224,0.08)", padding:"0 48px", height:60, display:"flex", alignItems:"center", justifyContent:"space-between", position:"sticky", top:0, background:"rgba(12,12,16,0.92)", backdropFilter:"blur(20px)", zIndex:50 }}>
         <Link href="/" style={{ display:"flex", alignItems:"center", gap:12, textDecoration:"none" }}>
           <LogoMark />
           <span style={{ fontFamily:"'DM Sans',sans-serif", fontWeight:700, fontSize:15, color:"#F0EBE0", letterSpacing:"-.2px" }}>
             Immo<span style={{ color:"#F97316" }}>Verdict</span>
           </span>
         </Link>
-        <div style={{ display:"flex", alignItems:"center", gap:0 }}>
-          {[
-            { href:"/lmnp",     label:"Simulateur LMNP" },
-            { href:"/rp",       label:"Résidence Principale" },
-            { href:"/blog",     label:"Blog", active:true },
-            { href:"/a-propos", label:"À propos" },
-          ].map(({href,label,active}) => (
-            <Link key={href} href={href} style={{
-              display:"inline-block", padding:"0 20px", height:60, lineHeight:"60px",
-              fontSize:13, fontWeight:500, textDecoration:"none",
-              color: active ? "#F97316" : "rgba(240,235,224,0.5)",
-              borderBottom: active ? "2px solid #F97316" : "2px solid transparent",
-            }}>{label}</Link>
-          ))}
+        <div style={{ display:"flex", alignItems:"center" }}>
+          <div className="site-nav-links">
+            {[
+              { href:"/lmnp",     label:"Simulateur LMNP" },
+              { href:"/rp",       label:"Résidence Principale" },
+              { href:"/blog",     label:"Blog", active:true },
+              { href:"/a-propos", label:"À propos" },
+            ].map(({href,label,active}) => (
+              <Link key={href} href={href} style={{
+                display:"inline-block", padding:"0 20px", height:60, lineHeight:"60px",
+                fontSize:13, fontWeight:500, textDecoration:"none",
+                color: active ? "#F97316" : "rgba(240,235,224,0.5)",
+                borderBottom: active ? "2px solid #F97316" : "2px solid transparent",
+              }}>{label}</Link>
+            ))}
+          </div>
+          <Link href="/lmnp" style={{
+            marginLeft:16, padding:"8px 18px", background:"#F97316", color:"#0C0C10",
+            fontWeight:700, fontSize:13, textDecoration:"none", letterSpacing:".01em",
+          }}>
+            Simuler
+          </Link>
         </div>
       </nav>
 
       {/* ── BREADCRUMB ── */}
-      <div style={{ maxWidth:740, margin:"0 auto", padding:"24px 48px 0" }}>
+      <div className="article-breadcrumb" style={{ maxWidth:740, margin:"0 auto", padding:"24px 48px 0" }}>
         <p style={{ fontSize:12, color:"rgba(240,235,224,0.3)", letterSpacing:".5px" }}>
           <Link href="/blog" style={{ color:"rgba(249,115,22,0.7)", textDecoration:"none" }}>Blog</Link>
           <span style={{ margin:"0 10px", opacity:.4 }}>›</span>
@@ -152,7 +161,7 @@ export default async function BlogPostPage({ params }) {
       </div>
 
       {/* ── ARTICLE HEADER ── */}
-      <header style={{ maxWidth:740, margin:"0 auto", padding:"32px 48px 40px" }}>
+      <header className="article-header" style={{ maxWidth:740, margin:"0 auto", padding:"32px 48px 40px" }}>
         {post.category && (
           <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:20 }}>
             <div style={{ width:3, height:20, background:"#F97316" }} />
@@ -190,11 +199,11 @@ export default async function BlogPostPage({ params }) {
       <div style={{ maxWidth:740, margin:"0 auto 0 calc((100% - 740px)/2)", borderTop:"1px solid rgba(240,235,224,0.08)" }} />
 
       {/* ── CORPS DE L'ARTICLE ── */}
-      <main style={{ maxWidth:740, margin:"0 auto", padding:"48px 48px 96px" }}>
+      <main id="article-main" className="article-main" style={{ maxWidth:740, margin:"0 auto", padding:"48px 48px 96px" }}>
         <div className="prose-article" dangerouslySetInnerHTML={{ __html: post.contentHtml }} />
 
         {/* ── CTA BAS DE PAGE ── */}
-        <div style={{ marginTop:64, borderTop:"3px solid #F97316", padding:"40px 40px 36px", background:"rgba(249,115,22,0.05)", border:"1px solid rgba(249,115,22,0.2)" }}>
+        <div className="article-cta" style={{ marginTop:64, padding:"40px 40px 36px", background:"rgba(249,115,22,0.05)", border:"1px solid rgba(249,115,22,0.2)", borderTop:"3px solid #F97316" }}>
           <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:16 }}>
             <div style={{ width:3, height:24, background:"#F97316" }} />
             <span style={{ fontSize:10, fontWeight:700, letterSpacing:"2.5px", textTransform:"uppercase", color:"#F97316" }}>
@@ -207,7 +216,7 @@ export default async function BlogPostPage({ params }) {
           <p style={{ fontSize:".9rem", color:"rgba(240,235,224,0.45)", marginBottom:28, lineHeight:1.7 }}>
             Notre simulateur intègre tous les régimes fiscaux et vous donne une réponse personnalisée en 2 minutes.
           </p>
-          <div style={{ display:"flex", flexWrap:"wrap", gap:12 }}>
+          <div className="article-cta-btns" style={{ display:"flex", flexWrap:"wrap", gap:12 }}>
             <Link href="/lmnp" style={{
               padding:"12px 24px", background:"#F97316", color:"#0C0C10",
               fontWeight:700, fontSize:13, textDecoration:"none", letterSpacing:".02em",
@@ -232,7 +241,7 @@ export default async function BlogPostPage({ params }) {
                 À lire aussi
               </span>
             </div>
-            <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill,minmax(200px,1fr))", gap:1, background:"rgba(240,235,224,0.08)" }}>
+            <div className="related-grid" style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill,minmax(200px,1fr))", gap:1, background:"rgba(240,235,224,0.08)" }}>
               {related.map((r) => {
                 const rDate = r.date
                   ? new Date(r.date).toLocaleDateString("fr-FR", { day:"numeric", month:"short", year:"numeric" })
@@ -267,17 +276,19 @@ export default async function BlogPostPage({ params }) {
       </main>
 
       {/* ── FOOTER ── */}
-      <footer style={{ borderTop:"1px solid rgba(240,235,224,0.08)", padding:"32px 48px", display:"flex", alignItems:"center", justifyContent:"space-between" }}>
+      <footer className="site-footer" style={{ borderTop:"1px solid rgba(240,235,224,0.08)", padding:"32px 48px", display:"flex", alignItems:"center", justifyContent:"space-between" }}>
         <div style={{ display:"flex", alignItems:"center", gap:10 }}>
           <LogoMark />
           <span style={{ fontSize:13, fontWeight:700, color:"rgba(240,235,224,0.5)" }}>
             Immo<span style={{ color:"#F97316" }}>Verdict</span>
           </span>
         </div>
-        <p style={{ fontSize:12, color:"rgba(240,235,224,0.25)" }}>
-          © {new Date().getFullYear()} ImmoVerdict —{" "}
-          <Link href="/mentions-legales" style={{ color:"rgba(249,115,22,0.6)", textDecoration:"none" }}>Mentions légales</Link>
-        </p>
+        <div className="site-footer-links" style={{ display:"flex", gap:24, alignItems:"center" }}>
+          <p style={{ fontSize:12, color:"rgba(240,235,224,0.25)", margin:0 }}>
+            © {new Date().getFullYear()} ImmoVerdict —{" "}
+            <Link href="/mentions-legales" style={{ color:"rgba(249,115,22,0.6)", textDecoration:"none" }}>Mentions légales</Link>
+          </p>
+        </div>
       </footer>
     </div>
   );

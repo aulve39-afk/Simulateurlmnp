@@ -445,6 +445,88 @@ input[type="range"]::-moz-range-thumb {
 .pb-safe { padding-bottom: env(safe-area-inset-bottom, 16px); }
 
 /* ════════════════════════════════════════
+   SKIP NAV (accessibilité clavier)
+════════════════════════════════════════ */
+.skip-nav {
+  position: absolute;
+  top: -100px;
+  left: 16px;
+  z-index: 200;
+  background: #F97316;
+  color: #0C0C10;
+  font-weight: 700;
+  font-size: 13px;
+  padding: 8px 16px;
+  transition: top .1s;
+  text-decoration: none;
+}
+.skip-nav:focus { top: 8px; }
+
+/* ════════════════════════════════════════
+   FOCUS VISIBLE — accessibilité clavier
+════════════════════════════════════════ */
+a:focus-visible {
+  outline: 2px solid #F97316;
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* ════════════════════════════════════════
+   RESPONSIVE — Blog & Articles
+════════════════════════════════════════ */
+
+/* Nav : on cache les liens texte sur mobile, on garde logo + CTA */
+.site-nav-links { display: flex; align-items: center; gap: 0; }
+
+/* Catégories : scroll horizontal sur petit écran */
+@media (max-width: 640px) {
+  .cat-filter {
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 6px !important;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(249,115,22,0.4) transparent;
+  }
+  .cat-filter::-webkit-scrollbar { height: 2px; }
+  .cat-filter::-webkit-scrollbar-thumb { background: rgba(249,115,22,0.4); border-radius: 2px; }
+}
+
+@media (max-width: 768px) {
+  /* ── Navigation ── */
+  .site-nav { padding: 0 16px !important; }
+  .site-nav-links { display: none !important; }
+
+  /* ── Blog liste ── */
+  .blog-hero { padding: 40px 20px 32px !important; }
+  .blog-sep  { margin-left: 20px !important; margin-right: 20px !important; }
+  .blog-main { padding: 0 20px 64px !important; }
+
+  /* Grille : 1 colonne, sans border-right (géré par outline du grid) */
+  .blog-grid { border: none !important; }
+  .blog-grid > a {
+    border-right: none !important;
+    border-bottom: 1px solid rgba(240,235,224,0.08) !important;
+  }
+
+  /* ── Article ── */
+  .article-breadcrumb { padding: 16px 20px 0 !important; }
+  .article-header     { padding: 20px 20px 32px !important; }
+  .article-main       { padding: 32px 20px 64px !important; }
+
+  /* CTA bas d'article : empiler verticalement */
+  .article-cta      { flex-direction: column !important; }
+  .article-cta-btns { flex-direction: column !important; }
+
+  /* Articles liés : 1 colonne */
+  .related-grid { grid-template-columns: 1fr !important; }
+
+  /* ── Footer ── */
+  .site-footer { flex-direction: column !important; align-items: flex-start !important; gap: 16px !important; padding: 24px 20px !important; }
+  .site-footer-links { flex-direction: column !important; align-items: flex-start !important; gap: 10px !important; }
+}
+
+/* ════════════════════════════════════════
    RECHARTS DARK THEME
 ════════════════════════════════════════ */
 .recharts-tooltip-wrapper .recharts-default-tooltip {

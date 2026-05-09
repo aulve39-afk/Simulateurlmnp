@@ -49,28 +49,31 @@ export default async function BlogPage({ searchParams }) {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListSchema) }} />
 
       {/* ── NAV ── */}
-      <nav style={{ borderBottom:"1px solid rgba(240,235,224,0.08)", padding:"0 48px", height:60, display:"flex", alignItems:"center", justifyContent:"space-between", position:"sticky", top:0, background:"rgba(12,12,16,0.92)", backdropFilter:"blur(20px)", zIndex:50 }}>
+      <a href="#blog-main" className="skip-nav">Aller au contenu</a>
+      <nav className="site-nav" style={{ borderBottom:"1px solid rgba(240,235,224,0.08)", padding:"0 48px", height:60, display:"flex", alignItems:"center", justifyContent:"space-between", position:"sticky", top:0, background:"rgba(12,12,16,0.92)", backdropFilter:"blur(20px)", zIndex:50 }}>
         <Link href="/" style={{ display:"flex", alignItems:"center", gap:12, textDecoration:"none" }}>
           <LogoMark />
           <span style={{ fontFamily:"'DM Sans',sans-serif", fontWeight:700, fontSize:15, color:"#F0EBE0", letterSpacing:"-.2px" }}>
             Immo<span style={{ color:"#F97316" }}>Verdict</span>
           </span>
         </Link>
-        <div style={{ display:"flex", alignItems:"center", gap:0 }}>
-          {[
-            { href:"/lmnp",      label:"Simulateur LMNP" },
-            { href:"/rp",        label:"Résidence Principale" },
-            { href:"/blog",      label:"Blog", active:true },
-            { href:"/a-propos",  label:"À propos" },
-          ].map(({href,label,active}) => (
-            <Link key={href} href={href} style={{
-              display:"inline-block", padding:"0 16px", height:60, lineHeight:"60px",
-              fontSize:13, fontWeight:500, textDecoration:"none",
-              color: active ? "#F97316" : "rgba(240,235,224,0.5)",
-              borderBottom: active ? "2px solid #F97316" : "2px solid transparent",
-              transition:"color .2s",
-            }}>{label}</Link>
-          ))}
+        <div style={{ display:"flex", alignItems:"center" }}>
+          <div className="site-nav-links">
+            {[
+              { href:"/lmnp",      label:"Simulateur LMNP" },
+              { href:"/rp",        label:"Résidence Principale" },
+              { href:"/blog",      label:"Blog", active:true },
+              { href:"/a-propos",  label:"À propos" },
+            ].map(({href,label,active}) => (
+              <Link key={href} href={href} style={{
+                display:"inline-block", padding:"0 16px", height:60, lineHeight:"60px",
+                fontSize:13, fontWeight:500, textDecoration:"none",
+                color: active ? "#F97316" : "rgba(240,235,224,0.5)",
+                borderBottom: active ? "2px solid #F97316" : "2px solid transparent",
+                transition:"color .2s",
+              }}>{label}</Link>
+            ))}
+          </div>
           <Link href="/lmnp" style={{
             marginLeft:16, padding:"8px 18px", background:"#F97316", color:"#0C0C10",
             fontWeight:700, fontSize:13, textDecoration:"none", letterSpacing:".01em",
@@ -81,7 +84,7 @@ export default async function BlogPage({ searchParams }) {
       </nav>
 
       {/* ── HERO ── */}
-      <header style={{ maxWidth:1080, margin:"0 auto", padding:"72px 48px 48px" }}>
+      <header className="blog-hero" style={{ maxWidth:1080, margin:"0 auto", padding:"72px 48px 48px" }}>
         <div style={{ display:"flex", alignItems:"center", gap:12, marginBottom:20 }}>
           <div style={{ width:3, height:36, background:"#F97316" }} />
           <span style={{ fontSize:11, fontWeight:700, letterSpacing:"3px", textTransform:"uppercase", color:"#F97316" }}>
@@ -97,7 +100,7 @@ export default async function BlogPage({ searchParams }) {
 
         {/* Filtre catégories cliquable */}
         {categories.length > 1 && (
-          <div style={{ display:"flex", flexWrap:"wrap", gap:8, marginTop:32 }}>
+          <div className="cat-filter" style={{ display:"flex", flexWrap:"wrap", gap:8, marginTop:32 }}>
             <Link
               href="/blog"
               style={{
@@ -136,17 +139,17 @@ export default async function BlogPage({ searchParams }) {
       </header>
 
       {/* Ligne séparatrice */}
-      <div style={{ maxWidth:1080, margin:"0 auto 48px", borderTop:"1px solid rgba(240,235,224,0.08)" }} />
+      <div className="blog-sep" style={{ maxWidth:1080, margin:"0 auto 48px", borderTop:"1px solid rgba(240,235,224,0.08)" }} />
 
       {/* ── GRILLE ARTICLES ── */}
-      <main style={{ maxWidth:1080, margin:"0 auto", padding:"0 48px 96px" }}>
+      <main id="blog-main" className="blog-main" style={{ maxWidth:1080, margin:"0 auto", padding:"0 48px 96px" }}>
         {posts.length === 0 ? (
           <div style={{ textAlign:"center", padding:"80px 0" }}>
             <p style={{ color:"rgba(240,235,224,0.3)", marginBottom:16 }}>Aucun article dans cette catégorie.</p>
             <Link href="/blog" style={{ fontSize:13, color:"rgba(249,115,22,0.7)", textDecoration:"none" }}>← Voir tous les articles</Link>
           </div>
         ) : (
-          <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill,minmax(300px,1fr))", gap:0, border:"1px solid rgba(240,235,224,0.08)" }}>
+          <div className="blog-grid" style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill,minmax(300px,1fr))", gap:0, border:"1px solid rgba(240,235,224,0.08)" }}>
             {posts.map((post, i) => (
               <ArticleCard key={post.slug} post={post} index={i} />
             ))}
@@ -155,14 +158,14 @@ export default async function BlogPage({ searchParams }) {
       </main>
 
       {/* ── FOOTER ── */}
-      <footer style={{ borderTop:"1px solid rgba(240,235,224,0.08)", padding:"32px 48px", display:"flex", alignItems:"center", justifyContent:"space-between" }}>
+      <footer className="site-footer" style={{ borderTop:"1px solid rgba(240,235,224,0.08)", padding:"32px 48px", display:"flex", alignItems:"center", justifyContent:"space-between" }}>
         <div style={{ display:"flex", alignItems:"center", gap:10 }}>
           <LogoMark />
           <span style={{ fontSize:13, fontWeight:700, color:"rgba(240,235,224,0.5)" }}>
             Immo<span style={{ color:"#F97316" }}>Verdict</span>
           </span>
         </div>
-        <div style={{ display:"flex", gap:24, alignItems:"center" }}>
+        <div className="site-footer-links" style={{ display:"flex", gap:24, alignItems:"center" }}>
           <Link href="/a-propos" style={{ fontSize:12, color:"rgba(240,235,224,0.3)", textDecoration:"none" }}>À propos</Link>
           <p style={{ fontSize:12, color:"rgba(240,235,224,0.25)" }}>
             © {new Date().getFullYear()} ImmoVerdict —{" "}
