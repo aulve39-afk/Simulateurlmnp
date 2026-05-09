@@ -755,6 +755,25 @@ footer{
   *{animation-duration:.01ms!important;animation-iteration-count:1!important;
     transition-duration:.01ms!important;scroll-behavior:auto!important}
 }
+/* ── Inline email capture (post-hero) ── */
+.inline-capture{border-top:1px solid rgba(240,235,224,0.08);border-bottom:1px solid rgba(240,235,224,0.08);padding:28px 64px;background:rgba(255,255,255,0.02)}
+.inline-capture-inner{max-width:1080px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:32px;flex-wrap:wrap}
+.inline-capture-left{display:flex;flex-direction:column;gap:4px}
+.inline-capture-eyebrow{font-size:10px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--orange)}
+.inline-capture-text{font-size:13px;color:rgba(240,235,224,0.55);max-width:340px}
+.inline-capture-form{display:flex;gap:8px;flex-shrink:0;position:relative}
+.inline-email-input{background:rgba(255,255,255,0.06);border:1px solid rgba(240,235,224,0.15);color:var(--off-white);font-size:13px;padding:10px 16px;width:220px;outline:none;font-family:inherit}
+.inline-email-input:focus{border-color:rgba(249,115,22,0.5)}
+.inline-email-input::placeholder{color:rgba(240,235,224,0.3)}
+.inline-email-btn{background:transparent;border:1px solid var(--orange);color:var(--orange);font-size:12px;font-weight:700;padding:10px 18px;cursor:pointer;font-family:inherit;letter-spacing:.02em;transition:background .2s,color .2s;white-space:nowrap}
+.inline-email-btn:hover{background:var(--orange);color:#0C0C10}
+.inline-capture-ok{display:none;font-size:12px;color:#4ADE80;margin-top:6px;text-align:center}
+@media(max-width:768px){
+  .inline-capture{padding:24px 24px}
+  .inline-capture-inner{flex-direction:column;align-items:flex-start;gap:16px}
+  .inline-capture-form{width:100%}
+  .inline-email-input{flex:1;min-width:0;width:auto}
+}
 </style>
 
 <!-- PWA manifest -->
@@ -795,11 +814,11 @@ footer{
     <div class="nav-logo-text">Immo<em>Verdict</em></div>
   </a>
   <div class="nav-links">
-    <a href="#services" class="nav-link">Simulateurs</a>
-    <a href="#comment" class="nav-link">Comment ça marche</a>
-    <a href="#avis" class="nav-link">Témoignages</a>
+    <a href="/lmnp" class="nav-link">Simulateur LMNP</a>
+    <a href="/rp" class="nav-link">Résidence Principale</a>
     <a href="/blog" class="nav-link">Blog</a>
-    <a href="/lmnp" class="nav-cta">Lancer le simulateur →</a>
+    <a href="/a-propos" class="nav-link">À propos</a>
+    <a href="/lmnp" class="nav-cta">Simuler →</a>
   </div>
   <button class="hamburger" id="hamburger-btn" aria-label="Ouvrir le menu" aria-expanded="false">
     <span></span><span></span><span></span>
@@ -808,12 +827,11 @@ footer{
 
 <!-- Mobile menu -->
 <div class="mobile-menu" id="mobile-menu" role="dialog" aria-label="Navigation principale">
-  <a href="#services" onclick="closeMobileMenu()">Simulateurs</a>
-  <a href="#comment" onclick="closeMobileMenu()">Comment ça marche</a>
-  <a href="#avis" onclick="closeMobileMenu()">Témoignages</a>
+  <a href="/lmnp" onclick="closeMobileMenu()">Simulateur LMNP</a>
+  <a href="/rp" onclick="closeMobileMenu()">Résidence Principale</a>
   <a href="/blog" onclick="closeMobileMenu()">Blog</a>
-  <a href="/lmnp" class="nav-cta" onclick="closeMobileMenu()">Simulateur LMNP →</a>
-  <a href="/rp" style="background:var(--surface-2);color:var(--off-white);margin-top:8px;padding:14px 32px;font-size:14px;width:auto;" onclick="closeMobileMenu()">Outils Primo-accédant →</a>
+  <a href="/a-propos" onclick="closeMobileMenu()">À propos</a>
+  <a href="/lmnp" class="nav-cta" onclick="closeMobileMenu()">Simuler →</a>
 </div>
 
 <!-- HERO -->
@@ -896,6 +914,24 @@ footer{
   </div>
 </section>
 
+<!-- INLINE EMAIL CAPTURE -->
+<div class="inline-capture">
+  <div class="inline-capture-inner">
+    <div class="inline-capture-left">
+      <span class="inline-capture-eyebrow">Guides LMNP gratuits</span>
+      <span class="inline-capture-text">Études de cas chiffrées, veille fiscale 2026 — dans votre boîte, en 1 clic. Sans compte.</span>
+    </div>
+    <div>
+      <div class="inline-capture-form">
+        <label for="inline-email-input" style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0">Votre adresse email</label>
+        <input id="inline-email-input" class="inline-email-input" type="email" placeholder="Votre email" autocomplete="email"/>
+        <button class="inline-email-btn" onclick="inlineEmailStart()">Recevoir →</button>
+      </div>
+      <p id="inline-capture-ok" class="inline-capture-ok">✓ Inscription confirmée — vérifiez votre boîte.</p>
+    </div>
+  </div>
+</div>
+
 <!-- SERVICES -->
 <section class="section" id="services">
   <div class="section-inner">
@@ -916,11 +952,9 @@ footer{
         <h3 class="service-h">Investissement LMNP</h3>
         <p class="service-p">Comparez 4 régimes fiscaux en temps réel. Calculez votre TRI, bouclier fiscal et générez un dossier bancaire complet en PDF.</p>
         <ul class="service-list">
-          <li>Amortissement par composants (CGI Art. 39 C)</li>
           <li>LMNP Réel, Micro-BIC, SCI IS/IR comparés</li>
           <li>Cash-flow & TRI sur 20 ans</li>
           <li>Dossier bancaire PDF 7 pages</li>
-          <li>Bouclier fiscal & projection patrimoniale</li>
         </ul>
         <span class="service-link">Lancer le simulateur →</span>
       </a>
@@ -932,10 +966,8 @@ footer{
         <p class="service-p">5 outils pour acheter votre premier bien sereinement. PTZ, DPE, données marché, louer vs acheter, checklist de visite.</p>
         <ul class="service-list">
           <li>Calculateur PTZ 2026 (barème officiel)</li>
-          <li>Analyseur DPE + budget rénovation</li>
           <li>Prix marché via données DVF live</li>
           <li>Comparaison Louer vs Acheter sur 25 ans</li>
-          <li>Checklist de visite interactive</li>
         </ul>
         <span class="service-link">Accéder aux outils →</span>
       </a>
@@ -948,9 +980,7 @@ footer{
         <ul class="service-list">
           <li>Études de cas avec chiffres réels</li>
           <li>Guides LMNP, PTZ, fiscalité 2026</li>
-          <li>Références légales CGI commentées</li>
           <li>Veille réglementaire (DPE, Micro-BIC)</li>
-          <li>Conseils selon votre TMI</li>
         </ul>
         <span class="service-link">Voir les guides →</span>
       </a>
@@ -1210,6 +1240,7 @@ footer{
     </div>
     <div class="cta-right reveal">
       <div class="cta-form-label">Guides LMNP gratuits par email</div>
+      <label for="cta-email-input" style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0">Votre adresse email</label>
       <input id="cta-email-input" class="cta-input" type="email" placeholder="Votre adresse email"/>
       <p id="cta-error" style="display:none;color:#F87171;font-size:12px;margin-bottom:8px;">⚠️ Merci de saisir une adresse email valide.</p>
       <p id="cta-confirm" style="display:none;color:#4ADE80;font-size:12px;margin-bottom:8px;">✓ Inscription confirmée — vérifiez votre boîte.</p>
@@ -1372,6 +1403,30 @@ function ctaStart() {
 }
 document.getElementById('cta-email-input')?.addEventListener('keydown', e => {
   if (e.key === 'Enter') ctaStart();
+});
+
+/* ── Inline email capture (post-hero) ── */
+function inlineEmailStart() {
+  const input = document.getElementById('inline-email-input');
+  const okEl  = document.getElementById('inline-capture-ok');
+  const btn   = document.querySelector('.inline-email-btn');
+  if (!input) return;
+  const email = input.value.trim();
+  const valid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  if (!valid) { input.focus(); input.style.borderColor='rgba(248,113,113,0.6)'; return; }
+  input.style.borderColor='rgba(249,115,22,0.5)';
+  try { localStorage.setItem('immoverdict_email', email); } catch(e) {}
+  fetch('https://formsubmit.co/ajax/contact@immoverdict.com', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+    body: JSON.stringify({ email, _subject: 'ImmoVerdict — Inscription (inline hero)' }),
+  }).catch(() => {});
+  if (okEl)  { okEl.style.display = 'block'; }
+  if (btn)   { btn.disabled = true; btn.textContent = '✓'; btn.style.opacity = '0.7'; }
+  if (input) { input.disabled = true; }
+}
+document.getElementById('inline-email-input')?.addEventListener('keydown', e => {
+  if (e.key === 'Enter') inlineEmailStart();
 });
 
 /* ── Contact form ── */

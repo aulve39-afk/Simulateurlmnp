@@ -467,7 +467,7 @@ function LandingPage({ onStart }) {
 
           <h1 className="text-white font-extrabold leading-tight mb-3"
             style={{ fontSize:"clamp(1.55rem, 6vw, 2.25rem)", letterSpacing:"-0.03em" }}>
-            Devenez intouchable<br />fiscalement.
+            Devenez <em style={{ fontFamily:"'DM Serif Display',Georgia,serif", fontStyle:"italic", fontWeight:400, color:"#F97316" }}>intouchable</em><br />fiscalement.
           </h1>
           <p className="text-orange-200 text-sm leading-relaxed mb-2" style={{ maxWidth:400 }}>
             Validez votre projet LMNP et économisez jusqu&apos;à{" "}
