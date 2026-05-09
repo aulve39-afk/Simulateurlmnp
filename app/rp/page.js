@@ -832,6 +832,46 @@ function AssistantNegociation() {
           </div>
         )}
       </div>
+
+      {/* ── CTA maillage : DVF → Simulateur LMNP ── */}
+      <div style={{
+        marginTop: 20,
+        background: "linear-gradient(135deg, rgba(249,115,22,0.10), rgba(249,115,22,0.04))",
+        border: "1px solid rgba(249,115,22,0.25)",
+        borderRadius: 14,
+        padding: "18px 20px",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        gap: 16,
+        flexWrap: "wrap",
+      }}>
+        <div>
+          <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: "1.5px", textTransform: "uppercase", color: "#F97316", marginBottom: 6 }}>
+            Vous avez votre prix de négociation ?
+          </div>
+          <div style={{ fontSize: 13, color: "rgba(248,250,252,0.7)", lineHeight: 1.5 }}>
+            Calculez maintenant la rentabilité LMNP de ce bien — TRI, cash-flow, bouclier fiscal.
+          </div>
+        </div>
+        <a
+          href="/lmnp"
+          style={{
+            flexShrink: 0,
+            background: "#F97316",
+            color: "#0C0C10",
+            fontWeight: 700,
+            fontSize: 12,
+            letterSpacing: ".5px",
+            textTransform: "uppercase",
+            padding: "10px 20px",
+            textDecoration: "none",
+            whiteSpace: "nowrap",
+          }}
+        >
+          Simuler en LMNP →
+        </a>
+      </div>
     </div>
   );
 }
