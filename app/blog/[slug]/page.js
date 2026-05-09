@@ -59,9 +59,9 @@ export default async function BlogPostPage({ params }) {
     "datePublished": post.date || "",
     "dateModified": post.date || "",
     "author": {
-      "@type": "Organization",
-      "name": "ImmoVerdict",
-      "url": "https://immoverdict.com"
+      "@type": "Person",
+      "name": "Alex",
+      "url": "https://immoverdict.com/a-propos"
     },
     "publisher": {
       "@type": "Organization",
@@ -167,7 +167,13 @@ export default async function BlogPostPage({ params }) {
           </p>
         )}
         <div style={{ display:"flex", alignItems:"center", gap:12, fontSize:12, color:"rgba(240,235,224,0.3)", paddingTop:16, borderTop:"1px solid rgba(240,235,224,0.08)" }}>
-          {dateStr && <span>{dateStr}</span>}
+          <Link href="/a-propos" style={{ color:"rgba(249,115,22,0.7)", textDecoration:"none", fontWeight:500 }}>Par Alex</Link>
+          {dateStr && (
+            <>
+              <span style={{ opacity:.4 }}>·</span>
+              <span>{dateStr}</span>
+            </>
+          )}
           {post.readingTime && (
             <>
               <span style={{ opacity:.4 }}>·</span>
