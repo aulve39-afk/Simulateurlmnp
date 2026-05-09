@@ -1393,10 +1393,10 @@ function ctaStart() {
   errEl.style.display = 'none';
   try { localStorage.setItem('immoverdict_email', email); } catch(e) {}
   /* Envoi newsletter via formsubmit */
-  fetch('https://formsubmit.co/ajax/contact@immoverdict.com', {
+  fetch('/api/leads', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-    body: JSON.stringify({ email, _subject: 'ImmoVerdict — Nouvelle inscription newsletter' }),
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, source: 'homepage-cta' }),
   }).catch(() => {}); /* silencieux — l'UX ne dépend pas du succès réseau */
   okEl.style.display = 'block';
   if (btn) { btn.disabled = true; btn.style.opacity = '0.6'; }
@@ -1416,10 +1416,10 @@ function inlineEmailStart() {
   if (!valid) { input.focus(); input.style.borderColor='rgba(248,113,113,0.6)'; return; }
   input.style.borderColor='rgba(249,115,22,0.5)';
   try { localStorage.setItem('immoverdict_email', email); } catch(e) {}
-  fetch('https://formsubmit.co/ajax/contact@immoverdict.com', {
+  fetch('/api/leads', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-    body: JSON.stringify({ email, _subject: 'ImmoVerdict — Inscription (inline hero)' }),
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, source: 'homepage-inline' }),
   }).catch(() => {});
   if (okEl)  { okEl.style.display = 'block'; }
   if (btn)   { btn.disabled = true; btn.textContent = '✓'; btn.style.opacity = '0.7'; }

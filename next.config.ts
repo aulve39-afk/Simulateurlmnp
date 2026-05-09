@@ -1,6 +1,19 @@
 import type { NextConfig } from "next";
 
 const securityHeaders = [
+  // Content Security Policy
+  {
+    key: "Content-Security-Policy",
+    value: [
+      "default-src 'self'",
+      "script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com",
+      "img-src 'self' data: https://www.google-analytics.com https://www.googletagmanager.com",
+      "connect-src 'self' https://*.supabase.co https://www.google-analytics.com https://www.googletagmanager.com https://api.resend.com https://api.dvf.gouv.fr https://formsubmit.co",
+      "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+      "font-src 'self' https://fonts.gstatic.com",
+      "frame-ancestors 'none'",
+    ].join("; "),
+  },
   // Interdit l'affichage dans des iframes (clickjacking)
   { key: "X-Frame-Options", value: "DENY" },
   // Empêche le MIME sniffing

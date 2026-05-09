@@ -12,6 +12,7 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://immoverdict.com"),
   title: "ImmoVerdict — Simulateur LMNP & Résidence Principale",
   description: "Votre copilote pour l'achat immobilier. Simulateur LMNP (4 régimes fiscaux, dossier bancaire), achat résidence principale (PTZ, DPE, DVF, louer vs acheter). 100 % gratuit.",
   verification: {

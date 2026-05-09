@@ -25,7 +25,7 @@ function windowISO(daysAgo) {
 
 /* ─── Templates email ────────────────────────────────────── */
 
-function buildJ14HTML(nom, tri, cashflowM, prix) {
+function buildJ14HTML(nom, tri, cashflowM, prix, email) {
   const prenom = nom || "Investisseur";
   const cfStr  = cashflowM != null ? `${cashflowM >= 0 ? "+" : ""}${cashflowM}€/mois` : "—";
   return `<!DOCTYPE html>
@@ -106,7 +106,7 @@ function buildJ14HTML(nom, tri, cashflowM, prix) {
 <tr><td style="background:#F8FAFC;border-radius:0 0 16px 16px;padding:16px 28px;text-align:center;border-top:1px solid #E2E8F0;">
   <p style="font-size:11px;color:#94A3B8;margin:0;">
     ImmoVerdict · <a href="https://immoverdict.com" style="color:#94A3B8;">immoverdict.com</a><br>
-    <a href="https://immoverdict.com/mentions-legales" style="color:#94A3B8;">Se désabonner</a>
+    <a href="https://immoverdict.com/api/unsubscribe?email=${encodeURIComponent(email || '')}" style="color:#94A3B8;">Se désabonner</a>
   </p>
 </td></tr>
 
@@ -115,7 +115,7 @@ function buildJ14HTML(nom, tri, cashflowM, prix) {
 </body></html>`;
 }
 
-function buildJ30HTML(nom, tri, cashflowM, prix) {
+function buildJ30HTML(nom, tri, cashflowM, prix, email) {
   const prenom = nom || "Investisseur";
   const cfStr  = cashflowM != null ? `${cashflowM >= 0 ? "+" : ""}${cashflowM}€/mois` : "—";
   const verdictLabel = (tri ?? 0) >= 6 ? "excellent" : (tri ?? 0) >= 4 ? "acceptable" : "à surveiller";
@@ -204,7 +204,7 @@ function buildJ30HTML(nom, tri, cashflowM, prix) {
   <p style="font-size:11px;color:#94A3B8;margin:0;">
     ImmoVerdict · <a href="https://immoverdict.com" style="color:#94A3B8;">immoverdict.com</a><br>
     Vous recevez cet email car vous avez utilisé notre simulateur LMNP gratuit.<br>
-    <a href="https://immoverdict.com/mentions-legales" style="color:#94A3B8;">Se désabonner</a>
+    <a href="https://immoverdict.com/api/unsubscribe?email=${encodeURIComponent(email || '')}" style="color:#94A3B8;">Se désabonner</a>
   </p>
 </td></tr>
 
@@ -268,7 +268,7 @@ export async function GET(request) {
         await sendEmail({
           to: lead.email,
           subject: `💡 Optimisez votre LMNP — 3 erreurs à éviter`,
-          html: buildJ14HTML(lead.nom, lead.tri, lead.cashflow_m, lead.params?.prix),
+          html: buildJ14HTML(lead.nom, lead.tri, lead.cashflow_m, lead.params?.prix, lead.email),
         });
         await sb.from("leads").update({ emailed_j14: new Date().toISOString() }).eq("email", lead.email);
         results.j14.sent++;
@@ -295,7 +295,7 @@ export async function GET(request) {
         await sendEmail({
           to: lead.email,
           subject: `🎯 Votre projet LMNP — où en êtes-vous ?`,
-          html: buildJ30HTML(lead.nom, lead.tri, lead.cashflow_m, lead.params?.prix),
+          html: buildJ30HTML(lead.nom, lead.tri, lead.cashflow_m, lead.params?.prix, lead.email),
         });
         await sb.from("leads").update({ emailed_j30: new Date().toISOString() }).eq("email", lead.email);
         results.j30.sent++;
