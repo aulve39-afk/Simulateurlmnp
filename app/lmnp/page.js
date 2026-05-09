@@ -1,3 +1,4 @@
+"use client";
 import dynamic from "next/dynamic";
 
 // Recharts + Turbopack ont un bug TDZ (Cannot access 'P' before initialization)
