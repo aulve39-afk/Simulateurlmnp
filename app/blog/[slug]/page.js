@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { getPostBySlug, getAllSlugs } from "@/lib/posts";
+import { getPostBySlug, getAllSlugs, getRelatedPosts } from "@/lib/posts";
 import { notFound } from "next/navigation";
 
 export async function generateStaticParams() {
@@ -45,6 +45,8 @@ export default async function BlogPostPage({ params }) {
   const { slug } = await params;
   const post = await getPostBySlug(slug);
   if (!post) notFound();
+
+  const related = getRelatedPosts(slug, post.category, 3);
 
   const dateStr = post.date
     ? new Date(post.date).toLocaleDateString("fr-FR", { day:"numeric", month:"long", year:"numeric" })
@@ -125,9 +127,10 @@ export default async function BlogPostPage({ params }) {
         </Link>
         <div style={{ display:"flex", alignItems:"center", gap:0 }}>
           {[
-            { href:"/lmnp", label:"Simulateur LMNP" },
-            { href:"/rp",   label:"Résidence Principale" },
-            { href:"/blog", label:"Blog", active:true },
+            { href:"/lmnp",     label:"Simulateur LMNP" },
+            { href:"/rp",       label:"Résidence Principale" },
+            { href:"/blog",     label:"Blog", active:true },
+            { href:"/a-propos", label:"À propos" },
           ].map(({href,label,active}) => (
             <Link key={href} href={href} style={{
               display:"inline-block", padding:"0 20px", height:60, lineHeight:"60px",
@@ -219,6 +222,41 @@ export default async function BlogPostPage({ params }) {
             </Link>
           </div>
         </div>
+
+        {/* ── ARTICLES LIÉS ── */}
+        {related.length > 0 && (
+          <div style={{ marginTop:56 }}>
+            <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:28 }}>
+              <div style={{ width:3, height:20, background:"#F97316" }} />
+              <span style={{ fontSize:10, fontWeight:700, letterSpacing:"2.5px", textTransform:"uppercase", color:"#F97316" }}>
+                À lire aussi
+              </span>
+            </div>
+            <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill,minmax(200px,1fr))", gap:1, background:"rgba(240,235,224,0.08)" }}>
+              {related.map((r) => {
+                const rDate = r.date
+                  ? new Date(r.date).toLocaleDateString("fr-FR", { day:"numeric", month:"short", year:"numeric" })
+                  : "";
+                return (
+                  <Link key={r.slug} href={`/blog/${r.slug}`} style={{ display:"block", textDecoration:"none", background:"#0C0C10", padding:"20px 20px 18px" }}>
+                    {r.category && (
+                      <span style={{ fontSize:9, fontWeight:700, letterSpacing:"2px", textTransform:"uppercase", color:"#F97316", display:"block", marginBottom:8 }}>
+                        {r.category}
+                      </span>
+                    )}
+                    <div style={{ fontFamily:"'DM Serif Display',Georgia,serif", fontSize:"1rem", color:"#F0EBE0", lineHeight:1.3, marginBottom:10 }}>
+                      {r.title}
+                    </div>
+                    <div style={{ fontSize:11, color:"rgba(240,235,224,0.25)", display:"flex", justifyContent:"space-between" }}>
+                      <span>{rDate}</span>
+                      <span style={{ color:"#F97316" }}>Lire →</span>
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
         {/* Retour blog */}
         <div style={{ marginTop:40, textAlign:"center" }}>
