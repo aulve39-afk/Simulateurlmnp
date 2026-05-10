@@ -4899,6 +4899,60 @@ export default function App() {
     } catch {}
   };
 
+  /* ── Historique de simulations (localStorage) ── */
+  const [history,     setHistory]     = useState([]);
+  const [showHistory, setShowHistory] = useState(false);
+  const [savedFlash,  setSavedFlash]  = useState(false);
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem("lmnp_history");
+      if (raw) setHistory(JSON.parse(raw));
+    } catch {}
+  }, []);
+
+  const saveSimulation = () => {
+    try {
+      const r0 = results?.[0];
+      const label = form.adresse?.trim()
+        ? form.adresse.trim()
+        : `Bien ${new Intl.NumberFormat("fr-FR").format(form.prix)} €`;
+      const entry = {
+        id:        Date.now(),
+        date:      new Date().toLocaleDateString("fr-FR", { day:"2-digit", month:"short", year:"numeric" }),
+        label,
+        tri:       r0?.tri       ?? null,
+        cashflowM: r0?.cashflowM ?? null,
+        form:      { ...form },
+      };
+      setHistory(prev => {
+        const updated = [entry, ...prev.filter(e => e.id !== entry.id)].slice(0, 5);
+        try { localStorage.setItem("lmnp_history", JSON.stringify(updated)); } catch {}
+        return updated;
+      });
+      setSavedFlash(true);
+      setTimeout(() => setSavedFlash(false), 2000);
+      window.gtag?.("event", "simulation_saved", { tri: r0?.tri });
+    } catch {}
+  };
+
+  const loadSimulation = (entry) => {
+    setForm({ ...DEFAULTS, ...entry.form });
+    setPhase("sim");
+    setStep(3);
+    setShowHistory(false);
+    topRef.current?.scrollIntoView({ behavior:"smooth" });
+    window.gtag?.("event", "simulation_loaded_from_history");
+  };
+
+  const deleteFromHistory = (id) => {
+    setHistory(prev => {
+      const updated = prev.filter(e => e.id !== id);
+      try { localStorage.setItem("lmnp_history", JSON.stringify(updated)); } catch {}
+      return updated;
+    });
+  };
+
   useEffect(() => {
     if (!sb) return;
     sb.auth.getSession().then(({ data:{session} }) => { if (session?.user) setUser(session.user); });
@@ -5036,6 +5090,30 @@ export default function App() {
             </button>
           </div>
           <div className="flex items-center gap-2">
+            {/* Bouton sauvegarder simulation */}
+            {phase === "sim" && step >= 3 && (
+              <button onClick={saveSimulation}
+                title="Sauvegarder cette simulation dans votre historique local"
+                className="flex items-center gap-1 text-[11px] font-semibold px-2.5 py-1.5 rounded-lg transition-all active:scale-95"
+                style={{
+                  background: savedFlash ? "rgba(34,197,94,0.15)" : "rgba(99,102,241,0.12)",
+                  color:      savedFlash ? "#22C55E" : "#818CF8",
+                  border:     `1px solid ${savedFlash ? "rgba(34,197,94,0.35)" : "rgba(99,102,241,0.25)"}`,
+                }}>
+                <span>{savedFlash ? "✅" : "💾"}</span>
+                <span className="hidden xs:inline">{savedFlash ? "Sauvegardé !" : "Sauvegarder"}</span>
+              </button>
+            )}
+            {/* Bouton mes simulations */}
+            {history.length > 0 && (
+              <button onClick={() => setShowHistory(true)}
+                title="Voir mes simulations sauvegardées"
+                className="flex items-center gap-1 text-[11px] font-semibold px-2.5 py-1.5 rounded-lg transition-all active:scale-95"
+                style={{ background:"rgba(99,102,241,0.12)", color:"#818CF8", border:"1px solid rgba(99,102,241,0.25)" }}>
+                <span>📂</span>
+                <span className="hidden xs:inline">Mes simulations ({history.length})</span>
+              </button>
+            )}
             {/* Bouton partage de simulation via URL */}
             {phase === "sim" && (
               <button onClick={copyLink}
@@ -5218,6 +5296,94 @@ export default function App() {
       {showLead && <LeadModal onClose={() => setShowLead(false)} form={form} results={results} />}
       {showArgumentaire && results && (
         <ArgumentaireModal form={form} results={results} onClose={() => setShowArgumentaire(false)} />
+      )}
+
+      {/* ── DRAWER HISTORIQUE ── */}
+      {showHistory && (
+        <div style={{ position:"fixed", inset:0, zIndex:60, display:"flex", justifyContent:"flex-end" }}>
+          {/* Overlay */}
+          <div onClick={() => setShowHistory(false)}
+            style={{ position:"absolute", inset:0, background:"rgba(0,0,0,0.6)", backdropFilter:"blur(2px)" }} />
+          {/* Panel */}
+          <div style={{
+            position:"relative", zIndex:1, width:"min(420px,100vw)",
+            background:"#131318", borderLeft:"1px solid rgba(255,255,255,0.08)",
+            display:"flex", flexDirection:"column", overflowY:"auto",
+          }}>
+            <div style={{ padding:"20px 20px 12px", borderBottom:"1px solid rgba(255,255,255,0.06)", display:"flex", alignItems:"center", justifyContent:"space-between" }}>
+              <div>
+                <p style={{ color:"#fff", fontWeight:700, fontSize:16, margin:0 }}>📂 Mes simulations</p>
+                <p style={{ color:"#64748B", fontSize:12, margin:"4px 0 0" }}>Rechargez une simulation précédente en un clic</p>
+              </div>
+              <button onClick={() => setShowHistory(false)}
+                style={{ background:"rgba(255,255,255,0.06)", border:"none", borderRadius:8, color:"#94A3B8", width:32, height:32, fontSize:18, cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center" }}>
+                ×
+              </button>
+            </div>
+
+            <div style={{ flex:1, padding:"12px 16px", display:"flex", flexDirection:"column", gap:10 }}>
+              {history.length === 0 ? (
+                <p style={{ color:"#64748B", fontSize:13, textAlign:"center", marginTop:40 }}>
+                  Aucune simulation sauvegardée.<br/>Appuyez sur 💾 pour sauvegarder.
+                </p>
+              ) : history.map(entry => {
+                const triColor  = (entry.tri ?? 0) >= 6 ? "#10B981" : (entry.tri ?? 0) >= 4 ? "#F59E0B" : "#EF4444";
+                const cfColor   = (entry.cashflowM ?? 0) >= 0 ? "#10B981" : "#EF4444";
+                return (
+                  <div key={entry.id} style={{
+                    background:"#1E2028", borderRadius:12, padding:"14px 16px",
+                    border:"1px solid rgba(255,255,255,0.07)",
+                  }}>
+                    <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:8 }}>
+                      <div style={{ flex:1, minWidth:0 }}>
+                        <p style={{ color:"#fff", fontWeight:600, fontSize:13, margin:0, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>
+                          {entry.label}
+                        </p>
+                        <p style={{ color:"#64748B", fontSize:11, margin:"3px 0 0" }}>{entry.date}</p>
+                      </div>
+                      <button onClick={() => deleteFromHistory(entry.id)}
+                        title="Supprimer"
+                        style={{ background:"none", border:"none", color:"#475569", cursor:"pointer", fontSize:14, padding:"0 0 0 8px", flexShrink:0 }}>
+                        🗑
+                      </button>
+                    </div>
+                    {/* Métriques */}
+                    <div style={{ display:"flex", gap:12, marginBottom:10 }}>
+                      {entry.tri != null && (
+                        <div style={{ textAlign:"center" }}>
+                          <p style={{ color:triColor, fontWeight:700, fontSize:15, margin:0 }}>{entry.tri}%</p>
+                          <p style={{ color:"#64748B", fontSize:10, margin:"2px 0 0" }}>TRI</p>
+                        </div>
+                      )}
+                      {entry.cashflowM != null && (
+                        <div style={{ textAlign:"center" }}>
+                          <p style={{ color:cfColor, fontWeight:700, fontSize:15, margin:0 }}>
+                            {entry.cashflowM >= 0 ? "+" : ""}{entry.cashflowM}€/m
+                          </p>
+                          <p style={{ color:"#64748B", fontSize:10, margin:"2px 0 0" }}>Cash-flow</p>
+                        </div>
+                      )}
+                    </div>
+                    <button onClick={() => loadSimulation(entry)}
+                      style={{
+                        width:"100%", background:"rgba(249,115,22,0.12)", border:"1px solid rgba(249,115,22,0.25)",
+                        borderRadius:8, color:"#F97316", fontWeight:600, fontSize:12,
+                        padding:"7px 0", cursor:"pointer", transition:"all .15s",
+                      }}>
+                      Charger cette simulation →
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+
+            <div style={{ padding:"12px 16px", borderTop:"1px solid rgba(255,255,255,0.06)" }}>
+              <p style={{ color:"#475569", fontSize:11, textAlign:"center", margin:0 }}>
+                💾 Sauvegarde locale · Données stockées sur cet appareil uniquement
+              </p>
+            </div>
+          </div>
+        </div>
       )}
 
       {/* ── EMAIL CAPTURE HOOK (A/B test) ── */}
