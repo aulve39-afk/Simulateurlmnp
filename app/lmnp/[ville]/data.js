@@ -1,0 +1,553 @@
+/**
+ * Données LMNP par ville — contexte marché, prix, rendements typiques.
+ * Source : DVF 2023-2024, Observatoire CLAMEUR, SeLoger, MeilleurTaux.
+ * Mis à jour : Mai 2026.
+ */
+
+export const VILLES = {
+  paris: {
+    nom: "Paris",
+    slug: "paris",
+    departement: "75",
+    region: "Île-de-France",
+    population: "2,1 millions",
+    // Prix médian au m² — source DVF 2024
+    prixMedM2: 9200,
+    prixMedM2Fourchette: "8 500 – 12 000",
+    // Loyer médian meublé au m²
+    loyerMedM2: 34,
+    // Rendement brut typique
+    rendementBrut: { min: 2.8, max: 4.2 },
+    // Segments les plus recherchés
+    segments: ["Studio", "T1", "T2 haussmannien"],
+    // Quartiers LMNP recommandés
+    quartiers: ["11e", "13e", "18e", "20e", "Montrouge"],
+    // Tension locative 1 à 5
+    tensionLocative: 5,
+    // Contexte marché
+    contexte: "Paris reste le marché le plus tendu de France avec une vacance locative quasi nulle. Les studios et T1 en secteur Haussmann ou proche métro se louent en moins de 72h. Le rendement brut est faible (3-4%) mais la valorisation du capital est le principal levier — le prix au m² a progressé de +62% en 10 ans.",
+    conseil: "Privilégiez les petites surfaces (< 35 m²) dans les arrondissements populaires (11e, 13e, 18e, 20e). Un T1 meublé proche d'une grande école ou d'un hub de transport garantit 0% de vacance. Attention à l'encadrement des loyers — vérifiez le loyer de référence majoré sur le site de la Ville de Paris avant de signer.",
+    alertes: ["Encadrement des loyers en vigueur", "DPE F/G : interdiction de louer progressif", "Taxe foncière en hausse (+52% en 5 ans)"],
+    // Exemple concret pour le simulateur
+    exemple: {
+      typeBien: "Studio",
+      surface: 28,
+      prix: 290000,
+      loyer: 1050,
+      charges: 200,
+      taxeFonciere: 1800,
+      vacance: 3,
+    },
+    // Schema FAQ
+    faq: [
+      {
+        q: "Quel est le rendement locatif moyen à Paris en LMNP ?",
+        a: "Le rendement brut à Paris est généralement de 2,8 à 4,2%, avec un rendement net (après charges et fiscalité LMNP Réel) de 1,5 à 3%. La plus-value potentielle sur 10-20 ans est le principal attrait : le prix au m² parisien a progressé de +62% en dix ans.",
+      },
+      {
+        q: "L'encadrement des loyers s'applique-t-il au LMNP à Paris ?",
+        a: "Oui. Paris applique l'encadrement des loyers depuis 2019. En LMNP meublé, le loyer de référence majoré s'applique, mais une majoration de 10% est autorisée par rapport à la location nue. Vérifiez le loyer de référence exact sur le simulateur officiel de la Ville de Paris avant de fixer votre loyer.",
+      },
+      {
+        q: "Vaut-il mieux investir dans un studio ou un T2 à Paris ?",
+        a: "Le studio (20-30 m²) offre le meilleur rendement brut à Paris (3,5-4,2%) car le prix au m² est moindre et la demande étudiante/jeune actif est massive. Le T2 a un meilleur rendement net grâce à des charges proportionnellement plus faibles, mais demande un ticket d'entrée plus élevé.",
+      },
+    ],
+  },
+
+  lyon: {
+    nom: "Lyon",
+    slug: "lyon",
+    departement: "69",
+    region: "Auvergne-Rhône-Alpes",
+    population: "520 000",
+    prixMedM2: 4800,
+    prixMedM2Fourchette: "3 900 – 6 500",
+    loyerMedM2: 17,
+    rendementBrut: { min: 4.0, max: 5.8 },
+    segments: ["T2", "T3", "Colocation"],
+    quartiers: ["Part-Dieu", "Guillotière", "Confluence", "Vaise", "Croix-Rousse"],
+    tensionLocative: 4,
+    contexte: "Lyon est l'une des meilleures villes françaises pour le LMNP avec un équilibre optimal entre rendement (4-5,8%) et potentiel de plus-value. La ville accueille 130 000 étudiants et un tissu économique dynamique. Les T2 meublés dans les quartiers étudiants se louent entre 700 et 950€/mois.",
+    conseil: "Les T2 dans le 3e (Guillotière), 7e (Jean Macé) ou 8e arrondissement offrent le meilleur rapport qualité-prix. La Confluence (2e arr.) monte en gamme avec de belles perspectives de valorisation. Évitez les grands appartements (> 65 m²) dont la rotation est plus lente.",
+    alertes: ["Encadrement des loyers prévu (consulter actualité locale)", "DPE : vigilance sur les biens des années 60-80"],
+    exemple: {
+      typeBien: "Appartement",
+      surface: 42,
+      prix: 220000,
+      loyer: 870,
+      charges: 120,
+      taxeFonciere: 1100,
+      vacance: 4,
+    },
+    faq: [
+      {
+        q: "Lyon est-elle une bonne ville pour investir en LMNP ?",
+        a: "Oui. Lyon combine un rendement brut de 4 à 5,8%, une tension locative élevée (130 000 étudiants, hub économique régional) et une valorisation solide du capital (+38% en 10 ans). C'est l'une des villes les plus recommandées par les investisseurs LMNP en 2026.",
+      },
+      {
+        q: "Quel budget prévoir pour un LMNP à Lyon ?",
+        a: "Comptez 150 000 à 280 000€ pour un T2 meublé dans un quartier recherché. Un T2 de 42 m² dans le 3e ou 7e arrondissement s'acquiert autour de 200 000-230 000€ et se loue 800-950€/mois meublé, soit un rendement brut de 4,2 à 5%.",
+      },
+      {
+        q: "Quels quartiers de Lyon pour le LMNP en 2026 ?",
+        a: "Les meilleurs quartiers LMNP à Lyon sont : Guillotière (3e, étudiants et jeunes actifs), Jean Macé (7e, calme et bien desservi), Part-Dieu (3e, profils cadres), Confluence (2e, valorisation premium) et Vaise (9e, meilleur rapport qualité-prix).",
+      },
+    ],
+  },
+
+  marseille: {
+    nom: "Marseille",
+    slug: "marseille",
+    departement: "13",
+    region: "Provence-Alpes-Côte d'Azur",
+    population: "870 000",
+    prixMedM2: 3200,
+    prixMedM2Fourchette: "2 200 – 5 500",
+    loyerMedM2: 13,
+    rendementBrut: { min: 4.5, max: 7.5 },
+    segments: ["T2", "T3", "Studio bord de mer"],
+    quartiers: ["Vieux-Port", "Castellane", "La Timone", "Montredon", "Cours Julien"],
+    tensionLocative: 3,
+    contexte: "Marseille offre les rendements bruts les plus élevés des grandes villes françaises (jusqu'à 7,5% dans certains quartiers). Le marché est très hétérogène : les quartiers Nord sont très accessibles mais risqués, tandis que les secteurs Castellane, Timone et bord de mer offrent un bon compromis rendement/sécurité.",
+    conseil: "Concentrez-vous sur les 6e, 8e et 13e arrondissements pour un profil investisseur sérieux. Les studios étudiants proches des facultés de médecine (La Timone) ou de droit (Aix-connexion) ont d'excellents fondamentaux. Vérifiez rigoureusement l'état du bien — beaucoup de copropriétés dégradées à Marseille.",
+    alertes: ["Copropriétés dégradées fréquentes : vérifier le carnet d'entretien", "Quartiers Nord : risque locatif élevé", "Nombreux biens DPE F/G dans l'ancien"],
+    exemple: {
+      typeBien: "Appartement",
+      surface: 45,
+      prix: 155000,
+      loyer: 780,
+      charges: 130,
+      taxeFonciere: 900,
+      vacance: 6,
+    },
+    faq: [
+      {
+        q: "Marseille est-elle risquée pour un investissement LMNP ?",
+        a: "Marseille est un marché polarisé. Les quartiers Sud (6e, 8e) et le centre (1er, 6e) sont des marchés sains avec des rendements de 5-6% et peu de vacance. Les quartiers Nord présentent des risques locatifs et des copropriétés souvent dégradées. Le choix du quartier et la vérification de la copropriété sont critiques.",
+      },
+      {
+        q: "Quel rendement espérer à Marseille en LMNP Réel ?",
+        a: "En LMNP Réel (amortissements), un bien à Marseille peut afficher un cash-flow positif dès la première année grâce au bouclier fiscal. Avec un rendement brut de 6%, des charges modérées et le régime réel, le TRI sur 20 ans dépasse fréquemment 7-8%.",
+      },
+    ],
+  },
+
+  bordeaux: {
+    nom: "Bordeaux",
+    slug: "bordeaux",
+    departement: "33",
+    region: "Nouvelle-Aquitaine",
+    population: "260 000",
+    prixMedM2: 4500,
+    prixMedM2Fourchette: "3 500 – 6 000",
+    loyerMedM2: 16,
+    rendementBrut: { min: 3.8, max: 5.2 },
+    segments: ["T2", "T3", "Loft / Atypique"],
+    quartiers: ["Saint-Michel", "Chartrons", "Bacalan", "Mériadeck", "Victoire"],
+    tensionLocative: 4,
+    contexte: "Bordeaux a connu une explosion des prix après 2015 (LGV Paris-Bordeaux). Le marché s'est depuis stabilisé avec des prix plus raisonnables dans certains secteurs. La ville attire cadres, étudiants (100 000) et touristes — bon mix pour le LMNP.",
+    conseil: "Les quartiers Chartrons (bobo, valorisation forte), Saint-Michel (étudiant, bon rendement) et Bacalan (montée en gamme) sont les plus intéressants. Évitez les zones inondables (Bastide, certains secteurs du bord de Garonne) et vérifiez le PPRI.",
+    alertes: ["Zones inondables (PPRI) : vérifier avant achat", "Prix encore élevés dans l'hypercentre"],
+    exemple: {
+      typeBien: "Appartement",
+      surface: 40,
+      prix: 195000,
+      loyer: 800,
+      charges: 110,
+      taxeFonciere: 1000,
+      vacance: 4,
+    },
+    faq: [
+      {
+        q: "Bordeaux est-elle encore intéressante pour le LMNP en 2026 ?",
+        a: "Oui, mais avec discernement. Après la bulle post-LGV, les prix se sont corrigés de 8-12% dans certains secteurs, créant des opportunités. Les T2 dans Saint-Michel ou Bacalan offrent des rendements bruts de 4,5-5,2% avec un potentiel de valorisation solide.",
+      },
+      {
+        q: "Y a-t-il un encadrement des loyers à Bordeaux ?",
+        a: "Bordeaux fait partie de la zone Abis (zones tendues) mais n'a pas encore mis en place l'encadrement des loyers. Les loyers sont donc librement fixés selon le marché, ce qui est un avantage pour les investisseurs LMNP.",
+      },
+    ],
+  },
+
+  nantes: {
+    nom: "Nantes",
+    slug: "nantes",
+    departement: "44",
+    region: "Pays de la Loire",
+    population: "320 000",
+    prixMedM2: 3800,
+    prixMedM2Fourchette: "3 000 – 5 200",
+    loyerMedM2: 14,
+    rendementBrut: { min: 4.2, max: 5.8 },
+    segments: ["T2", "T3", "Colocation étudiante"],
+    quartiers: ["Doulon", "Rezé", "Saint-Félix", "Île de Nantes", "Malakoff"],
+    tensionLocative: 4,
+    contexte: "Nantes est régulièrement classée parmi les meilleures villes françaises pour investir. Économie dynamique, 60 000 étudiants, forte attractivité des cadres. Les prix ont progressé de +45% en 10 ans avec un ralentissement récent qui crée des opportunités.",
+    conseil: "L'Île de Nantes est le quartier en pleine transformation à suivre. Doulon et Rezé offrent des prix plus abordables avec de bons rendements. Les colocations dans les maisons nantaises près des écoles (École des Mines, Polytech) sont très rentables.",
+    alertes: ["Marché en légère correction : opportunités à saisir", "Attention aux secteurs inondables (Loire)"],
+    exemple: {
+      typeBien: "Appartement",
+      surface: 45,
+      prix: 175000,
+      loyer: 780,
+      charges: 100,
+      taxeFonciere: 950,
+      vacance: 4,
+    },
+    faq: [
+      {
+        q: "Nantes est-elle une bonne ville pour investir en LMNP en 2026 ?",
+        a: "Oui. Nantes offre un excellent équilibre : rendement brut de 4,2 à 5,8%, marché locatif tendu (60 000 étudiants + forte attractivité des cadres), et prix plus accessibles que Lyon ou Paris. L'Île de Nantes en transformation offre un potentiel de valorisation supplémentaire.",
+      },
+    ],
+  },
+
+  toulouse: {
+    nom: "Toulouse",
+    slug: "toulouse",
+    departement: "31",
+    region: "Occitanie",
+    population: "480 000",
+    prixMedM2: 3600,
+    prixMedM2Fourchette: "2 800 – 4 800",
+    loyerMedM2: 14,
+    rendementBrut: { min: 4.5, max: 6.2 },
+    segments: ["Studio", "T2", "T3 colocation"],
+    quartiers: ["Minimes", "Compans", "Borderouge", "Rangueil", "Saint-Cyprien"],
+    tensionLocative: 4,
+    contexte: "Toulouse (« La Ville Rose ») est un marché LMNP très attractif : 130 000 étudiants, 2e pôle aéronautique mondial (Airbus), économie dynamique. Les rendements bruts dépassent souvent 5% avec des vacances locatives très faibles dans les quartiers étudiants.",
+    conseil: "Rangueil (proximité université médicale et Paul Sabatier) est le secteur star pour les studios étudiants. Minimes et Compans offrent de bons T2 pour profils cadres. Saint-Cyprien est en gentrification rapide — opportunités de plus-value.",
+    alertes: ["Métro ligne D en construction : impact positif sur les secteurs desservis"],
+    exemple: {
+      typeBien: "Studio",
+      surface: 25,
+      prix: 120000,
+      loyer: 600,
+      charges: 80,
+      taxeFonciere: 700,
+      vacance: 5,
+    },
+    faq: [
+      {
+        q: "Toulouse est-elle une bonne ville pour le LMNP étudiant ?",
+        a: "Absolument. Avec 130 000 étudiants et une demande structurellement supérieure à l'offre, Toulouse est l'une des meilleures villes françaises pour le LMNP étudiant. Les studios autour de Rangueil, Paul Sabatier et Jean Jaurès affichent des taux de remplissage de 95%+.",
+      },
+      {
+        q: "Quel rendement espérer à Toulouse avec un LMNP Réel ?",
+        a: "Un studio à Rangueil (120 000€, 600€/mois) affiche un rendement brut de 6%. En LMNP Réel avec amortissements, l'impôt est souvent nul les 10-15 premières années. Le TRI net sur 20 ans dépasse typiquement 7-8% pour les biens bien situés.",
+      },
+    ],
+  },
+
+  strasbourg: {
+    nom: "Strasbourg",
+    slug: "strasbourg",
+    departement: "67",
+    region: "Grand Est",
+    population: "285 000",
+    prixMedM2: 3900,
+    prixMedM2Fourchette: "3 000 – 5 500",
+    loyerMedM2: 15,
+    rendementBrut: { min: 4.2, max: 5.5 },
+    segments: ["T2", "T3", "Studio européen"],
+    quartiers: ["Krutenau", "Neudorf", "Robertsau", "Cronenbourg", "Hautepierre"],
+    tensionLocative: 4,
+    contexte: "Strasbourg bénéficie d'une position unique : capitale européenne (institutions EU), grande université (50 000 étudiants), tourisme soutenu. La demande est mixte : étudiants, fonctionnaires européens, touristes. Les T2 meublés dans Krutenau ou Neudorf se louent rapidement.",
+    conseil: "Neudorf est le quartier avec le meilleur rapport qualité-prix. Krutenau (Petite-France adjacente) est premium. Pour la location courte durée (Airbnb), le secteur historique offre des rendements bruts exceptionnels mais une réglementation croissante.",
+    alertes: ["Réglementation Airbnb en cours de renforcement", "Quartier Hautepierre : prudence"],
+    exemple: {
+      typeBien: "Appartement",
+      surface: 42,
+      prix: 175000,
+      loyer: 760,
+      charges: 110,
+      taxeFonciere: 950,
+      vacance: 4,
+    },
+    faq: [
+      {
+        q: "L'investissement LMNP est-il rentable à Strasbourg ?",
+        a: "Oui. Strasbourg offre un rendement brut de 4,2 à 5,5%, une demande locative soutenue (institutions européennes + 50 000 étudiants) et des prix encore raisonnables par rapport à Paris ou Lyon. Les T2 dans Neudorf ou Krutenau sont particulièrement demandés.",
+      },
+    ],
+  },
+
+  montpellier: {
+    nom: "Montpellier",
+    slug: "montpellier",
+    departement: "34",
+    region: "Occitanie",
+    population: "295 000",
+    prixMedM2: 3700,
+    prixMedM2Fourchette: "2 800 – 5 000",
+    loyerMedM2: 15,
+    rendementBrut: { min: 4.5, max: 6.5 },
+    segments: ["Studio", "T2 étudiant", "T3 famille"],
+    quartiers: ["Antigone", "Ecusson", "Beaux-Arts", "Port-Marianne", "Corum"],
+    tensionLocative: 4,
+    contexte: "Montpellier est la ville française avec la plus forte croissance démographique depuis 20 ans (+1,5%/an). 75 000 étudiants, attractivité nationale et internationale, qualité de vie reconnue. Les rendements LMNP sont parmi les plus attractifs du sud de la France.",
+    conseil: "Port-Marianne (quartier moderne, bien desservi) et Antigone (design emblématique) sont les secteurs les plus sûrs. L'Écusson (hypercentre médiéval) est idéal pour la location courte durée. Les studios près de la faculté de médecine (Lapeyronie) ont une vacance quasi nulle.",
+    alertes: ["Croissance démographique forte : marché porteur", "Encadrement des loyers étudié par la municipalité"],
+    exemple: {
+      typeBien: "Studio",
+      surface: 28,
+      prix: 130000,
+      loyer: 640,
+      charges: 80,
+      taxeFonciere: 750,
+      vacance: 4,
+    },
+    faq: [
+      {
+        q: "Montpellier est-elle une bonne ville pour le LMNP en 2026 ?",
+        a: "Oui, c'est l'une des meilleures. Montpellier combine croissance démographique record (+1,5%/an), 75 000 étudiants, attractivité méditerranéenne et rendements bruts de 4,5 à 6,5%. Les prix restent accessibles par rapport à d'autres grandes métropoles.",
+      },
+    ],
+  },
+
+  rennes: {
+    nom: "Rennes",
+    slug: "rennes",
+    departement: "35",
+    region: "Bretagne",
+    population: "220 000",
+    prixMedM2: 4000,
+    prixMedM2Fourchette: "3 200 – 5 000",
+    loyerMedM2: 15,
+    rendementBrut: { min: 4.0, max: 5.5 },
+    segments: ["T2", "T3", "Colocation"],
+    quartiers: ["Villejean", "Blosne", "Thabor", "Maurepas", "Beaulieu"],
+    tensionLocative: 4,
+    contexte: "Rennes est une ville universitaire dynamique (60 000 étudiants) avec une économie diversifiée (PSA, Orange, secteur numérique). La LGV Paris-Rennes (1h25) a renforcé son attractivité auprès des cadres parisiens télétravaillant.",
+    conseil: "Villejean (campus universitaire) est idéal pour les studios étudiants. Blosne et Maurepas offrent de bons T2-T3 accessibles. La gare est le secteur qui bénéficiera le plus de la dynamique LGV — bonne option moyen terme.",
+    alertes: ["Marché tendu : peu de négociation possible", "LGV : effet positif sur les prix"],
+    exemple: {
+      typeBien: "Appartement",
+      surface: 40,
+      prix: 170000,
+      loyer: 730,
+      charges: 100,
+      taxeFonciere: 900,
+      vacance: 4,
+    },
+    faq: [
+      {
+        q: "Rennes est-elle une ville intéressante pour investir en LMNP ?",
+        a: "Oui. Rennes offre un bon équilibre entre rendement (4-5,5%) et potentiel de valorisation (bénéfice de la LGV et de l'attractivité croissante). Avec 60 000 étudiants et un tissu économique solide, la demande locative est structurellement forte.",
+      },
+    ],
+  },
+
+  grenoble: {
+    nom: "Grenoble",
+    slug: "grenoble",
+    departement: "38",
+    region: "Auvergne-Rhône-Alpes",
+    population: "160 000",
+    prixMedM2: 2900,
+    prixMedM2Fourchette: "2 200 – 4 000",
+    loyerMedM2: 13,
+    rendementBrut: { min: 5.0, max: 7.0 },
+    segments: ["Studio", "T2 étudiant", "T3 chercheur"],
+    quartiers: ["Île-Verte", "Championnet", "Berriat", "Grand-Place", "Eaux-Claires"],
+    tensionLocative: 4,
+    contexte: "Grenoble, capitale des Alpes, est sous-estimée des investisseurs. Pourtant : 60 000 étudiants, pôle scientifique et technologique de rang mondial (CEA, STMicroelectronics, Schneider), prix immobiliers parmi les plus bas des grandes villes françaises. Résultat : des rendements bruts souvent supérieurs à 5,5%.",
+    conseil: "Île-Verte et Championnet (proches du campus) sont les valeurs sûres. Les T2 bien situés (< 200k€, loyer 750-850€) offrent d'excellents cash-flows en LMNP Réel. Idéal pour un premier investissement avec un budget serré.",
+    alertes: ["Réputation injustement négative : opportunité pour les investisseurs avisés", "Quartiers sensibles à éviter : renseignez-vous en amont"],
+    exemple: {
+      typeBien: "Appartement",
+      surface: 42,
+      prix: 140000,
+      loyer: 720,
+      charges: 100,
+      taxeFonciere: 800,
+      vacance: 5,
+    },
+    faq: [
+      {
+        q: "Grenoble est-elle une bonne ville pour le LMNP ?",
+        a: "Oui, et elle est souvent sous-estimée. Des prix parmi les plus bas de France + une demande locative solide (60 000 étudiants + salariés du pôle technologique) = des rendements bruts de 5 à 7%, parmi les meilleurs des grandes villes françaises.",
+      },
+    ],
+  },
+
+  nice: {
+    nom: "Nice",
+    slug: "nice",
+    departement: "06",
+    region: "Provence-Alpes-Côte d'Azur",
+    population: "350 000",
+    prixMedM2: 5200,
+    prixMedM2Fourchette: "4 000 – 8 500",
+    loyerMedM2: 19,
+    rendementBrut: { min: 3.8, max: 5.5 },
+    segments: ["Studio", "T2", "Saisonnier"],
+    quartiers: ["Libération", "Carabacel", "Saint-Roch", "Madeleine", "Arenas"],
+    tensionLocative: 4,
+    contexte: "Nice offre un marché dual : location longue durée (étudiants, cadres, retraités) et location saisonnière (tourisme international). Les rendements bruts sont de 3,8 à 5,5% en longue durée, mais peuvent dépasser 8% en saisonnier bien géré. Le marché est soutenu par une clientèle internationale.",
+    conseil: "Pour le LMNP longue durée : Libération, Saint-Roch et Carabacel offrent les meilleurs rendements. Pour le saisonnier : hypercentre ou Promenade des Anglais (budget plus élevé). Attention à la réglementation Airbnb qui se renforce sur la Côte d'Azur.",
+    alertes: ["Réglementation locations saisonnières en renforcement", "Taxe de séjour en hausse", "Prix en hypercentre très élevés"],
+    exemple: {
+      typeBien: "Studio",
+      surface: 28,
+      prix: 175000,
+      loyer: 780,
+      charges: 120,
+      taxeFonciere: 1100,
+      vacance: 5,
+    },
+    faq: [
+      {
+        q: "Vaut-il mieux faire du LMNP longue durée ou saisonnier à Nice ?",
+        a: "Les deux ont leur intérêt. Le saisonnier (Airbnb) peut générer 2x plus de revenus en haute saison, mais exige plus de gestion et est soumis à une réglementation croissante. Le LMNP longue durée est plus stable et fiscalement optimisé via les amortissements. Notre simulateur calcule les deux scénarios.",
+      },
+    ],
+  },
+
+  lille: {
+    nom: "Lille",
+    slug: "lille",
+    departement: "59",
+    region: "Hauts-de-France",
+    population: "235 000",
+    prixMedM2: 3100,
+    prixMedM2Fourchette: "2 300 – 4 200",
+    loyerMedM2: 13,
+    rendementBrut: { min: 4.8, max: 6.5 },
+    segments: ["Studio", "T2", "Grande colocation"],
+    quartiers: ["Wazemmes", "Fives", "Moulins", "Vieux-Lille", "Saint-Michel"],
+    tensionLocative: 4,
+    contexte: "Lille est une métropole étudiante (110 000 étudiants), carrefour européen et hub d'affaires (Euralille). Les prix restent très accessibles pour une grande métropole, générant des rendements parmi les plus élevés du top 10 des villes françaises.",
+    conseil: "Wazemmes (bobo et étudiant) et Fives (en gentrification) offrent d'excellents rendements. La grande colocation (T4-T5 meublé pour 4-5 colocataires) est particulièrement rentable à Lille : rendements bruts de 7-9% fréquents. Attention aux logements sans VMC — humidité fréquente dans le Nord.",
+    alertes: ["Humidité : vérifier VMC et isolation", "Gentrification rapide dans certains quartiers = opportunité"],
+    exemple: {
+      typeBien: "Appartement",
+      surface: 45,
+      prix: 150000,
+      loyer: 750,
+      charges: 100,
+      taxeFonciere: 850,
+      vacance: 4,
+    },
+    faq: [
+      {
+        q: "La colocation est-elle rentable à Lille en LMNP ?",
+        a: "Très rentable. Un T4 à Lille (220 000€, 4 colocataires à 450€/mois chacun = 1 800€/mois) affiche un rendement brut de 9,8%. En LMNP Réel, les amortissements (composants + mobilier) effacent presque entièrement l'impôt les 12-15 premières années.",
+      },
+      {
+        q: "Quels quartiers de Lille pour le LMNP en 2026 ?",
+        a: "Les meilleurs quartiers Lille LMNP : Wazemmes (étudiant, bobo, loyers en hausse), Fives (en gentrification, prix encore doux), Saint-Michel (proche gare, profils cadres), Moulins (abordable, bon rapport Q/P). Évitez Hellemmes et Mons-en-Barœul pour un premier investissement.",
+      },
+    ],
+  },
+
+  tours: {
+    nom: "Tours",
+    slug: "tours",
+    departement: "37",
+    region: "Centre-Val de Loire",
+    population: "140 000",
+    prixMedM2: 2600,
+    prixMedM2Fourchette: "2 000 – 3 500",
+    loyerMedM2: 12,
+    rendementBrut: { min: 5.0, max: 7.0 },
+    segments: ["Studio", "T2", "Colocation"],
+    quartiers: ["Grammont", "Les Prébendes", "Vieux-Tours", "Sanitas", "Rabelais"],
+    tensionLocative: 3,
+    contexte: "Tours est une ville universitaire (40 000 étudiants) avec des prix immobiliers très accessibles. Les rendements bruts dépassent régulièrement 5,5%, ce qui en fait l'une des meilleures villes pour un premier investissement LMNP avec un budget modéré.",
+    conseil: "Grammont (campus universitaire) est la valeur sûre pour les studios étudiants. Le Vieux-Tours est idéal pour le saisonnier touristique. Tours est accessible en 1h de Paris par le TGV — attire aussi des profils télétravail.",
+    alertes: ["Marché calme mais solide — patience requise pour la plus-value"],
+    exemple: {
+      typeBien: "Studio",
+      surface: 25,
+      prix: 90000,
+      loyer: 520,
+      charges: 70,
+      taxeFonciere: 600,
+      vacance: 6,
+    },
+    faq: [
+      {
+        q: "Tours est-elle une bonne ville pour débuter en LMNP ?",
+        a: "Oui, c'est une ville idéale pour un premier investissement LMNP avec un budget limité. Des studios autour de 80 000-100 000€ se louent 480-550€/mois, soit des rendements bruts de 5,5 à 7%. La gestion est simple grâce à la forte demande étudiante.",
+      },
+    ],
+  },
+
+  dijon: {
+    nom: "Dijon",
+    slug: "dijon",
+    departement: "21",
+    region: "Bourgogne-Franche-Comté",
+    population: "155 000",
+    prixMedM2: 2500,
+    prixMedM2Fourchette: "1 900 – 3 200",
+    loyerMedM2: 11,
+    rendementBrut: { min: 5.0, max: 7.5 },
+    segments: ["Studio", "T2", "T3 colocation"],
+    quartiers: ["Montchapet", "Toison-d'Or", "Bourroches", "Centre historique", "Drapeau"],
+    tensionLocative: 3,
+    contexte: "Dijon est une ville sous le radar des investisseurs, ce qui en fait une opportunité. Capitale de la Bourgogne, ville universitaire (32 000 étudiants), tissu économique solide. Des prix parmi les plus bas de France et des rendements bruts souvent > 6%.",
+    conseil: "Le centre historique (UNESCO) est idéal pour la location meublée touristique. Montchapet et Bourroches offrent de bons T2 étudiants. Les T3 en colocation dans les quartiers universitaires génèrent souvent 7-8% de rendement brut.",
+    alertes: ["Marché peu liquide : anticiper une durée de revente plus longue", "Tourisme viticole = saisonnier intéressant"],
+    exemple: {
+      typeBien: "Appartement",
+      surface: 40,
+      prix: 105000,
+      loyer: 600,
+      charges: 80,
+      taxeFonciere: 700,
+      vacance: 6,
+    },
+    faq: [
+      {
+        q: "Pourquoi investir en LMNP à Dijon plutôt qu'à Lyon ?",
+        a: "Dijon offre des rendements bruts supérieurs (5,5-7,5% vs 4-5,8% à Lyon) avec un ticket d'entrée bien plus faible. L'inconvénient : une liquidité moindre à la revente et une moins grande tension locative. C'est le bon choix si la rentabilité cash-flow prime sur la plus-value.",
+      },
+    ],
+  },
+
+  annecy: {
+    nom: "Annecy",
+    slug: "annecy",
+    departement: "74",
+    region: "Auvergne-Rhône-Alpes",
+    population: "130 000",
+    prixMedM2: 5800,
+    prixMedM2Fourchette: "4 500 – 8 000",
+    loyerMedM2: 19,
+    rendementBrut: { min: 3.5, max: 4.8 },
+    segments: ["T2", "T3", "Saisonnier montagne/lac"],
+    quartiers: ["Vieille ville", "Cran-Gevrier", "Seynod", "Novel", "Meythet"],
+    tensionLocative: 4,
+    contexte: "Annecy est l'une des villes les plus chères de province (hors Paris). Son attrait touristique exceptionnel (lac, montagnes) soutient une forte demande saisonnière. Les rendements longue durée sont modestes (3,5-4,8%) mais la valorisation du capital est excellente.",
+    conseil: "L'investissement saisonnier (Airbnb) peut générer 2-3x plus qu'en longue durée à Annecy. Cran-Gevrier et Seynod offrent des prix plus accessibles pour la longue durée. La Vieille ville est premium — prix élevés mais liquidité maximale à la revente.",
+    alertes: ["Prix très élevés = ticket d'entrée important", "Réglementation Airbnb en renforcement à Annecy"],
+    exemple: {
+      typeBien: "Appartement",
+      surface: 40,
+      prix: 260000,
+      loyer: 980,
+      charges: 140,
+      taxeFonciere: 1400,
+      vacance: 5,
+    },
+    faq: [
+      {
+        q: "Annecy est-elle rentable pour le LMNP ?",
+        a: "Annecy est plus intéressante pour la valorisation du capital que pour le cash-flow. En longue durée, le rendement brut de 3,5-4,8% est modeste. En saisonnier bien géré, on peut approcher 7-9% de rendement brut. Le prix au m² a progressé de +70% en 10 ans, ce qui génère d'excellentes plus-values.",
+      },
+    ],
+  },
+};
+
+export const VILLES_LIST = Object.values(VILLES);
+
+/** Retourne les données d'une ville par son slug (insensible à la casse) */
+export function getVille(slug) {
+  return VILLES[slug?.toLowerCase()] ?? null;
+}
+
+/** Tous les slugs connus (pour generateStaticParams) */
+export const SLUGS = Object.keys(VILLES);
