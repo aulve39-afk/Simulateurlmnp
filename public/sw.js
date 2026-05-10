@@ -4,15 +4,13 @@
                Network-First pour données API.
 ═══════════════════════════════════════════════════ */
 
-const CACHE_VERSION  = "immoverdict-v2";
+const CACHE_VERSION  = "immoverdict-v3";
 const CACHE_STATIC   = `${CACHE_VERSION}-static`;
 const CACHE_DYNAMIC  = `${CACHE_VERSION}-dynamic`;
 
-// Pages et assets à mettre en cache immédiatement
+// Assets statiques uniquement — PAS les pages HTML (elles référencent des
+// chunks Next.js avec des hashes qui changent à chaque déploiement).
 const PRECACHE_URLS = [
-  "/lmnp",
-  "/rp",
-  "/",
   "/manifest.json",
   "/favicon.svg",
   "/offline.html",
@@ -61,8 +59,8 @@ self.addEventListener("fetch", event => {
     return;
   }
 
-  // Pages HTML → Stale-While-Revalidate
-  event.respondWith(staleWhileRevalidate(request));
+  // Pages HTML → Network-First (évite de servir du HTML avec de vieux hashes de chunks)
+  event.respondWith(networkFirst(request));
 });
 
 /* ── Stratégies de cache ── */
