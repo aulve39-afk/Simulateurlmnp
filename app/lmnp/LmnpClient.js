@@ -604,22 +604,58 @@ const QUIZ_QUESTIONS = [
     question: "Quel est votre objectif principal ?",
     icon: "🚀",
     options: [
-      { value:"cashflow",   label:"Cash-flow positif", icon:"💸" },
+      { value:"cashflow",   label:"Cash-flow positif chaque mois", icon:"💸" },
       { value:"fiscal",     label:"Réduire mes impôts", icon:"🧾" },
-      { value:"patrimoine", label:"Construire un patrimoine", icon:"🏛️" },
+      { value:"patrimoine", label:"Construire un patrimoine long terme", icon:"🏛️" },
+    ],
+  },
+  {
+    id: "budget",
+    question: "Quel est votre budget d'acquisition ?",
+    icon: "💰",
+    sub: "Prix d'achat + frais de notaire + travaux éventuels",
+    options: [
+      { value: 90000,  label:"Moins de 100 000 €",     icon:"🟢" },
+      { value: 150000, label:"100 000 – 200 000 €",    icon:"🟡" },
+      { value: 250000, label:"200 000 – 350 000 €",    icon:"🟠" },
+      { value: 400000, label:"Plus de 350 000 €",      icon:"🔴" },
+    ],
+  },
+  {
+    id: "apport",
+    question: "Quel apport personnel pouvez-vous mobiliser ?",
+    icon: "🏦",
+    sub: "Épargne disponible pour cet investissement",
+    options: [
+      { value: 10000,  label:"Moins de 15 000 €",     icon:"🟢" },
+      { value: 25000,  label:"15 000 – 40 000 €",     icon:"🟡" },
+      { value: 60000,  label:"40 000 – 80 000 €",     icon:"🟠" },
+      { value: 100000, label:"Plus de 80 000 €",      icon:"🔴" },
+    ],
+  },
+  {
+    id: "revenus",
+    question: "Quels sont vos revenus nets mensuels ?",
+    icon: "📊",
+    sub: "Pour calculer votre capacité d'emprunt (règle HCSF 35%)",
+    options: [
+      { value: 2000, label:"Moins de 2 500 €/mois",   icon:"🟢" },
+      { value: 3500, label:"2 500 – 4 500 €/mois",    icon:"🟡" },
+      { value: 5500, label:"4 500 – 7 000 €/mois",    icon:"🟠" },
+      { value: 8000, label:"Plus de 7 000 €/mois",    icon:"🔴" },
     ],
   },
   {
     id: "tmi",
     question: "Quelle est votre tranche d'imposition ?",
     icon: "🧾",
-    sub: "Votre dernière tranche marginale d'imposition (IR)",
+    sub: "Votre tranche marginale — détermine le bénéfice fiscal du LMNP",
     options: [
       { value:0,  label:"Non imposable (0%)",  icon:"🟢" },
       { value:11, label:"11 %",                icon:"🟡" },
       { value:30, label:"30 %",                icon:"🟠" },
       { value:41, label:"41 %",                icon:"🔴" },
-      { value:45, label:"45 %",                icon:"🔴" },
+      { value:45, label:"45 % (revenus > 177k)", icon:"🔴" },
     ],
   },
 ];
@@ -5082,10 +5118,13 @@ export default function App() {
 
   // Quiz completion — pré-remplir le TMI depuis les réponses
   const handleQuizComplete = (answers) => {
-    if (answers.tmi !== undefined) {
-      setForm(f => ({ ...f, tmi: answers.tmi }));
-    }
-    try { window.gtag?.("event", "simulation_started", { objectif: answers.objectif ?? "unknown", tmi: answers.tmi ?? 0 }); } catch(_) {}
+    const formUpdates = {};
+    if (answers.tmi     !== undefined) formUpdates.tmi             = answers.tmi;
+    if (answers.budget  !== undefined) formUpdates.prix            = answers.budget;
+    if (answers.apport  !== undefined) formUpdates.apport          = answers.apport;
+    if (answers.revenus !== undefined) formUpdates.revenusMensuels = answers.revenus;
+    if (Object.keys(formUpdates).length > 0) setForm(f => ({ ...f, ...formUpdates }));
+    try { window.gtag?.("event", "simulation_started", { objectif: answers.objectif ?? "unknown", situation: answers.situation ?? "unknown", tmi: answers.tmi ?? 0 }); } catch(_) {}
     setPhase("sim");
     window.scrollTo(0, 0);
   };
