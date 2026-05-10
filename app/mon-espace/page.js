@@ -17,6 +17,8 @@ export default function MonEspacePage() {
 
   /* ── Auth ── */
   useEffect(() => {
+    if (!supabase) { setUser(null); setLoading(false); return; }
+
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
       if (session?.user) fetchSimulations();

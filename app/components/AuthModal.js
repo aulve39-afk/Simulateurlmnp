@@ -11,6 +11,7 @@ export default function AuthModal({ onClose }) {
   const handleMagicLink = async (e) => {
     e.preventDefault();
     if (!email.trim()) return;
+    if (!supabase) { setError("Service d'authentification non disponible."); return; }
     setLoading(true);
     setError(null);
     const { error: err } = await supabase.auth.signInWithOtp({
