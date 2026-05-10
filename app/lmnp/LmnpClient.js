@@ -3769,6 +3769,361 @@ ${amort?.chartData?.length?`
   setTimeout(() => URL.revokeObjectURL(url), 60000);
 }
 
+/* ══════════════════════════════════════════════════════════════════
+   RAPPORT PRO — PDF enrichi (graphiques, comparatif 4 régimes, revente)
+══════════════════════════════════════════════════════════════════ */
+function downloadPremiumReport(form, results, amort) {
+  try { window.gtag?.("event", "pdf_pro_downloaded", { regime: results?.[0]?.regime ?? "unknown", tri: results?.[0]?.tri ?? 0 }); } catch(_) {}
+  const r0      = results?.[0];
+  const fmt     = (n) => new Intl.NumberFormat("fr-FR",{style:"currency",currency:"EUR",maximumFractionDigits:0}).format(n??0);
+  const fmtPct  = (n) => `${(+n||0).toFixed(2)} %`;
+  const dateStr = new Date().toLocaleDateString("fr-FR",{day:"2-digit",month:"long",year:"numeric"});
+  const refNum  = `PRO-${new Date().getFullYear()}-${String(Math.floor(Math.random()*9000)+1000)}`;
+
+  /* ── Calculs financiers ── */
+  const capital     = Math.max(0, form.prix + form.travaux + form.prix*(form.notaire/100) - form.apport);
+  const tm          = (form.interet/100)/12;
+  const nn          = form.dureeCredit * 12;
+  const mens        = capital>0&&tm>0 ? Math.round((capital*tm)/(1-Math.pow(1+tm,-nn))) : 0;
+  const pctApport   = Math.round(form.apport / Math.max(form.prix,1) * 100);
+  const loyerAnnuel = Math.round(form.loyer * 12 * (1-(form.vacance||0)/100));
+  const horizon     = +(form.horizon || 20);
+  const revalo      = +(form.revalorisation || 1.5) / 100;
+
+  /* ── Projection cash-flow annuelle sur horizon ── */
+  const cfAnnuel     = r0?.cashflowA ?? 0;
+  const annuite      = mens * 12;
+  const chargesAnn   = (form.charges||0)*12 + (form.taxeFonciere||0) + (form.assurancePNO??200) + (form.fraisGestion??0) + (form.cfe||0);
+  const projCF = [];
+  let loyerCourant = loyerAnnuel;
+  for (let y = 1; y <= Math.min(horizon, 25); y++) {
+    if (y > 1) loyerCourant = Math.round(loyerCourant * (1 + revalo));
+    const annuiteY = y <= form.dureeCredit ? annuite : 0;
+    const cf = Math.round(loyerCourant - chargesAnn - annuiteY - (r0 ? (r0.cashflowA - cfAnnuel) * 0 : 0));
+    projCF.push({ year: y, cf, loyer: loyerCourant });
+  }
+
+  /* ── Patrimoine projeté ── */
+  const prixRevente = (y) => Math.round(form.prix * Math.pow(1 + revalo, y));
+  const capitRest   = (y) => {
+    if (y >= form.dureeCredit) return 0;
+    const restMois = (form.dureeCredit - y) * 12;
+    return Math.round(capital * (1 - (nn - restMois) / nn));
+  };
+  const projPatri = projCF.map(({ year }) => ({
+    year,
+    brut:   prixRevente(year),
+    dette:  capitRest(year),
+    net:    prixRevente(year) - capitRest(year),
+  }));
+
+  /* ── Plus-value à la revente ── */
+  const prixVente     = prixRevente(horizon);
+  const pvBrute       = Math.max(0, prixVente - form.prix);
+  const abattAnnee    = Math.min(horizon, 30);
+  const pctAbatt      = abattAnnee >= 22 ? 100 : abattAnnee >= 5 ? abattAnnee * 6 : 0;
+  const pvImposable   = Math.round(pvBrute * (1 - pctAbatt/100));
+  const impotPV       = Math.round(pvImposable * 0.19 + pvImposable * 0.172);
+  const netVendeur    = Math.round(prixVente - capitRest(horizon) - impotPV);
+
+  /* ── Couleurs & styles ── */
+  const NAVY   = "#0F172A";
+  const ORANGE = "#F97316";
+  const SLATE  = "#475569";
+  const GREEN  = "#16A34A";
+  const RED    = "#DC2626";
+
+  /* ── SVG Chart : barres cash-flow ── */
+  const cfMax    = Math.max(...projCF.map(d => Math.abs(d.cf)), 1);
+  const barW     = Math.max(8, Math.floor(540 / projCF.length) - 3);
+  const chartH   = 120;
+  const zeroY    = chartH * 0.6; // ligne zéro à 60% depuis le haut
+  const cfBars   = projCF.map((d, i) => {
+    const h     = Math.round((Math.abs(d.cf) / cfMax) * (chartH * 0.55));
+    const color = d.cf >= 0 ? GREEN : RED;
+    const y     = d.cf >= 0 ? zeroY - h : zeroY;
+    const x     = i * (barW + 3) + 10;
+    return `<rect x="${x}" y="${y}" width="${barW}" height="${h}" fill="${color}" rx="2" opacity="0.85"/>
+            ${i % 5 === 0 ? `<text x="${x + barW/2}" y="${chartH + 15}" text-anchor="middle" font-size="8" fill="${SLATE}">A${d.year}</text>` : ""}`;
+  }).join("");
+  const svgCF = `<svg viewBox="0 0 560 ${chartH+25}" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;">
+    <line x1="5" y1="${zeroY}" x2="555" y2="${zeroY}" stroke="#CBD5E1" stroke-width="1"/>
+    ${cfBars}
+    <text x="2" y="12" font-size="9" fill="${SLATE}">+</text>
+    <text x="2" y="${chartH-5}" font-size="9" fill="${SLATE}">−</text>
+  </svg>`;
+
+  /* ── SVG Chart : patrimoine net ── */
+  const netMax   = Math.max(...projPatri.map(d => d.brut), 1);
+  const pts      = projPatri.map((d, i) => {
+    const x = 10 + (i / (projPatri.length - 1)) * 540;
+    const y = chartH - Math.round((d.net / netMax) * (chartH - 10)) - 5;
+    return `${x},${y}`;
+  }).join(" ");
+  const ptsB     = projPatri.map((d, i) => {
+    const x = 10 + (i / (projPatri.length - 1)) * 540;
+    const y = chartH - Math.round((d.brut / netMax) * (chartH - 10)) - 5;
+    return `${x},${y}`;
+  }).join(" ");
+  const svgPatri = `<svg viewBox="0 0 560 ${chartH+25}" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;">
+    <polyline points="${ptsB}" fill="none" stroke="#CBD5E1" stroke-width="2" stroke-dasharray="4,3"/>
+    <polyline points="${pts}" fill="none" stroke="${ORANGE}" stroke-width="2.5"/>
+    <circle cx="${10 + ((projPatri.length-1)/(projPatri.length-1))*540}" cy="${chartH - Math.round((projPatri[projPatri.length-1].net/netMax)*(chartH-10))-5}" r="4" fill="${ORANGE}"/>
+    <text x="10" y="${chartH+15}" font-size="8" fill="${SLATE}">Année 1</text>
+    <text x="520" y="${chartH+15}" font-size="8" fill="${SLATE}" text-anchor="end">Année ${horizon}</text>
+    <text x="400" y="15" font-size="8" fill="${SLATE}" text-anchor="end">─── Valeur brute</text>
+    <text x="400" y="26" font-size="8" fill="${ORANGE}" text-anchor="end">─── Patrimoine net</text>
+  </svg>`;
+
+  /* ── Tableau comparatif 4 régimes ── */
+  const regimeCols = (results || []).slice(0, 4).map(r => `
+    <td style="text-align:center;padding:6px 8px;font-weight:700;font-size:11pt;color:${r === r0 ? ORANGE : NAVY}">${r.regime}</td>`).join("");
+  const makeRow = (label, fn, color) => `<tr>
+    <td style="padding:5px 8px;font-size:10pt;color:${SLATE};border-bottom:1px solid #F1F5F9">${label}</td>
+    ${(results||[]).slice(0,4).map(r => `<td style="text-align:center;padding:5px 8px;font-size:10pt;color:${color||NAVY};border-bottom:1px solid #F1F5F9;background:${r===r0?'#FFF7ED':''}">${fn(r)}</td>`).join("")}
+  </tr>`;
+  const tableRegimes = `<table style="width:100%;border-collapse:collapse;margin-top:8px;">
+    <thead><tr style="background:${NAVY}">
+      <th style="text-align:left;padding:8px;color:white;font-size:10pt;font-weight:600">Indicateur</th>
+      ${regimeCols.replace(/color:[^"]+"/g, 'color:white"')}
+    </tr></thead>
+    <tbody>
+      ${makeRow("Cash-flow mensuel",   r => `<strong>${r.cashflowM >= 0 ? "+" : ""}${Math.round(r.cashflowM)} €</strong>`, "")}
+      ${makeRow("Cash-flow annuel",    r => `${r.cashflowA >= 0 ? "+" : ""}${fmt(r.cashflowA)}`, "")}
+      ${makeRow("Impôt annuel",        r => fmt(r.impot), RED)}
+      ${makeRow("Rendement brut",      r => fmtPct(r.rendBrut), "")}
+      ${makeRow("Rendement net",       r => fmtPct(r.rendNet), "")}
+      ${makeRow("TRI sur ${horizon} ans", r => fmtPct(r.tri), ORANGE)}
+      ${makeRow("Patrimoine net final",r => fmt(r.patrimoineNet), GREEN)}
+    </tbody>
+  </table>`;
+
+  const html = `<!DOCTYPE html><html lang="fr"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Rapport Pro LMNP · ImmoVerdict · ${dateStr}</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:"Segoe UI",Arial,sans-serif;background:#F8FAFC;color:${NAVY};font-size:10.5pt;line-height:1.5;}
+  .page{max-width:780px;margin:0 auto;background:white;padding:14mm 16mm;page-break-after:always;}
+  .cover{background:linear-gradient(135deg,${NAVY} 60%,#1E293B 100%);color:white;min-height:280px;padding:40px 50px;border-radius:0;}
+  .sec{background:${NAVY};color:white;font-size:10pt;font-weight:700;padding:6px 12px;margin:18px 0 10px;letter-spacing:.04em;text-transform:uppercase;}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:8px 0;}
+  .kpi{background:#F8FAFC;border:1px solid #E2E8F0;border-radius:6px;padding:10px 12px;}
+  .kpi-val{font-size:16pt;font-weight:800;color:${ORANGE};}
+  .kpi-lbl{font-size:8.5pt;color:${SLATE};margin-top:2px;}
+  .highlight{background:#FFF7ED;border-left:3px solid ${ORANGE};padding:10px 14px;margin:10px 0;font-size:9.5pt;}
+  .chart-box{background:#F8FAFC;border:1px solid #E2E8F0;border-radius:6px;padding:12px;margin:10px 0;}
+  .chart-title{font-size:9pt;font-weight:700;color:${SLATE};text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;}
+  table{width:100%;border-collapse:collapse;}
+  th{text-align:left;padding:6px 8px;font-size:9.5pt;}
+  td{padding:5px 8px;font-size:9.5pt;border-bottom:1px solid #F1F5F9;}
+  .badge-optimal{display:inline-block;background:${ORANGE};color:white;padding:2px 8px;border-radius:20px;font-size:8pt;font-weight:700;margin-left:6px;vertical-align:middle;}
+  .footer{text-align:center;font-size:8pt;color:#94A3B8;padding-top:8px;border-top:1px solid #E2E8F0;margin-top:16px;}
+  @media print{
+    body{background:white;}
+    .no-print{display:none!important;}
+    .page{padding:8mm 10mm;max-width:100%;}
+    @page{size:A4;margin:8mm 10mm;}
+  }
+</style>
+</head><body>
+
+<div class="page">
+  <!-- COUVERTURE -->
+  <div class="cover">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:32px;">
+      <div>
+        <p style="font-size:11pt;color:rgba(255,255,255,.6);text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px">ImmoVerdict</p>
+        <p style="font-size:22pt;font-weight:800;line-height:1.15">Rapport Pro LMNP</p>
+        <p style="font-size:11pt;color:rgba(255,255,255,.7);margin-top:4px">Analyse fiscale · Projection patrimoniale · Simulation revente</p>
+      </div>
+      <div style="background:${ORANGE};color:white;padding:6px 14px;border-radius:20px;font-size:9pt;font-weight:700;white-space:nowrap">★ PRO</div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-top:8px;">
+      <div><p style="font-size:8pt;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.05em">Bien analysé</p><p style="font-size:11pt;font-weight:700;color:white">${form.adresse || form.typeBien || "Investissement LMNP"}</p></div>
+      <div><p style="font-size:8pt;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.05em">Prix d'acquisition</p><p style="font-size:11pt;font-weight:700;color:${ORANGE}">${fmt(form.prix)}</p></div>
+      <div><p style="font-size:8pt;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.05em">Régime optimal</p><p style="font-size:11pt;font-weight:700;color:white">${r0?.regime ?? "—"}</p></div>
+    </div>
+    <div style="margin-top:24px;display:flex;justify-content:space-between;font-size:8.5pt;color:rgba(255,255,255,.4);">
+      <span>Réf. ${refNum}</span>
+      <span>${dateStr}</span>
+    </div>
+  </div>
+
+  <!-- KPIs CLÉS -->
+  <div style="margin-top:20px;">
+    <div class="sec">Indicateurs clés — Régime optimal : ${r0?.regime ?? "—"}</div>
+    <div class="grid2" style="grid-template-columns:repeat(4,1fr);">
+      <div class="kpi"><div class="kpi-val">${r0?.tri != null ? fmtPct(r0.tri) : "—"}</div><div class="kpi-lbl">TRI sur ${horizon} ans</div></div>
+      <div class="kpi"><div class="kpi-val" style="color:${(r0?.cashflowM??0)>=0?GREEN:RED}">${r0?.cashflowM != null ? `${(r0.cashflowM>=0?"+":"")}${Math.round(r0.cashflowM)} €/mois` : "—"}</div><div class="kpi-lbl">Cash-flow mensuel</div></div>
+      <div class="kpi"><div class="kpi-val">${fmtPct(r0?.rendBrut)}</div><div class="kpi-lbl">Rendement brut</div></div>
+      <div class="kpi"><div class="kpi-val">${fmtPct(r0?.rendNet)}</div><div class="kpi-lbl">Rendement net</div></div>
+    </div>
+    <div class="grid2" style="grid-template-columns:repeat(3,1fr);">
+      <div class="kpi"><div class="kpi-val">${fmt(form.apport)}</div><div class="kpi-lbl">Apport personnel (${pctApport}%)</div></div>
+      <div class="kpi"><div class="kpi-val">${fmt(form.loyer)}/mois</div><div class="kpi-lbl">Loyer meublé (vacance ${form.vacance||0}%)</div></div>
+      <div class="kpi"><div class="kpi-val">${form.tmi || 0} %</div><div class="kpi-lbl">Tranche marginale d'imposition</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="page">
+  <!-- COMPARATIF 4 RÉGIMES -->
+  <div class="sec">I. Comparatif complet des 4 régimes fiscaux</div>
+  <p style="font-size:9pt;color:${SLATE};margin-bottom:8px;">
+    Le régime optimal est mis en évidence. Les calculs intègrent votre TMI de <strong>${form.tmi||0}%</strong>,
+    les charges réelles, la durée de crédit et les hypothèses de vacance locative.
+  </p>
+  ${tableRegimes}
+  <div class="highlight" style="margin-top:12px;">
+    <strong>Pourquoi le ${r0?.regime} est optimal dans votre situation ?</strong><br>
+    ${(r0?.regime||"").includes("Réel")
+      ? `Le régime réel vous permet de déduire l'amortissement du bien (${fmt(amort?.totalAnnuel)}/an) et toutes les charges réelles,
+         générant une économie fiscale estimée à <strong>${fmt((amort?.totalAnnuel||0)*form.tmi/100)}/an</strong>.
+         Avantage décisif avec votre TMI de ${form.tmi}%.`
+      : `Le Micro-BIC offre un abattement forfaitaire de 50% sans justificatifs,
+         idéal si vos charges réelles représentent moins de 50% des loyers.`
+    }
+  </div>
+
+  <!-- GRAPHIQUES CASH-FLOW -->
+  <div class="sec">II. Projection du cash-flow sur ${Math.min(horizon,25)} ans</div>
+  <p style="font-size:9pt;color:${SLATE};margin-bottom:6px;">
+    Évolution du cash-flow annuel en tenant compte de la revalorisation des loyers (${form.revalorisation||1.5}%/an)
+    et de l'extinction du crédit (${form.dureeCredit} ans).
+  </p>
+  <div class="chart-box">
+    <div class="chart-title">Cash-flow annuel (vert = positif, rouge = négatif)</div>
+    ${svgCF}
+    <div style="display:flex;justify-content:space-between;font-size:8pt;color:${SLATE};margin-top:4px;">
+      <span>Année 1 : <strong style="color:${projCF[0]?.cf>=0?GREEN:RED}">${projCF[0]?.cf>=0?"+":""}${fmt(projCF[0]?.cf)}</strong></span>
+      ${projCF[Math.floor(projCF.length/2)-1] ? `<span>Année ${Math.floor(projCF.length/2)} : <strong>${projCF[Math.floor(projCF.length/2)-1]?.cf>=0?"+":""}${fmt(projCF[Math.floor(projCF.length/2)-1]?.cf)}</strong></span>` : ""}
+      <span>Année ${projCF[projCF.length-1]?.year} : <strong style="color:${projCF[projCF.length-1]?.cf>=0?GREEN:RED}">${projCF[projCF.length-1]?.cf>=0?"+":""}${fmt(projCF[projCF.length-1]?.cf)}</strong></span>
+    </div>
+  </div>
+
+  <!-- GRAPHIQUES PATRIMOINE -->
+  <div class="sec">III. Évolution du patrimoine net sur ${horizon} ans</div>
+  <p style="font-size:9pt;color:${SLATE};margin-bottom:6px;">
+    Hypothèse de revalorisation : <strong>${form.revalorisation||1.5}%/an</strong>.
+    Patrimoine net = valeur de revente estimée − capital restant dû.
+  </p>
+  <div class="chart-box">
+    <div class="chart-title">Valeur brute (gris) vs Patrimoine net (orange)</div>
+    ${svgPatri}
+    <div style="display:flex;justify-content:space-between;font-size:8pt;color:${SLATE};margin-top:4px;">
+      <span>Apport initial : <strong>${fmt(form.apport)}</strong></span>
+      <span>Patrimoine net à ${horizon} ans : <strong style="color:${ORANGE}">${fmt(projPatri[projPatri.length-1]?.net)}</strong></span>
+      <span>×<strong>${(projPatri[projPatri.length-1]?.net/Math.max(form.apport,1)).toFixed(1)}</strong> l'apport</span>
+    </div>
+  </div>
+</div>
+
+<div class="page">
+  <!-- SIMULATION REVENTE -->
+  <div class="sec">IV. Simulation de revente à ${horizon} ans</div>
+  <p style="font-size:9pt;color:${SLATE};margin-bottom:10px;">
+    Projection basée sur une revalorisation de <strong>${form.revalorisation||1.5}%/an</strong>.
+    La fiscalité applique les abattements pour durée de détention (art. 150 U CGI).
+  </p>
+  <table style="margin-bottom:14px;">
+    <tbody>
+      <tr><td style="padding:7px 8px;font-weight:600;border-bottom:1px solid #F1F5F9">Prix d'achat (2024)</td><td style="text-align:right;padding:7px 8px;font-weight:700;border-bottom:1px solid #F1F5F9">${fmt(form.prix)}</td></tr>
+      <tr><td style="padding:7px 8px;border-bottom:1px solid #F1F5F9">Prix de revente estimé (${new Date().getFullYear()+horizon})</td><td style="text-align:right;padding:7px 8px;font-weight:700;border-bottom:1px solid #F1F5F9;color:${ORANGE}">${fmt(prixVente)}</td></tr>
+      <tr><td style="padding:7px 8px;border-bottom:1px solid #F1F5F9">Plus-value brute</td><td style="text-align:right;padding:7px 8px;border-bottom:1px solid #F1F5F9;color:${GREEN};font-weight:700">+ ${fmt(pvBrute)}</td></tr>
+      <tr><td style="padding:7px 8px;border-bottom:1px solid #F1F5F9">Abattement durée de détention (${abattAnnee} ans → ${pctAbatt}%)</td><td style="text-align:right;padding:7px 8px;border-bottom:1px solid #F1F5F9">− ${fmt(pvBrute*pctAbatt/100)}</td></tr>
+      <tr><td style="padding:7px 8px;border-bottom:1px solid #F1F5F9">Plus-value nette imposable</td><td style="text-align:right;padding:7px 8px;border-bottom:1px solid #F1F5F9;font-weight:700">${fmt(pvImposable)}</td></tr>
+      <tr><td style="padding:7px 8px;border-bottom:1px solid #F1F5F9">Impôt sur la plus-value (19% IR + 17.2% PS)</td><td style="text-align:right;padding:7px 8px;border-bottom:1px solid #F1F5F9;color:${RED}">− ${fmt(impotPV)}</td></tr>
+      <tr><td style="padding:7px 8px;border-bottom:1px solid #F1F5F9">Capital restant dû au crédit</td><td style="text-align:right;padding:7px 8px;border-bottom:1px solid #F1F5F9">− ${fmt(capitRest(horizon))}</td></tr>
+      <tr style="background:#FFF7ED;"><td style="padding:9px 8px;font-weight:800;font-size:11pt;color:${NAVY}">NET VENDEUR</td><td style="text-align:right;padding:9px 8px;font-weight:800;font-size:13pt;color:${ORANGE}">${fmt(netVendeur)}</td></tr>
+    </tbody>
+  </table>
+  <div class="highlight">
+    ${abattAnnee >= 22
+      ? `<strong>Exonération totale de l'IR</strong> : après 22 ans de détention, vous êtes exonéré d'impôt sur le revenu sur la plus-value. Les prélèvements sociaux restent dus jusqu'à 30 ans.`
+      : abattAnnee >= 5
+      ? `À ${abattAnnee} ans de détention, l'abattement est de <strong>${pctAbatt}%</strong>. Une détention jusqu'à 22 ans permet l'exonération totale d'IR.`
+      : `Moins de 5 ans de détention : aucun abattement applicable. La plus-value est taxée au taux plein (36.2% = 19% IR + 17.2% PS).`
+    }
+  </div>
+
+  <!-- SYNTHÈSE INVESTISSEMENT -->
+  <div class="sec">V. Synthèse — Verdict ImmoVerdict</div>
+  <div class="grid2">
+    <div>
+      <p style="font-weight:700;margin-bottom:6px;font-size:10pt;">Cash-flow cumulé sur ${horizon} ans</p>
+      <p style="font-size:14pt;font-weight:800;color:${GREEN}">${fmt(projCF.reduce((s,d)=>s+d.cf,0))}</p>
+      <p style="font-size:8.5pt;color:${SLATE}">Trésorerie dégagée par l'exploitation</p>
+    </div>
+    <div>
+      <p style="font-weight:700;margin-bottom:6px;font-size:10pt;">Retour total sur apport</p>
+      <p style="font-size:14pt;font-weight:800;color:${ORANGE}">${((netVendeur + projCF.reduce((s,d)=>s+d.cf,0)) / Math.max(form.apport,1) * 100).toFixed(0)} %</p>
+      <p style="font-size:8.5pt;color:${SLATE}">Net vendeur + cash-flows / apport initial</p>
+    </div>
+  </div>
+  <div class="highlight" style="margin-top:14px;">
+    <strong>Recommandation :</strong> ${
+      (r0?.tri??0) >= 6
+        ? `Investissement à fort potentiel. TRI de <strong>${fmtPct(r0?.tri)}</strong> supérieur aux standards du marché (4–6%). Le cash-flow ${(r0?.cashflowM??0)>=0?"positif dès la première année":"devient positif après extinction du crédit"} renforce la qualité du dossier.`
+        : (r0?.tri??0) >= 4
+        ? `Investissement solide avec TRI de <strong>${fmtPct(r0?.tri)}</strong>. Optimisation possible en révisant les paramètres locatifs ou en négociant les conditions de crédit.`
+        : `TRI de <strong>${fmtPct(r0?.tri)}</strong> en dessous des standards. Envisager une renégociation du prix d'achat ou un arbitrage vers un autre secteur géographique.`
+    }
+  </div>
+
+  <div class="footer">
+    <p>ImmoVerdict · Rapport Pro LMNP · ${refNum} · ${dateStr}</p>
+    <p style="margin-top:3px;font-size:7.5pt">Document à titre informatif · Les projections sont fondées sur les hypothèses saisies et ne constituent pas un conseil en investissement · Consultez un CGP agréé pour une analyse personnalisée</p>
+  </div>
+</div>
+
+</body></html>`;
+
+  const filenameP = `rapport-pro-lmnp-${new Date().toISOString().slice(0,10)}`;
+  const overlay = `
+<div id="pdf-overlay" class="no-print" style="position:fixed;inset:0;background:rgba(12,12,16,0.92);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;font-family:Arial,sans-serif;">
+  <div style="background:#1C2B3A;border:1px solid rgba(249,115,22,0.3);border-radius:16px;padding:32px 40px;text-align:center;max-width:360px;">
+    <div style="font-size:40px;margin-bottom:12px;">⭐</div>
+    <p id="pdf-msg" style="color:#F8FAFC;font-size:15px;font-weight:700;margin-bottom:6px;">Génération du Rapport Pro…</p>
+    <p id="pdf-sub" style="color:rgba(248,250,252,0.5);font-size:12px;margin-bottom:20px;">Graphiques & projections en cours</p>
+    <div style="height:4px;background:rgba(255,255,255,0.1);border-radius:2px;overflow:hidden;">
+      <div id="pdf-bar" style="height:4px;background:linear-gradient(90deg,#F97316,#EA580C);border-radius:2px;width:0%;transition:width 2s ease;"></div>
+    </div>
+  </div>
+</div>`;
+  const scriptP =
+`<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script>
+(function(){
+  var bar=document.getElementById('pdf-bar');
+  var overlay=document.getElementById('pdf-overlay');
+  setTimeout(function(){if(bar)bar.style.width='70%';},200);
+  window.addEventListener('load',function(){
+    if(typeof html2pdf==='undefined'){window.print();return;}
+    var el=document.body.cloneNode(true);
+    var ov=el.querySelector('#pdf-overlay');
+    if(ov)ov.remove();
+    var opt={margin:[6,8],filename:'${filenameP}.pdf',image:{type:'jpeg',quality:.95},html2canvas:{scale:2,useCORS:true},jsPDF:{unit:'mm',format:'a4',orientation:'portrait'}};
+    html2pdf().set(opt).from(el).save().then(function(){
+      if(bar)bar.style.width='100%';
+      setTimeout(function(){if(overlay)overlay.remove();},1200);
+    }).catch(function(){window.print();});
+  });
+})();
+</scr`+`ipt>`;
+  const htmlFinal = html.replace("</body>", overlay + scriptP + "</body>");
+  const blob = new Blob([htmlFinal], { type: "text/html" });
+  const url  = URL.createObjectURL(blob);
+  const w    = window.open(url, "_blank");
+  if (!w) {
+    const a = document.createElement("a");
+    a.href = url; a.download = `${filenameP}.html`;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    alert("Ouvrez le fichier téléchargé et faites Fichier → Imprimer → Enregistrer en PDF.");
+  }
+  setTimeout(() => URL.revokeObjectURL(url), 60000);
+}
+
 /* ════════════════════════════════════════
    STEP DOSSIER — Vue inline professionnelle
 ════════════════════════════════════════ */
@@ -4149,16 +4504,24 @@ function StepDossier({ form, results, amort }) {
         </table>
       </Card>
 
-      {/* ── BOUTON PDF ── */}
-      <div style={{paddingBottom:8}}>
+      {/* ── BOUTONS PDF ── */}
+      <div style={{paddingBottom:8,display:"flex",flexDirection:"column",gap:10}}>
+        {/* Dossier bancaire standard */}
         <button
           onClick={()=>downloadReport(form,results,amort,profession!=="—"?profession:"")}
           style={{width:"100%",padding:"14px",background:navy,color:"white",border:"none",borderRadius:4,fontSize:13,fontWeight:700,cursor:"pointer",letterSpacing:".03em",display:"flex",alignItems:"center",justifyContent:"center",gap:8}}>
           <span style={{fontSize:16}}>📄</span>
-          TÉLÉCHARGER LE DOSSIER EN PDF
+          TÉLÉCHARGER LE DOSSIER BANCAIRE (PDF)
         </button>
-        <p style={{textAlign:"center",fontSize:11,color:"#94A3B8",marginTop:8,fontFamily:"Arial,sans-serif"}}>
-          Le PDF se télécharge automatiquement · Format A4 · Dossier officiel
+        {/* Rapport Pro — enrichi avec graphiques, comparatif 4 régimes, simulation revente */}
+        <button
+          onClick={()=>downloadPremiumReport(form,results,amort)}
+          style={{width:"100%",padding:"14px",background:"linear-gradient(135deg,#F97316,#EA580C)",color:"white",border:"none",borderRadius:4,fontSize:13,fontWeight:700,cursor:"pointer",letterSpacing:".03em",display:"flex",alignItems:"center",justifyContent:"center",gap:8}}>
+          <span style={{fontSize:16}}>⭐</span>
+          RAPPORT PRO — Graphiques · Comparatif 4 régimes · Simulation revente
+        </button>
+        <p style={{textAlign:"center",fontSize:11,color:"#94A3B8",fontFamily:"Arial,sans-serif"}}>
+          Dossier Bancaire : sections officielles · Rapport Pro : analyse patrimoniale enrichie pour CGP
         </p>
       </div>
 
