@@ -1380,6 +1380,37 @@ function StepProjet({ form, set }) {
   return (
     <div className="slide-up space-y-4">
       <PresetsBar onSelect={applyPreset} />
+      {/* ── Barre d'import depuis une annonce ── */}
+      <div className="rounded-xl border border-orange-200 bg-orange-50/60 p-3">
+        <p className="text-[11px] font-semibold text-orange-700 mb-1.5">
+          🔗 Importer depuis une annonce
+        </p>
+        <div className="flex gap-2">
+          <input
+            type="url"
+            value={annonceUrl}
+            onChange={e => { setAnnonceUrl(e.target.value); setAnnonceMsg(null); }}
+            onKeyDown={e => e.key === "Enter" && importFromAnnonce()}
+            placeholder="Collez l'URL SeLoger, LeBonCoin, PAP, BienIci…"
+            className="flex-1 rounded-lg border border-orange-200 bg-white px-3 py-1.5 text-[12px] text-slate-700 placeholder-slate-400 outline-none focus:border-orange-400 focus:ring-1 focus:ring-orange-200 min-w-0"
+          />
+          <button
+            onClick={importFromAnnonce}
+            disabled={annonceLoading || !annonceUrl.trim()}
+            className="shrink-0 rounded-lg px-3 py-1.5 text-[11px] font-semibold transition-all active:scale-95 disabled:opacity-50"
+            style={{ background:"#F97316", color:"#fff" }}>
+            {annonceLoading ? "…" : "Importer"}
+          </button>
+        </div>
+        {annonceMsg && (
+          <p className={`mt-1.5 text-[11px] ${annonceMsg.type === "ok" ? "text-green-700" : "text-red-600"}`}>
+            {annonceMsg.text}
+          </p>
+        )}
+        <p className="mt-1 text-[10px] text-slate-400">
+          Pré-remplit automatiquement : prix, surface, nb pièces, DPE, adresse.
+        </p>
+      </div>
       <Card>
         <SectionTitle icon="🏠" title="Votre bien immobilier" sub="Définissez les caractéristiques du bien" />
         <SelectField label="Type de bien" value={form.typeBien} onChange={set("typeBien")}
@@ -4932,6 +4963,41 @@ export default function App() {
   }, [form, phase, step]); // eslint-disable-line react-hooks/exhaustive-deps
 
   /* ── Copier le lien ── */
+  /* ── Import depuis URL d'annonce ── */
+  const [annonceUrl,     setAnnonceUrl]     = useState("");
+  const [annonceLoading, setAnnonceLoading] = useState(false);
+  const [annonceMsg,     setAnnonceMsg]     = useState(null); // { type:"ok"|"err", text }
+  const importFromAnnonce = async () => {
+    if (!annonceUrl.trim()) return;
+    setAnnonceLoading(true);
+    setAnnonceMsg(null);
+    try {
+      const res  = await fetch("/api/parse-annonce", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url: annonceUrl.trim() }),
+      });
+      const json = await res.json();
+      if (!res.ok || json.error) {
+        setAnnonceMsg({ type: "err", text: json.error ?? "Erreur lors de l'import." });
+      } else {
+        setForm(f => ({ ...f, ...json.data }));
+        const labels = {
+          prix:"Prix", surface:"Surface", nbPieces:"Nb pièces",
+          dpe:"DPE", adresse:"Adresse",
+        };
+        const filled = json.fieldsFound.map(k => labels[k] ?? k).join(", ");
+        setAnnonceMsg({ type: "ok", text: `✅ Importé : ${filled}` });
+        setAnnonceUrl("");
+        window.gtag?.("event", "annonce_imported", { fields: json.fieldsFound.join(",") });
+      }
+    } catch {
+      setAnnonceMsg({ type: "err", text: "Impossible de contacter le serveur." });
+    } finally {
+      setAnnonceLoading(false);
+    }
+  };
+
   /* ── Taux du marché ── */
   const [tauxMarche, setTauxMarche] = useState(null);
   useEffect(() => {
