@@ -4834,8 +4834,14 @@ export default function App() {
   const URL_NUM_KEYS = [
     "prix","notaire","travaux","mobilier","terrain","apport","interet",
     "dureeCredit","differe","loyer","charges","taxeFonciere","vacance",
-    "revalorisation","tmi","horizon","cfe","tauxDistributionSCI",
-    "assurancePNO","fraisGestion",
+    "revalorisation","tmi","revenusMensuels","chargesCredit","horizon","cfe",
+    "tauxDistributionSCI","assurancePNO","fraisGestion",
+    "surface","age","epargneResiduelle","nbPieces",
+  ];
+  const URL_STR_KEYS = [
+    "typeBien","dpe","typeAcquisition","typeDiffere",
+    "profession","typeContrat","etatGeneral","modeExploitation",
+    "adresse","quartier",
   ];
 
   /* ── localStorage autosave ── */
@@ -4861,6 +4867,9 @@ export default function App() {
           if (!isNaN(v)) urlForm[k] = v;
         }
       });
+      URL_STR_KEYS.forEach(k => {
+        if (params.has(k)) urlForm[k] = params.get(k);
+      });
       if (params.has("tourismeClass")) urlForm.tourismeClass = params.get("tourismeClass") === "1";
       const urlStep = params.has("step") ? Math.min(4, Math.max(0, parseInt(params.get("step")))) : null;
       if (Object.keys(urlForm).length > 0) {
@@ -4878,6 +4887,9 @@ export default function App() {
     try {
       const params = new URLSearchParams();
       URL_NUM_KEYS.forEach(k => {
+        if (form[k] !== undefined && form[k] !== DEFAULTS[k]) params.set(k, form[k]);
+      });
+      URL_STR_KEYS.forEach(k => {
         if (form[k] !== undefined && form[k] !== DEFAULTS[k]) params.set(k, form[k]);
       });
       if (form.tourismeClass !== DEFAULTS.tourismeClass) params.set("tourismeClass", form.tourismeClass ? "1" : "0");
