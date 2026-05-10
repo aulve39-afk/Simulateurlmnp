@@ -1591,6 +1591,37 @@ function StepFinancement({ form, set }) {
         <SliderField label="Taux d'intérêt annuel" value={form.interet} onChange={set("interet")}
           min={0.5} max={6} step={0.05} format={n=>`${n.toFixed(2)} %`}
           help="Taux hors assurance. Vérifiez les offres actuelles sur votre banque." />
+        {/* ── Indicateur taux du marché ── */}
+        {tauxMarche && (() => {
+          const duree = form.dureeCredit;
+          // Taux de référence le plus proche de la durée choisie
+          const refKey = duree <= 12 ? "10ans" : duree <= 17 ? "15ans" : duree <= 22 ? "20ans" : "25ans";
+          const ref = tauxMarche.taux[refKey];
+          const diff = form.interet - ref;
+          const { excellent, bon } = tauxMarche.fourchettes;
+          const isExcellent = form.interet <= excellent.max;
+          const isBon       = !isExcellent && form.interet <= bon.max;
+          const isElevé     = !isExcellent && !isBon;
+          const color  = isExcellent ? "#22C55E" : isBon ? "#F59E0B" : "#EF4444";
+          const bgCol  = isExcellent ? "rgba(34,197,94,0.10)" : isBon ? "rgba(245,158,11,0.10)" : "rgba(239,68,68,0.10)";
+          const label  = isExcellent ? "✅ Excellent taux" : isBon ? "🟡 Taux du marché" : "🔴 Taux élevé";
+          const tip    = isExcellent
+            ? `Votre taux est ${Math.abs(diff).toFixed(2)} pt en dessous du marché ${duree} ans (${ref}%). Très bon dossier !`
+            : isBon
+            ? `Votre taux est proche du marché ${duree} ans (${ref}%). Vous pouvez négocier.`
+            : `Votre taux est ${diff.toFixed(2)} pt au-dessus du marché ${duree} ans (${ref}%). Consultez un courtier.`;
+          const tendanceIcon = tauxMarche.tendance === "baisse" ? " ↘️ en baisse" : tauxMarche.tendance === "hausse" ? " ↗️ en hausse" : " ➡️ stables";
+          return (
+            <div className="mx-1 -mt-1 mb-2 rounded-lg px-3 py-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px]"
+              style={{ background: bgCol, border: `1px solid ${color}22` }}>
+              <span style={{ color, fontWeight: 700 }}>{label}</span>
+              <span className="text-slate-500">{tip}</span>
+              <span className="ml-auto text-slate-400" title={`Source : ${tauxMarche.source}`}>
+                Taux {tauxMarche.moisRef}{tendanceIcon}
+              </span>
+            </div>
+          );
+        })()}
         <SliderField label="Durée du crédit" value={form.dureeCredit} onChange={set("dureeCredit")}
           min={5} max={25} step={1} format={n=>`${n} ans`} />
         <SliderField label="Différé de remboursement" value={form.differe} onChange={set("differe")}
@@ -4901,6 +4932,15 @@ export default function App() {
   }, [form, phase, step]); // eslint-disable-line react-hooks/exhaustive-deps
 
   /* ── Copier le lien ── */
+  /* ── Taux du marché ── */
+  const [tauxMarche, setTauxMarche] = useState(null);
+  useEffect(() => {
+    fetch("/api/taux-marche")
+      .then(r => r.json())
+      .then(setTauxMarche)
+      .catch(() => {});
+  }, []);
+
   const [linkCopied, setLinkCopied] = useState(false);
   const copyLink = () => {
     try {
