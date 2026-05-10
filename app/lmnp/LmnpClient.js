@@ -7,7 +7,7 @@ import {
   XAxis, YAxis, CartesianGrid, Tooltip as RTooltip,
   Legend, ResponsiveContainer, ReferenceLine,
 } from "recharts";
-import { createClient } from "@supabase/supabase-js";
+import { supabase as sb } from "@/lib/supabase";
 import {
   amortCredit,
   calcAmortComposants,
@@ -15,11 +15,6 @@ import {
   runCalc,
   calcComparaison10ans,
 } from "@/lib/calcul-lmnp";
-
-/* ── Supabase (guard contre env vars manquantes) ── */
-const _SU = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const _SK = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-const sb = _SU && _SK ? createClient(_SU, _SK) : null;
 
 /* ── Formatters ── */
 const fmt    = (n) => new Intl.NumberFormat("fr-FR", { style:"currency", currency:"EUR", maximumFractionDigits:0 }).format(n ?? 0);
