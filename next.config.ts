@@ -29,6 +29,9 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  // Corrige le bug TDZ "Cannot access 'X' before initialization"
+  // de Recharts v3 avec Turbopack (Next.js 15+)
+  transpilePackages: ["recharts"],
   typescript: {
     ignoreBuildErrors: true,
   },
