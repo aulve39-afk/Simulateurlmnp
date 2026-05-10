@@ -5065,7 +5065,7 @@ export default function App() {
     } catch {}
   }, []);
 
-  const saveSimulation = () => {
+  const saveSimulation = async () => {
     try {
       const r0 = results?.[0];
       const label = form.adresse?.trim()
@@ -5079,15 +5079,27 @@ export default function App() {
         cashflowM: r0?.cashflowM ?? null,
         form:      { ...form },
       };
+      // Sauvegarde locale (historique)
       setHistory(prev => {
         const updated = [entry, ...prev.filter(e => e.id !== entry.id)].slice(0, 5);
         try { localStorage.setItem("lmnp_history", JSON.stringify(updated)); } catch {}
         return updated;
       });
+      // Sauvegarde cloud Supabase si connecté
+      if (sb && user) {
+        await sb.from("simulations").insert({
+          user_id:   user.id,
+          nom:       label,
+          form_data: { ...form },
+          results:   results ?? null,
+        });
+      }
       setSavedFlash(true);
       setTimeout(() => setSavedFlash(false), 2000);
-      window.gtag?.("event", "simulation_saved", { tri: r0?.tri });
-    } catch {}
+      window.gtag?.("event", "simulation_saved", { tri: r0?.tri, cloud: !!user });
+    } catch (err) {
+      console.error("saveSimulation:", err);
+    }
   };
 
   const loadSimulation = (entry) => {
@@ -5250,14 +5262,14 @@ export default function App() {
             {/* Bouton sauvegarder simulation */}
             {phase === "sim" && step >= 3 && (
               <button onClick={saveSimulation}
-                title="Sauvegarder cette simulation dans votre historique local"
+                title={user ? "Sauvegarder dans votre espace personnel" : "Sauvegarder dans l'historique local"}
                 className="flex items-center gap-1 text-[11px] font-semibold px-2.5 py-1.5 rounded-lg transition-all active:scale-95"
                 style={{
                   background: savedFlash ? "rgba(34,197,94,0.15)" : "rgba(99,102,241,0.12)",
                   color:      savedFlash ? "#22C55E" : "#818CF8",
                   border:     `1px solid ${savedFlash ? "rgba(34,197,94,0.35)" : "rgba(99,102,241,0.25)"}`,
                 }}>
-                <span>{savedFlash ? "✅" : "💾"}</span>
+                <span>{savedFlash ? "✅" : user ? "☁️" : "💾"}</span>
                 <span className="hidden xs:inline">{savedFlash ? "Sauvegardé !" : "Sauvegarder"}</span>
               </button>
             )}
@@ -5296,10 +5308,17 @@ export default function App() {
               </button>
             )}
             {user ? (
-              <button onClick={() => sb && sb.auth.signOut()}
-                className="text-[11px] text-orange-200 hover:text-white bg-white/10 px-3 py-1.5 rounded-lg transition-colors">
-                {user.email?.split("@")[0]} · Déco
-              </button>
+              <div className="flex items-center gap-1.5">
+                <a href="/mon-espace"
+                  className="text-[11px] text-white font-semibold bg-white/20 hover:bg-white/30 px-3 py-1.5 rounded-lg transition-colors">
+                  👤 Mon espace
+                </a>
+                <button onClick={() => sb && sb.auth.signOut()}
+                  className="text-[11px] text-orange-200 hover:text-white bg-white/10 px-2 py-1.5 rounded-lg transition-colors"
+                  title="Se déconnecter">
+                  Déco
+                </button>
+              </div>
             ) : (
               <button onClick={() => setShowAuth(true)}
                 className="text-[11px] font-semibold bg-white text-orange-400 px-3 py-1.5 rounded-lg hover:bg-orange-50 transition-colors">
