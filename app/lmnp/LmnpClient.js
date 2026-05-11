@@ -7,7 +7,6 @@ import {
   XAxis, YAxis, CartesianGrid, Tooltip as RTooltip,
   Legend, ResponsiveContainer, ReferenceLine,
 } from "recharts";
-import { supabase as sb } from "@/lib/supabase";
 import {
   amortCredit,
   calcAmortComposants,
@@ -15,6 +14,10 @@ import {
   runCalc,
   calcComparaison10ans,
 } from "@/lib/calcul-lmnp";
+
+// Supabase chargé dynamiquement pour éviter le TDZ Turbopack (Cannot access before initialization)
+// sb est null jusqu'au premier useEffect — tous les call sites ont déjà un guard `if (sb)`
+let sb = null;
 
 /* ── Formatters ── */
 const fmt    = (n) => new Intl.NumberFormat("fr-FR", { style:"currency", currency:"EUR", maximumFractionDigits:0 }).format(n ?? 0);
@@ -5478,12 +5481,17 @@ export default function App() {
   };
 
   useEffect(() => {
-    if (!sb) return;
-    sb.auth.getSession().then(({ data:{session} }) => { if (session?.user) setUser(session.user); });
-    const { data:{subscription} } = sb.auth.onAuthStateChange((_e, session) => {
-      setUser(session?.user ?? null);
+    let subscription = null;
+    import('@/lib/supabase').then(({ supabase }) => {
+      sb = supabase;
+      if (!sb) return;
+      sb.auth.getSession().then(({ data:{session} }) => { if (session?.user) setUser(session.user); });
+      const { data: { subscription: sub } } = sb.auth.onAuthStateChange((_e, session) => {
+        setUser(session?.user ?? null);
+      });
+      subscription = sub;
     });
-    return () => subscription.unsubscribe();
+    return () => subscription?.unsubscribe();
   }, []);
 
   // Quiz completion — pré-remplir le TMI depuis les réponses
