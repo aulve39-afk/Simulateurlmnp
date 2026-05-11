@@ -5482,14 +5482,21 @@ export default function App() {
 
   useEffect(() => {
     let subscription = null;
-    import('@/lib/supabase').then(({ supabase }) => {
-      sb = supabase;
-      if (!sb) return;
-      sb.auth.getSession().then(({ data:{session} }) => { if (session?.user) setUser(session.user); });
-      const { data: { subscription: sub } } = sb.auth.onAuthStateChange((_e, session) => {
-        setUser(session?.user ?? null);
+    // Utilise supabase-lazy.js (aucun import statique) pour éviter le TDZ Turbopack.
+    // getSupabase() charge @supabase/supabase-js via un import() dynamique imbriqué,
+    // ce qui garantit que supabase est dans un chunk complètement séparé de recharts.
+    import('@/lib/supabase-lazy').then(({ getSupabase }) => {
+      getSupabase().then((client) => {
+        sb = client;
+        if (!sb) return;
+        sb.auth.getSession().then(({ data: { session } }) => {
+          if (session?.user) setUser(session.user);
+        });
+        const { data: { subscription: sub } } = sb.auth.onAuthStateChange((_e, session) => {
+          setUser(session?.user ?? null);
+        });
+        subscription = sub;
       });
-      subscription = sub;
     });
     return () => subscription?.unsubscribe();
   }, []);
