@@ -1,5 +1,4 @@
 {
-  "buildCommand": "TURBOPACK=0 next build",
   "crons": [
     {
       "path": "/api/cron/email-sequence",

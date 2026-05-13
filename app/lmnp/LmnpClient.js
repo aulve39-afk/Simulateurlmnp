@@ -2,11 +2,7 @@
 import { useState, useMemo, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import EmailCaptureHook from "@/components/EmailCaptureHook";
-import {
-  BarChart, Bar, AreaChart, Area, LineChart, Line,
-  XAxis, YAxis, CartesianGrid, Tooltip as RTooltip,
-  Legend, ResponsiveContainer, ReferenceLine,
-} from "recharts";
+/* recharts chargé dynamiquement pour éviter le TDZ Turbopack */
 import { createClient } from "@supabase/supabase-js";
 import {
   amortCredit,
@@ -5207,6 +5203,25 @@ function PortfolioDashboard({ biens, activeBien, onSwitch }) {
 
 export default function App() {
   const router = useRouter();
+
+  /* ── Recharts — chargement dynamique pour éviter le TDZ Turbopack ── */
+  const [_RC, _setRC] = useState(null);
+  useEffect(() => { import("recharts").then(m => _setRC(m)); }, []);
+  const NOP = () => null;
+  const BarChart        = _RC?.BarChart        ?? NOP;
+  const Bar             = _RC?.Bar             ?? NOP;
+  const AreaChart       = _RC?.AreaChart       ?? NOP;
+  const Area            = _RC?.Area            ?? NOP;
+  const LineChart       = _RC?.LineChart       ?? NOP;
+  const Line            = _RC?.Line            ?? NOP;
+  const XAxis           = _RC?.XAxis           ?? NOP;
+  const YAxis           = _RC?.YAxis           ?? NOP;
+  const CartesianGrid   = _RC?.CartesianGrid   ?? NOP;
+  const RTooltip        = _RC?.Tooltip         ?? NOP;
+  const Legend          = _RC?.Legend          ?? NOP;
+  const ResponsiveContainer = _RC?.ResponsiveContainer ?? (({ children }) => <div style={{width:"100%"}}>{children}</div>);
+  const ReferenceLine   = _RC?.ReferenceLine   ?? NOP;
+
   // phase: "landing" | "quiz" | "sim"
   const [phase,           setPhase]           = useState("landing");
   const [step,            setStep]            = useState(0);
