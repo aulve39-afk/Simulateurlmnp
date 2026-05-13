@@ -2,8 +2,7 @@
 import { useState, useMemo, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import EmailCaptureHook from "@/components/EmailCaptureHook";
-/* recharts chargé dynamiquement pour éviter le TDZ Turbopack */
-import { createClient } from "@supabase/supabase-js";
+/* ── Tout chargé dynamiquement — zéro import statique lourd pour éviter le TDZ Turbopack ── */
 import {
   amortCredit,
   calcAmortComposants,
@@ -11,13 +10,6 @@ import {
   runCalc,
   calcComparaison10ans,
 } from "@/lib/calcul-lmnp";
-
-/* ── Supabase — import direct (évite le bug TDZ Turbopack lié aux chunks croisés) ── */
-const _SU = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const _SK = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-const sb  = _SU && _SK ? createClient(_SU, _SK, {
-  auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true },
-}) : null;
 
 /* ── Formatters ── */
 const fmt    = (n) => new Intl.NumberFormat("fr-FR", { style:"currency", currency:"EUR", maximumFractionDigits:0 }).format(n ?? 0);
@@ -5204,9 +5196,21 @@ function PortfolioDashboard({ biens, activeBien, onSwitch }) {
 export default function App() {
   const router = useRouter();
 
-  /* ── Recharts — chargement dynamique pour éviter le TDZ Turbopack ── */
+  /* ── Recharts + Supabase — chargement dynamique pour éviter le TDZ Turbopack ── */
   const [_RC, _setRC] = useState(null);
-  useEffect(() => { import("recharts").then(m => _setRC(m)); }, []);
+  const [sb,  setSb]  = useState(null);
+  useEffect(() => {
+    import("recharts").then(m => _setRC(m));
+    const su = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const sk = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    if (su && sk) {
+      import("@supabase/supabase-js").then(({ createClient }) => {
+        setSb(createClient(su, sk, {
+          auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true },
+        }));
+      });
+    }
+  }, []);
   const NOP = () => null;
   const BarChart        = _RC?.BarChart        ?? NOP;
   const Bar             = _RC?.Bar             ?? NOP;
