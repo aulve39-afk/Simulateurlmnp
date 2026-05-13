@@ -7,6 +7,7 @@ import {
   XAxis, YAxis, CartesianGrid, Tooltip as RTooltip,
   Legend, ResponsiveContainer, ReferenceLine,
 } from "recharts";
+import { createClient } from "@supabase/supabase-js";
 import {
   amortCredit,
   calcAmortComposants,
@@ -15,9 +16,12 @@ import {
   calcComparaison10ans,
 } from "@/lib/calcul-lmnp";
 
-// Supabase chargé dynamiquement pour éviter le TDZ Turbopack (Cannot access before initialization)
-// sb est null jusqu'au premier useEffect — tous les call sites ont déjà un guard `if (sb)`
-let sb = null;
+/* ── Supabase — import direct (évite le bug TDZ Turbopack lié aux chunks croisés) ── */
+const _SU = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const _SK = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+const sb  = _SU && _SK ? createClient(_SU, _SK, {
+  auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true },
+}) : null;
 
 /* ── Formatters ── */
 const fmt    = (n) => new Intl.NumberFormat("fr-FR", { style:"currency", currency:"EUR", maximumFractionDigits:0 }).format(n ?? 0);
@@ -5481,24 +5485,12 @@ export default function App() {
   };
 
   useEffect(() => {
-    let subscription = null;
-    // Utilise supabase-lazy.js (aucun import statique) pour éviter le TDZ Turbopack.
-    // getSupabase() charge @supabase/supabase-js via un import() dynamique imbriqué,
-    // ce qui garantit que supabase est dans un chunk complètement séparé de recharts.
-    import('@/lib/supabase-lazy').then(({ getSupabase }) => {
-      getSupabase().then((client) => {
-        sb = client;
-        if (!sb) return;
-        sb.auth.getSession().then(({ data: { session } }) => {
-          if (session?.user) setUser(session.user);
-        });
-        const { data: { subscription: sub } } = sb.auth.onAuthStateChange((_e, session) => {
-          setUser(session?.user ?? null);
-        });
-        subscription = sub;
-      });
+    if (!sb) return;
+    sb.auth.getSession().then(({ data: { session } }) => { if (session?.user) setUser(session.user); });
+    const { data: { subscription } } = sb.auth.onAuthStateChange((_e, session) => {
+      setUser(session?.user ?? null);
     });
-    return () => subscription?.unsubscribe();
+    return () => subscription.unsubscribe();
   }, []);
 
   // Quiz completion — pré-remplir le TMI depuis les réponses
