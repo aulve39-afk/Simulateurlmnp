@@ -29,6 +29,7 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  transpilePackages: ["recharts"],
   typescript: {
     ignoreBuildErrors: true,
   },
