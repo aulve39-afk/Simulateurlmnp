@@ -4,7 +4,7 @@
                Network-First pour données API.
 ═══════════════════════════════════════════════════ */
 
-const CACHE_VERSION  = "immoverdict-v5";
+const CACHE_VERSION  = "immoverdict-v6";
 const CACHE_STATIC   = `${CACHE_VERSION}-static`;
 const CACHE_DYNAMIC  = `${CACHE_VERSION}-dynamic`;
 

@@ -2,7 +2,14 @@
 import { useState, useMemo, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import EmailCaptureHook from "@/components/EmailCaptureHook";
-/* ── Tout chargé dynamiquement — zéro import statique lourd pour éviter le TDZ Turbopack ── */
+// ssr:false dans page.js garantit que ce fichier n'est jamais exécuté côté serveur
+// → les imports statiques recharts/supabase sont sûrs (pas de TDZ en browser)
+import {
+  BarChart, Bar, AreaChart, Area, LineChart, Line,
+  XAxis, YAxis, CartesianGrid, Tooltip as RTooltip,
+  Legend, ResponsiveContainer, ReferenceLine,
+} from "recharts";
+import { createClient } from "@supabase/supabase-js";
 import {
   amortCredit,
   calcAmortComposants,
@@ -5193,38 +5200,15 @@ function PortfolioDashboard({ biens, activeBien, onSwitch }) {
    APP PRINCIPALE
 ════════════════════════════════════════ */
 
+/* ── Supabase (guard contre env vars manquantes) ── */
+const _SU = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const _SK = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+const sb = _SU && _SK ? createClient(_SU, _SK, {
+  auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true },
+}) : null;
+
 export default function App() {
   const router = useRouter();
-
-  /* ── Recharts + Supabase — chargement dynamique pour éviter le TDZ Turbopack ── */
-  const [_RC, _setRC] = useState(null);
-  const [sb,  setSb]  = useState(null);
-  useEffect(() => {
-    import("recharts").then(m => _setRC(m));
-    const su = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const sk = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-    if (su && sk) {
-      import("@supabase/supabase-js").then(({ createClient }) => {
-        setSb(createClient(su, sk, {
-          auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true },
-        }));
-      });
-    }
-  }, []);
-  const NOP = () => null;
-  const BarChart        = _RC?.BarChart        ?? NOP;
-  const Bar             = _RC?.Bar             ?? NOP;
-  const AreaChart       = _RC?.AreaChart       ?? NOP;
-  const Area            = _RC?.Area            ?? NOP;
-  const LineChart       = _RC?.LineChart       ?? NOP;
-  const Line            = _RC?.Line            ?? NOP;
-  const XAxis           = _RC?.XAxis           ?? NOP;
-  const YAxis           = _RC?.YAxis           ?? NOP;
-  const CartesianGrid   = _RC?.CartesianGrid   ?? NOP;
-  const RTooltip        = _RC?.Tooltip         ?? NOP;
-  const Legend          = _RC?.Legend          ?? NOP;
-  const ResponsiveContainer = _RC?.ResponsiveContainer ?? (({ children }) => <div style={{width:"100%"}}>{children}</div>);
-  const ReferenceLine   = _RC?.ReferenceLine   ?? NOP;
 
   // phase: "landing" | "quiz" | "sim"
   const [phase,           setPhase]           = useState("landing");
