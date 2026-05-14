@@ -7,11 +7,63 @@ import { createClient } from "@supabase/supabase-js";
 const _SU = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const _SK = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 const sb = _SU && _SK ? createClient(_SU, _SK) : null;
-import {
-  LineChart, Line, AreaChart, Area, BarChart, Bar,
-  XAxis, YAxis, CartesianGrid, Tooltip as RTooltip,
-  ResponsiveContainer, ReferenceLine,
-} from "recharts";
+/* ── Graphique SVG pur (remplace recharts — évite TDZ Turbopack) ── */
+function RpAreaChart({ rows }) {
+  if (!rows || rows.length === 0) return null;
+  const W = 340, H = 200, PL = 44, PR = 8, PT = 8, PB = 28;
+  const fmtK = v => Math.abs(v) >= 1000 ? `${(v / 1000).toFixed(0)}k` : String(v);
+  const vals = rows.flatMap(r => [r["Propriétaire"] ?? 0, r["Locataire"] ?? 0]);
+  const minV = Math.min(0, ...vals), maxV = Math.max(...vals);
+  const sy = v => maxV === minV ? H / 2 : PT + ((maxV - v) / (maxV - minV)) * (H - PT - PB);
+  const sx = i => PL + (i / (rows.length - 1)) * (W - PL - PR);
+  const mkPath = key => rows.map((r, i) => `${i === 0 ? "M" : "L"}${sx(i).toFixed(1)},${sy(r[key] ?? 0).toFixed(1)}`).join(" ");
+  const mkArea = key => {
+    const p = mkPath(key);
+    return `${p} L${sx(rows.length - 1).toFixed(1)},${(H - PB).toFixed(1)} L${sx(0).toFixed(1)},${(H - PB).toFixed(1)} Z`;
+  };
+  const ticks = 4;
+  return (
+    <svg viewBox={`0 0 ${W} ${H}`} style={{ width: "100%", height: "100%", overflow: "visible" }}>
+      <defs>
+        <linearGradient id="rpGProprio" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="5%" stopColor="#F97316" stopOpacity={0.2} />
+          <stop offset="95%" stopColor="#F97316" stopOpacity={0} />
+        </linearGradient>
+        <linearGradient id="rpGLoc" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="5%" stopColor="#94A3B8" stopOpacity={0.15} />
+          <stop offset="95%" stopColor="#94A3B8" stopOpacity={0} />
+        </linearGradient>
+      </defs>
+      {/* Grille Y */}
+      {Array.from({ length: ticks + 1 }, (_, i) => {
+        const val = minV + (i * (maxV - minV)) / ticks;
+        const y = sy(val);
+        return (
+          <g key={i}>
+            <line x1={PL} x2={W - PR} y1={y} y2={y} stroke="rgba(240,235,224,0.08)" strokeWidth={1} />
+            <text x={PL - 4} y={y + 3.5} textAnchor="end" fontSize={9} fill="#94A3B8">{fmtK(val)}</text>
+          </g>
+        );
+      })}
+      {/* Labels X */}
+      {rows.filter((_, i) => i % Math.ceil(rows.length / 6) === 0 || i === rows.length - 1).map((r, _, arr) => {
+        const i = rows.indexOf(r);
+        return <text key={i} x={sx(i)} y={H - PB + 12} textAnchor="middle" fontSize={9} fill="#94A3B8">{r.an}</text>;
+      })}
+      {/* Aires */}
+      <path d={mkArea("Locataire")} fill="url(#rpGLoc)" />
+      <path d={mkArea("Propriétaire")} fill="url(#rpGProprio)" />
+      {/* Lignes */}
+      <path d={mkPath("Locataire")} fill="none" stroke="#94A3B8" strokeWidth={1.5} />
+      <path d={mkPath("Propriétaire")} fill="none" stroke="#F97316" strokeWidth={2} />
+      {/* Légende */}
+      <circle cx={PL + 8} cy={PT + 4} r={3} fill="#F97316" />
+      <text x={PL + 14} y={PT + 7.5} fontSize={9} fill="#F97316">Propriétaire</text>
+      <circle cx={PL + 80} cy={PT + 4} r={3} fill="#94A3B8" />
+      <text x={PL + 86} y={PT + 7.5} fontSize={9} fill="#94A3B8">Locataire</text>
+    </svg>
+  );
+}
 
 /* ══════════════════════════════════════
    FORMATTERS
@@ -260,26 +312,7 @@ function LoueurVsAcheteur() {
 
       {/* Graphique */}
       <div style={{ height: 200, marginBottom: 20 }}>
-        <ResponsiveContainer width="100%" height="100%">
-          <AreaChart data={data.rows} margin={{ top: 4, right: 4, left: -10, bottom: 0 }}>
-            <defs>
-              <linearGradient id="gProprio" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#F97316" stopOpacity={0.2} />
-                <stop offset="95%" stopColor="#F97316" stopOpacity={0} />
-              </linearGradient>
-              <linearGradient id="gLoc" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#F97316" stopOpacity={0.15} />
-                <stop offset="95%" stopColor="#F97316" stopOpacity={0} />
-              </linearGradient>
-            </defs>
-            <CartesianGrid strokeDasharray="3 3" stroke="rgba(240,235,224,0.08)" />
-            <XAxis dataKey="an" tick={{ fontSize: 10, fill: "#94A3B8" }} />
-            <YAxis tickFormatter={v => `${Math.round(v / 1000)}k`} tick={{ fontSize: 10, fill: "#94A3B8" }} />
-            <RTooltip formatter={(v, n) => [fmt(v), n]} contentStyle={{ borderRadius: 10, fontSize: 12 }} />
-            <Area type="monotone" dataKey="Propriétaire" stroke="#F97316" strokeWidth={2} fill="url(#gProprio)" />
-            <Area type="monotone" dataKey="Locataire" stroke="#F97316" strokeWidth={2} fill="url(#gLoc)" />
-          </AreaChart>
-        </ResponsiveContainer>
+        <RpAreaChart rows={data.rows} />
       </div>
 
       {/* Paramètres */}
