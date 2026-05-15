@@ -70,13 +70,25 @@ export default function RootLayout({
             </Script>
           </>
         )}
-        {/* Service Worker — PWA / mode offline */}
+        {/* Service Worker v9 — purge caches périmés + rechargement unique */}
         <Script id="sw-register" strategy="afterInteractive">
           {`
             if ('serviceWorker' in navigator) {
               window.addEventListener('load', () => {
                 navigator.serviceWorker.register('/sw.js', { scope: '/' })
                   .catch(() => {});
+              });
+
+              // Quand le SW v9 signale qu'il a purgé les anciens caches,
+              // on recharge la page UNE SEULE FOIS (sessionStorage empêche
+              // une boucle infinie de rechargements).
+              navigator.serviceWorker.addEventListener('message', (event) => {
+                if (event.data && event.data.type === 'SW_CACHE_CLEARED') {
+                  if (!sessionStorage.getItem('sw_v9_reloaded')) {
+                    sessionStorage.setItem('sw_v9_reloaded', '1');
+                    window.location.reload();
+                  }
+                }
               });
             }
           `}

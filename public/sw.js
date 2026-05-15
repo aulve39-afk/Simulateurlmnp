@@ -1,113 +1,51 @@
 /* ═══════════════════════════════════════════════════
-   ImmoVerdict — Service Worker (PWA / Mode Offline)
-   Stratégie : Cache-First pour assets statiques,
-               Network-First pour données API.
+   ImmoVerdict — Service Worker v9
+   NUCLEAR RESET : purge TOUS les caches existants
+   (v1 → v8 compris) puis passe en mode network-only.
+
+   Raison : les caches v1–v8 stockaient des chunks
+   Next.js avec hashes périmés (TDZ Turbopack).
+   Ce SW v9 nettoie définitivement les navigateurs
+   qui avaient un ancien SW actif.
 ═══════════════════════════════════════════════════ */
 
-const CACHE_VERSION  = "immoverdict-v8";
-const CACHE_STATIC   = `${CACHE_VERSION}-static`;
-const CACHE_DYNAMIC  = `${CACHE_VERSION}-dynamic`;
+const SW_VERSION = "immoverdict-v9";
 
-// Assets statiques uniquement — PAS les pages HTML (elles référencent des
-// chunks Next.js avec des hashes qui changent à chaque déploiement).
-const PRECACHE_URLS = [
-  "/manifest.json",
-  "/favicon.svg",
-  "/offline.html",
-];
-
-// ── Install : pré-cache des ressources essentielles ──
+// ── Install : purge TOUS les caches, aucune mise en cache ──
 self.addEventListener("install", event => {
   event.waitUntil(
-    caches.open(CACHE_STATIC).then(cache => {
-      return cache.addAll(PRECACHE_URLS.filter(url => url !== "/offline.html")).catch(() => {
-        // Si certaines URLs échouent, on continue quand même
-        console.warn("[SW] Certaines URLs de pré-cache sont indisponibles.");
-      });
-    }).then(() => self.skipWaiting())
+    caches.keys()
+      .then(keys => Promise.all(keys.map(k => caches.delete(k))))
+      .then(() => {
+        console.log("[SW v9] Tous les caches supprimés.");
+        return self.skipWaiting();
+      })
   );
 });
 
-// ── Activate : nettoyage des anciens caches ──
+// ── Activate : re-vérifie, prend le contrôle immédiatement ──
 self.addEventListener("activate", event => {
   event.waitUntil(
-    caches.keys().then(keys => Promise.all(
-      keys.filter(k => k !== CACHE_STATIC && k !== CACHE_DYNAMIC)
-          .map(k => caches.delete(k))
-    )).then(() => self.clients.claim())
+    caches.keys()
+      .then(keys => Promise.all(keys.map(k => caches.delete(k))))
+      .then(() => self.clients.claim())
+      .then(() => {
+        // Signale aux onglets ouverts de recharger la page
+        // pour s'assurer qu'ils utilisent les chunks frais du serveur.
+        return self.clients.matchAll({ includeUncontrolled: true, type: "window" });
+      })
+      .then(clients => {
+        clients.forEach(client => {
+          client.postMessage({ type: "SW_CACHE_CLEARED" });
+        });
+      })
   );
 });
 
-// ── Fetch : stratégie hybride ──
+// ── Fetch : network-only, aucun cache ──
+// On ne met RIEN en cache — chaque ressource est toujours
+// récupérée depuis le réseau. Pas d'interférence possible.
 self.addEventListener("fetch", event => {
-  const { request } = event;
-  const url = new URL(request.url);
-
-  // Ignore les requêtes non-GET et les APIs externes
-  if (request.method !== "GET") return;
-  if (!url.origin.includes(self.location.origin) && !url.pathname.startsWith("/_next/")) return;
-
-  // API routes → Network-First (données fraîches si possible)
-  if (url.pathname.startsWith("/api/")) {
-    event.respondWith(networkFirst(request));
-    return;
-  }
-
-  // Assets Next.js (_next/static) → Cache-First
-  if (url.pathname.startsWith("/_next/static/")) {
-    event.respondWith(cacheFirst(request, CACHE_STATIC));
-    return;
-  }
-
-  // Pages HTML → Network-First (évite de servir du HTML avec de vieux hashes de chunks)
-  event.respondWith(networkFirst(request));
+  // Laisser le navigateur gérer toutes les requêtes normalement.
+  // Ne pas appeler event.respondWith() = comportement navigateur par défaut.
 });
-
-/* ── Stratégies de cache ── */
-
-async function cacheFirst(request, cacheName) {
-  const cached = await caches.match(request);
-  if (cached) return cached;
-  try {
-    const response = await fetch(request);
-    if (response.ok) {
-      const cache = await caches.open(cacheName);
-      cache.put(request, response.clone());
-    }
-    return response;
-  } catch {
-    return new Response("Ressource indisponible hors connexion.", { status: 503 });
-  }
-}
-
-async function networkFirst(request) {
-  try {
-    const response = await fetch(request);
-    if (response.ok) {
-      const cache = await caches.open(CACHE_DYNAMIC);
-      cache.put(request, response.clone());
-    }
-    return response;
-  } catch {
-    const cached = await caches.match(request);
-    return cached || new Response(JSON.stringify({ error: "Hors connexion" }), {
-      status: 503,
-      headers: { "Content-Type": "application/json" },
-    });
-  }
-}
-
-async function staleWhileRevalidate(request) {
-  const cache  = await caches.open(CACHE_DYNAMIC);
-  const cached = await cache.match(request);
-
-  const networkFetch = fetch(request).then(response => {
-    if (response.ok) cache.put(request, response.clone());
-    return response;
-  }).catch(() => null);
-
-  return cached || await networkFetch || new Response(
-    "⚡ ImmoVerdict fonctionne hors connexion. Reconnectez-vous pour les données en temps réel.",
-    { status: 503, headers: { "Content-Type": "text/plain; charset=utf-8" } }
-  );
-}
