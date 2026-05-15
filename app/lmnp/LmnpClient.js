@@ -3,7 +3,7 @@ import { useState, useMemo, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import EmailCaptureHook from "@/components/EmailCaptureHook";
-import { createClient } from "@supabase/supabase-js";
+import { getSupabase } from "@/lib/supabase-lazy";
 
 /* ── Recharts isolé dans un chunk séparé (évite le TDZ Turbopack ESM) ── */
 const ChartLoading = () => <div className="h-48 bg-slate-100 animate-pulse rounded-xl" />;
@@ -4950,12 +4950,8 @@ function PortfolioDashboard({ biens, activeBien, onSwitch }) {
    APP PRINCIPALE
 ════════════════════════════════════════ */
 
-/* ── Supabase (guard contre env vars manquantes) ── */
-const _SU = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const _SK = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-const sb = _SU && _SK ? createClient(_SU, _SK, {
-  auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true },
-}) : null;
+/* ── Supabase (chargé dynamiquement pour éviter les TDZ dans le bundle) ── */
+let sb = null;
 
 export default function App() {
   const router = useRouter();
@@ -5238,12 +5234,19 @@ export default function App() {
   };
 
   useEffect(() => {
-    if (!sb) return;
-    sb.auth.getSession().then(({ data: { session } }) => { if (session?.user) setUser(session.user); });
-    const { data: { subscription } } = sb.auth.onAuthStateChange((_e, session) => {
-      setUser(session?.user ?? null);
+    let sub = null;
+    getSupabase().then(client => {
+      if (!client) return;
+      sb = client;
+      client.auth.getSession().then(({ data: { session } }) => {
+        if (session?.user) setUser(session.user);
+      });
+      const { data } = client.auth.onAuthStateChange((_e, session) => {
+        setUser(session?.user ?? null);
+      });
+      sub = data.subscription;
     });
-    return () => subscription.unsubscribe();
+    return () => { sub?.unsubscribe(); };
   }, []);
 
   // Quiz completion — pré-remplir le TMI depuis les réponses
