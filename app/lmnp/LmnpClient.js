@@ -1635,6 +1635,16 @@ function StepProjet({ form, set, setForm }) {
 }
 
 function StepFinancement({ form, set }) {
+  /* ── Taux du marché (déclaré ici pour éviter le TDZ — même raison que
+     annonceUrl dans StepProjet : ce composant est au niveau module, pas dans App) ── */
+  const [tauxMarche, setTauxMarche] = useState(null);
+  useEffect(() => {
+    fetch("/api/taux-marche")
+      .then(r => r.json())
+      .then(setTauxMarche)
+      .catch(() => {});
+  }, []);
+
   const capital = form.prix + form.travaux + form.prix*(form.notaire/100) - form.apport;
   const mens    = capital > 0 && form.interet > 0
     ? Math.round((capital * (form.interet/100/12)) / (1 - Math.pow(1+form.interet/100/12, -form.dureeCredit*12)))
@@ -5148,15 +5158,6 @@ export default function App() {
       window.history.replaceState(null, "", newUrl);
     } catch {}
   }, [form, phase, step]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  /* ── Taux du marché ── */
-  const [tauxMarche, setTauxMarche] = useState(null);
-  useEffect(() => {
-    fetch("/api/taux-marche")
-      .then(r => r.json())
-      .then(setTauxMarche)
-      .catch(() => {});
-  }, []);
 
   const [linkCopied, setLinkCopied] = useState(false);
   const copyLink = () => {
