@@ -5262,6 +5262,25 @@ export default function App() {
     window.scrollTo(0, 0);
   };
 
+  /* ── Calculs mémoïsés (déclarés AVANT les useEffect qui les référencent
+     dans leurs dépendances — évite le TDZ dans le bundle webpack) ── */
+  const results = useMemo(() => {
+    if (step < 3) return null;
+    return [
+      runCalc(form, "lmnp"),
+      runCalc(form, "microbic"),
+      runCalc(form, "sciis"),
+      runCalc(form, "sciir"),
+    ];
+  }, [form, step]);
+
+  const comparaison = useMemo(() => {
+    if (step < 3) return null;
+    return calcComparaison10ans(form);
+  }, [form, step]);
+
+  const amort = useMemo(() => calcAmortComposants(form.prix, form.notaire, form.mobilier, form.travaux, form.terrain ?? 15), [form]);
+
   /* ── results_viewed tracking ── */
   useEffect(() => {
     if (step !== 3 || !results) return;
@@ -5318,23 +5337,6 @@ export default function App() {
       console.error("send-report API:", err);
     }
   };
-
-  const results = useMemo(() => {
-    if (step < 3) return null;
-    return [
-      runCalc(form, "lmnp"),
-      runCalc(form, "microbic"),
-      runCalc(form, "sciis"),
-      runCalc(form, "sciir"),
-    ];
-  }, [form, step]);
-
-  const comparaison = useMemo(() => {
-    if (step < 3) return null;
-    return calcComparaison10ans(form);
-  }, [form, step]);
-
-  const amort = useMemo(() => calcAmortComposants(form.prix, form.notaire, form.mobilier, form.travaux, form.terrain ?? 15), [form]);
 
   const goNext = () => {
     if (step < 4) {
