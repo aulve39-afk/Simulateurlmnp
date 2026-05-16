@@ -1407,7 +1407,44 @@ function AmortDureesTable({ prix, terrain, travaux, mobilier }) {
   );
 }
 
-function StepProjet({ form, set }) {
+function StepProjet({ form, set, setForm }) {
+  /* ── État local : import depuis annonce (déclaré ici pour éviter le TDZ
+     que causerait une déclaration dans App() référencée depuis ce composant
+     défini au niveau module) ── */
+  const [annonceUrl,     setAnnonceUrl]     = useState("");
+  const [annonceLoading, setAnnonceLoading] = useState(false);
+  const [annonceMsg,     setAnnonceMsg]     = useState(null); // { type:"ok"|"err", text }
+  const importFromAnnonce = async () => {
+    if (!annonceUrl.trim()) return;
+    setAnnonceLoading(true);
+    setAnnonceMsg(null);
+    try {
+      const res  = await fetch("/api/parse-annonce", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url: annonceUrl.trim() }),
+      });
+      const json = await res.json();
+      if (!res.ok || json.error) {
+        setAnnonceMsg({ type: "err", text: json.error ?? "Erreur lors de l'import." });
+      } else {
+        setForm(f => ({ ...f, ...json.data }));
+        const labels = {
+          prix:"Prix", surface:"Surface", nbPieces:"Nb pièces",
+          dpe:"DPE", adresse:"Adresse",
+        };
+        const filled = json.fieldsFound.map(k => labels[k] ?? k).join(", ");
+        setAnnonceMsg({ type: "ok", text: `✅ Importé : ${filled}` });
+        setAnnonceUrl("");
+        window.gtag?.("event", "annonce_imported", { fields: json.fieldsFound.join(",") });
+      }
+    } catch {
+      setAnnonceMsg({ type: "err", text: "Impossible de contacter le serveur." });
+    } finally {
+      setAnnonceLoading(false);
+    }
+  };
+
   const applyPreset = (p) =>
     Object.entries(p)
       .filter(([k]) => k !== "label" && k !== "icon")
@@ -5112,42 +5149,6 @@ export default function App() {
     } catch {}
   }, [form, phase, step]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  /* ── Copier le lien ── */
-  /* ── Import depuis URL d'annonce ── */
-  const [annonceUrl,     setAnnonceUrl]     = useState("");
-  const [annonceLoading, setAnnonceLoading] = useState(false);
-  const [annonceMsg,     setAnnonceMsg]     = useState(null); // { type:"ok"|"err", text }
-  const importFromAnnonce = async () => {
-    if (!annonceUrl.trim()) return;
-    setAnnonceLoading(true);
-    setAnnonceMsg(null);
-    try {
-      const res  = await fetch("/api/parse-annonce", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ url: annonceUrl.trim() }),
-      });
-      const json = await res.json();
-      if (!res.ok || json.error) {
-        setAnnonceMsg({ type: "err", text: json.error ?? "Erreur lors de l'import." });
-      } else {
-        setForm(f => ({ ...f, ...json.data }));
-        const labels = {
-          prix:"Prix", surface:"Surface", nbPieces:"Nb pièces",
-          dpe:"DPE", adresse:"Adresse",
-        };
-        const filled = json.fieldsFound.map(k => labels[k] ?? k).join(", ");
-        setAnnonceMsg({ type: "ok", text: `✅ Importé : ${filled}` });
-        setAnnonceUrl("");
-        window.gtag?.("event", "annonce_imported", { fields: json.fieldsFound.join(",") });
-      }
-    } catch {
-      setAnnonceMsg({ type: "err", text: "Impossible de contacter le serveur." });
-    } finally {
-      setAnnonceLoading(false);
-    }
-  };
-
   /* ── Taux du marché ── */
   const [tauxMarche, setTauxMarche] = useState(null);
   useEffect(() => {
@@ -5535,7 +5536,7 @@ export default function App() {
 
       {/* ── MAIN CONTENT ── */}
       <main className={`max-w-2xl mx-auto px-4 py-4 pb-32 ${compareMode ? "hidden" : ""}`}>
-        {step===0 && <StepProjet form={form} set={set} />}
+        {step===0 && <StepProjet form={form} set={set} setForm={setForm} />}
         {step===1 && <StepFinancement form={form} set={set} />}
         {step===2 && <StepExploitation form={form} set={set} />}
         {step===3 && results && (

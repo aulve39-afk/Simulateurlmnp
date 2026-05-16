@@ -8,7 +8,7 @@ const securityHeaders = [
       "default-src 'self'",
       "script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com",
       "img-src 'self' data: https://www.google-analytics.com https://www.googletagmanager.com",
-      "connect-src 'self' https://*.supabase.co https://www.google-analytics.com https://www.googletagmanager.com https://api.resend.com https://api.dvf.gouv.fr https://formsubmit.co",
+      "connect-src 'self' https://*.supabase.co https://www.google-analytics.com https://region1.google-analytics.com https://www.googletagmanager.com https://api.resend.com https://api.dvf.gouv.fr https://formsubmit.co",
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
       "font-src 'self' https://fonts.gstatic.com",
       "frame-ancestors 'none'",
