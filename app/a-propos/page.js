@@ -80,6 +80,21 @@ export default function APropos() {
           </p>
         </div>
 
+        {/* ── STATS RAPIDES (E-E-A-T) ── */}
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(130px, 1fr))", gap: 1, background: "rgba(240,235,224,0.08)", marginBottom: 56 }}>
+          {[
+            { val: "3+", label: "Biens LMNP gérés" },
+            { val: "4", label: "Régimes fiscaux maîtrisés" },
+            { val: "25+", label: "Guides publiés" },
+            { val: "LF 2026", label: "Données à jour" },
+          ].map(({ val, label }) => (
+            <div key={label} style={{ background: "#0C0C10", padding: "24px 20px", textAlign: "center" }}>
+              <div style={{ fontFamily: "'DM Serif Display',Georgia,serif", fontSize: "1.8rem", color: "#F97316", lineHeight: 1, marginBottom: 8 }}>{val}</div>
+              <div style={{ fontSize: 11, color: "rgba(240,235,224,0.4)", lineHeight: 1.4 }}>{label}</div>
+            </div>
+          ))}
+        </div>
+
         {/* Séparateur */}
         <div style={{ borderTop: "1px solid rgba(240,235,224,0.08)", marginBottom: 48 }} />
 
@@ -96,14 +111,14 @@ export default function APropos() {
           <p>
             Le problème : les simulateurs que je trouvais en ligne comparaient au mieux deux régimes,
             imposaient souvent une inscription, et ne prenaient pas en compte les amortissements LMNP
-            correctement. J&apos;ai commencé à faire mes calculs sous Excel. Puis j&apos;ai décidé d&apos;en faire
-            un vrai outil.
+            correctement — notamment l&apos;amortissement par composants prévu à l&apos;article 39 C du CGI.
+            J&apos;ai commencé à faire mes calculs sous Excel. Puis j&apos;ai décidé d&apos;en faire un vrai outil.
           </p>
 
           <p>
             <strong style={{ color: "#F0EBE0" }}>ImmoVerdict est né de ce manque.</strong> Un simulateur
-            qui compare les 4 grands régimes fiscaux côte à côte, intègre l&apos;amortissement réel, le
-            cashflow, le TRI et la fiscalité à la revente — sans abonnement, sans compte requis,
+            qui compare les 4 grands régimes fiscaux côte à côte, intègre l&apos;amortissement réel par composants,
+            le cashflow, le TRI et la fiscalité à la revente — sans abonnement, sans compte requis,
             sans données personnelles collectées.
           </p>
 
@@ -111,13 +126,72 @@ export default function APropos() {
             Je ne suis pas fiscaliste ni conseiller en gestion de patrimoine. Je suis un investisseur
             qui a voulu comprendre, et qui partage les outils qu&apos;il aurait voulu avoir au départ.
             Les articles du blog et les calculs du simulateur reflètent cette expérience terrain — et
-            sont régulièrement mis à jour pour suivre les évolutions législatives (loi de Finances,
-            réforme du meublé de tourisme, DPE…).
+            sont mis à jour à chaque évolution législative (Loi de Finances, réforme du meublé de tourisme, DPE…).
           </p>
 
           <div style={{ borderLeft: "3px solid #F97316", paddingLeft: 20, marginTop: 8, color: "rgba(240,235,224,0.5)", fontStyle: "italic", fontSize: ".95rem" }}>
             Les informations d&apos;ImmoVerdict sont fournies à titre indicatif. Pour une décision
             d&apos;investissement, consultez un expert-comptable ou un CGP spécialisé en immobilier.
+          </div>
+        </div>
+
+        {/* ── TIMELINE EXPERTISE ── */}
+        <div style={{ borderTop: "1px solid rgba(240,235,224,0.08)", margin: "56px 0 48px" }} />
+
+        <div style={{ marginBottom: 16 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 24 }}>
+            <div style={{ width: 3, height: 20, background: "#F97316" }} />
+            <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: "2.5px", textTransform: "uppercase", color: "#F97316" }}>
+              Parcours
+            </span>
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
+            {[
+              { year: "Avant ImmoVerdict", title: "Les calculs sous Excel", desc: "Des tableurs maison pour comparer Micro-BIC et Réel. Utiles mais pas partageables, souvent faux sur les amortissements." },
+              { year: "Lancement", title: "Premier simulateur LMNP public", desc: "Mise en ligne du comparateur 4 régimes (Micro-BIC, Réel, SCI IS, SCI IR) avec calcul d'amortissement par composants selon CGI art. 39 C." },
+              { year: "Évolutions", title: "Ajout du dossier bancaire & TRI", desc: "Intégration du score de bancabilité HCSF, du TRI 20 ans, du stress test et du calculateur inversé (prix max pour un cashflow cible)." },
+              { year: "Aujourd'hui", title: "LF 2026 & réforme meublé tourisme", desc: "Mise à jour complète pour la Loi de Finances 2026 : nouveaux plafonds, réforme des meublés de tourisme, suivi des DPE interdits à la location." },
+            ].map(({ year, title, desc }, i, arr) => (
+              <div key={i} style={{ display: "flex", gap: 20, paddingBottom: i < arr.length - 1 ? 28 : 0 }}>
+                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", flexShrink: 0, width: 20 }}>
+                  <div style={{ width: 10, height: 10, borderRadius: "50%", background: "#F97316", marginTop: 6, flexShrink: 0 }} />
+                  {i < arr.length - 1 && <div style={{ flex: 1, width: 1, background: "rgba(249,115,22,0.2)", marginTop: 4 }} />}
+                </div>
+                <div style={{ paddingBottom: 4 }}>
+                  <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "1.5px", textTransform: "uppercase", color: "rgba(249,115,22,0.7)", marginBottom: 4 }}>{year}</div>
+                  <div style={{ fontSize: ".95rem", fontWeight: 700, color: "#F0EBE0", marginBottom: 6 }}>{title}</div>
+                  <p style={{ fontSize: ".85rem", color: "rgba(240,235,224,0.5)", lineHeight: 1.7, margin: 0 }}>{desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* ── ARTICLES DE RÉFÉRENCE ── */}
+        <div style={{ borderTop: "1px solid rgba(240,235,224,0.08)", margin: "56px 0 40px" }} />
+
+        <div style={{ marginBottom: 40 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 24 }}>
+            <div style={{ width: 3, height: 20, background: "#F97316" }} />
+            <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: "2.5px", textTransform: "uppercase", color: "#F97316" }}>
+              Articles de référence
+            </span>
+          </div>
+          <div style={{ display: "grid", gap: 1, background: "rgba(240,235,224,0.08)" }}>
+            {[
+              { href: "/blog/amortissement-lmnp-guide-complet", label: "Amortissement LMNP : le guide complet (CGI Art. 39 C)", tag: "Fiscalité" },
+              { href: "/blog/lmnp-regime-reel-vs-micro-bic", label: "Micro-BIC vs Régime Réel : comparatif chiffré 2026", tag: "Fiscalité" },
+              { href: "/blog/sci-vs-lmnp-nom-propre", label: "SCI ou LMNP en nom propre : que choisir ?", tag: "Structure" },
+              { href: "/blog/investir-lmnp-2026-guide-debutant", label: "Investir en LMNP en 2026 : guide complet débutant", tag: "Guide" },
+            ].map(({ href, label, tag }) => (
+              <Link key={href} href={href} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 20px", background: "#0C0C10", textDecoration: "none", gap: 16 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                  <span style={{ fontSize: 9, fontWeight: 700, padding: "2px 7px", background: "rgba(249,115,22,0.12)", color: "#F97316", letterSpacing: "1px", whiteSpace: "nowrap" }}>{tag}</span>
+                  <span style={{ fontSize: 13, color: "rgba(240,235,224,0.7)" }}>{label}</span>
+                </div>
+                <span style={{ color: "rgba(249,115,22,0.6)", fontSize: 12, flexShrink: 0 }}>Lire →</span>
+              </Link>
+            ))}
           </div>
         </div>
 

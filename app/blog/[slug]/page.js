@@ -2,6 +2,66 @@ import Link from "next/link";
 import { getPostBySlug, getAllSlugs, getRelatedPosts } from "@/lib/posts";
 import { notFound } from "next/navigation";
 
+/* ── Coupe le HTML après le n-ième </p> pour injecter un CTA mi-article ── */
+function splitAtParagraph(html, n) {
+  let count = 0;
+  let pos = 0;
+  while (count < n) {
+    const found = html.indexOf("</p>", pos);
+    if (found === -1) return [html, ""];
+    count++;
+    pos = found + 4;
+  }
+  return [html.slice(0, pos), html.slice(pos)];
+}
+
+/* ── CTA injecté au milieu de l'article (après le 4e paragraphe) ── */
+function MidArticleCTA({ category }) {
+  const isFiscal = category?.toLowerCase().includes("fiscal") || category?.toLowerCase().includes("lmnp");
+  return (
+    <div style={{
+      margin: "40px 0",
+      padding: "24px 28px",
+      background: "linear-gradient(135deg, rgba(249,115,22,0.12) 0%, rgba(249,115,22,0.04) 100%)",
+      border: "1px solid rgba(249,115,22,0.3)",
+      borderLeft: "4px solid #F97316",
+      borderRadius: 0,
+      display: "flex",
+      flexWrap: "wrap",
+      alignItems: "center",
+      gap: 20,
+      justifyContent: "space-between",
+    }}>
+      <div>
+        <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "2px", textTransform: "uppercase", color: "#F97316", marginBottom: 6 }}>
+          📊 Simulateur gratuit
+        </p>
+        <p style={{ fontSize: "1rem", fontWeight: 700, color: "#F0EBE0", margin: "0 0 6px" }}>
+          {isFiscal
+            ? "Calculez votre économie fiscale LMNP en 2 minutes"
+            : "Analysez votre projet immobilier en 2 minutes"}
+        </p>
+        <p style={{ fontSize: ".8rem", color: "rgba(240,235,224,0.45)", margin: 0 }}>
+          4 régimes comparés · TRI · Cash-flow · Amortissements · Sans inscription
+        </p>
+      </div>
+      <Link href="/lmnp" style={{
+        flexShrink: 0,
+        padding: "11px 22px",
+        background: "#F97316",
+        color: "#0C0C10",
+        fontWeight: 700,
+        fontSize: 13,
+        textDecoration: "none",
+        letterSpacing: ".02em",
+        whiteSpace: "nowrap",
+      }}>
+        Simuler maintenant →
+      </Link>
+    </div>
+  );
+}
+
 export async function generateStaticParams() {
   return getAllSlugs();
 }
@@ -200,10 +260,19 @@ export default async function BlogPostPage({ params }) {
 
       {/* ── CORPS DE L'ARTICLE ── */}
       <main id="article-main" className="article-main" style={{ maxWidth:740, margin:"0 auto", padding:"48px 48px 96px" }}>
-        <div className="prose-article" dangerouslySetInnerHTML={{ __html: post.contentHtml }} />
+        {(() => {
+          const [before, after] = splitAtParagraph(post.contentHtml, 4);
+          return (
+            <>
+              <div className="prose-article" dangerouslySetInnerHTML={{ __html: before }} />
+              {after && <MidArticleCTA category={post.category} />}
+              {after && <div className="prose-article" dangerouslySetInnerHTML={{ __html: after }} />}
+            </>
+          );
+        })()}
 
-        {/* ── CTA BAS DE PAGE ── */}
-        <div className="article-cta" style={{ marginTop:64, padding:"40px 40px 36px", background:"rgba(249,115,22,0.05)", border:"1px solid rgba(249,115,22,0.2)", borderTop:"3px solid #F97316" }}>
+        {/* ── CTA BAS DE PAGE (amélioré) ── */}
+        <div className="article-cta" style={{ marginTop:64, padding:"40px 40px 36px", background:"rgba(249,115,22,0.06)", border:"1px solid rgba(249,115,22,0.25)", borderTop:"3px solid #F97316" }}>
           <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:16 }}>
             <div style={{ width:3, height:24, background:"#F97316" }} />
             <span style={{ fontSize:10, fontWeight:700, letterSpacing:"2.5px", textTransform:"uppercase", color:"#F97316" }}>
@@ -211,25 +280,43 @@ export default async function BlogPostPage({ params }) {
             </span>
           </div>
           <h2 style={{ fontFamily:"'DM Serif Display',Georgia,serif", fontSize:"1.5rem", fontWeight:400, marginBottom:12, color:"#F0EBE0" }}>
-            Calculez votre situation exacte
+            Vos chiffres en 2 minutes, pas en 2 semaines.
           </h2>
-          <p style={{ fontSize:".9rem", color:"rgba(240,235,224,0.45)", marginBottom:28, lineHeight:1.7 }}>
-            Notre simulateur intègre tous les régimes fiscaux et vous donne une réponse personnalisée en 2 minutes.
+          <p style={{ fontSize:".9rem", color:"rgba(240,235,224,0.45)", marginBottom:20, lineHeight:1.7 }}>
+            Le simulateur ImmoVerdict compare automatiquement Micro-BIC, Réel, SARL de famille et SCI IS — avec votre situation fiscale exacte (TMI, apport, durée de crédit). Gratuit, sans compte requis.
           </p>
+          {/* Métriques en ligne */}
+          <div style={{ display:"flex", flexWrap:"wrap", gap:16, marginBottom:28, paddingBottom:20, borderBottom:"1px solid rgba(240,235,224,0.08)" }}>
+            {[
+              { icon:"📊", label:"4 régimes comparés" },
+              { icon:"💰", label:"TRI & cash-flow réels" },
+              { icon:"🏦", label:"Dossier bancaire inclus" },
+              { icon:"🔒", label:"100 % local · Aucun compte" },
+            ].map(({ icon, label }) => (
+              <div key={label} style={{ display:"flex", alignItems:"center", gap:6 }}>
+                <span style={{ fontSize:13 }}>{icon}</span>
+                <span style={{ fontSize:11, color:"rgba(240,235,224,0.5)", fontWeight:500 }}>{label}</span>
+              </div>
+            ))}
+          </div>
           <div className="article-cta-btns" style={{ display:"flex", flexWrap:"wrap", gap:12 }}>
             <Link href="/lmnp" style={{
-              padding:"12px 24px", background:"#F97316", color:"#0C0C10",
+              padding:"13px 28px", background:"#F97316", color:"#0C0C10",
               fontWeight:700, fontSize:13, textDecoration:"none", letterSpacing:".02em",
             }}>
-              Simulateur LMNP
+              Simuler mon projet LMNP →
             </Link>
             <Link href="/rp" style={{
-              padding:"12px 24px", border:"1px solid rgba(240,235,224,0.2)", color:"#F0EBE0",
+              padding:"13px 24px", border:"1px solid rgba(240,235,224,0.2)", color:"#F0EBE0",
               fontWeight:600, fontSize:13, textDecoration:"none",
             }}>
               Résidence Principale
             </Link>
           </div>
+          {/* Social proof inline */}
+          <p style={{ fontSize:10, color:"rgba(240,235,224,0.25)", marginTop:12 }}>
+            +2 400 simulations · Loi de Finances 2026 · CGI Art. 39 C
+          </p>
         </div>
 
         {/* ── ARTICLES LIÉS ── */}
