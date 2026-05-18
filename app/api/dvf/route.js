@@ -23,12 +23,37 @@ function getDept(codeCommune) {
   return codeCommune.slice(0, 2);
 }
 
+/**
+ * Parser CSV RFC 4180 — gère les champs entre guillemets contenant des virgules.
+ * Nécessaire pour les adresses DVF qui peuvent contenir des virgules.
+ */
+function parseCSVLine(line) {
+  const result = [];
+  let current = "";
+  let inQuotes = false;
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+    if (ch === '"') {
+      // Guillemet doublé à l'intérieur d'un champ entre guillemets → guillemet littéral
+      if (inQuotes && line[i + 1] === '"') { current += '"'; i++; }
+      else inQuotes = !inQuotes;
+    } else if (ch === "," && !inQuotes) {
+      result.push(current.trim());
+      current = "";
+    } else {
+      current += ch;
+    }
+  }
+  result.push(current.trim());
+  return result;
+}
+
 /** Parse un fichier CSV DVF brut, retourne un tableau d'objets */
 function parseDvfCsv(text) {
   const lines = text.split("\n");
   if (lines.length < 2) return [];
 
-  const headers = lines[0].split(",").map((h) => h.trim().replace(/^"|"$/g, ""));
+  const headers = parseCSVLine(lines[0]).map((h) => h.replace(/^"|"$/g, ""));
 
   const idx = {
     nature:   headers.indexOf("nature_mutation"),
@@ -44,8 +69,7 @@ function parseDvfCsv(text) {
     const line = lines[i].trim();
     if (!line) continue;
 
-    // Parsing CSV simple (pas de virgules dans les champs DVF)
-    const cols = line.split(",");
+    const cols = parseCSVLine(line);
 
     const nature  = cols[idx.nature]?.trim().replace(/^"|"$/g, "") ?? "";
     const type    = cols[idx.type]?.trim().replace(/^"|"$/g, "") ?? "";

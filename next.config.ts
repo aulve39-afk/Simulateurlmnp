@@ -29,12 +29,8 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
-  typescript: {
-    ignoreBuildErrors: true,
-  },
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
+  // typescript.ignoreBuildErrors et eslint.ignoreDuringBuilds supprimés volontairement :
+  // les erreurs TS/ESLint doivent bloquer le build pour éviter les régressions silencieuses.
   async headers() {
     return [
       {

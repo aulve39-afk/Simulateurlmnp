@@ -4,9 +4,22 @@ import { NextResponse } from "next/server";
 const fmt  = (n) => new Intl.NumberFormat("fr-FR", { style:"currency", currency:"EUR", maximumFractionDigits:0 }).format(n ?? 0);
 const fmtK = (n) => Math.abs(n ?? 0) >= 1000 ? `${((n ?? 0)/1000).toFixed(1)}k€` : fmt(n);
 
+/**
+ * Échappe les caractères HTML dans une chaîne fournie par l'utilisateur.
+ * Empêche les injections XSS dans le template email.
+ */
+function escapeHtml(str) {
+  return String(str ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 /* ── HTML du rapport email ── */
 function buildHTML({ nom, params: p, tri, cashflow_m, rend_net, amort, results }) {
-  const prenom  = nom || "Investisseur";
+  const prenom  = escapeHtml(nom || "Investisseur");
   const date    = new Date().toLocaleDateString("fr-FR", { day:"numeric", month:"long", year:"numeric" });
   const cfColor = (cashflow_m ?? 0) >= 0 ? "#059669" : "#DC2626";
   const cfBg    = (cashflow_m ?? 0) >= 0 ? "#ECFDF5" : "#FEF2F2";
@@ -102,7 +115,7 @@ function buildHTML({ nom, params: p, tri, cashflow_m, rend_net, amort, results }
     <div style="font-size:14px;font-weight:700;color:#0F172A;margin-bottom:12px;">🏠 Caractéristiques du bien</div>
     <table width="100%" cellpadding="0" cellspacing="0">
       ${[
-        ["Type de bien",     p?.typeBien ?? "—"],
+        ["Type de bien",     escapeHtml(p?.typeBien ?? "—")],
         ["Prix d'achat",     fmt(p?.prix)],
         ["Frais de notaire", `${fmt((p?.prix ?? 0) * (p?.notaire ?? 8) / 100)} (${p?.notaire}%)`],
         ["Travaux + Mobilier", fmt((p?.travaux ?? 0) + (p?.mobilier ?? 0))],

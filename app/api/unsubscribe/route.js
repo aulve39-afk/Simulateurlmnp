@@ -1,9 +1,12 @@
 import { createClient } from "@supabase/supabase-js";
 
-const sb = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL  ?? "",
-  process.env.SUPABASE_SERVICE_ROLE_KEY ?? ""
-);
+// Initialisation lazy : évite le crash au build si les env vars sont absentes
+function getSupabase() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!url || !key) return null;
+  return createClient(url, key);
+}
 
 /* ── Page HTML inline ───────────────────────────────────── */
 function page(title, message, success) {
@@ -51,14 +54,23 @@ export async function GET(request) {
     );
   }
 
-  /* On marque emailed_j14 et emailed_j30 à une date dans le futur lointain
-     → le cron ignorera ce lead pour toujours */
+  /* RGPD : on enregistre la date de désinscription dans une colonne dédiée.
+     Le cron filtre les leads où unsubscribed_at IS NULL.
+     ⚠️  Migration SQL requise (à appliquer une seule fois dans Supabase) :
+         ALTER TABLE leads ADD COLUMN IF NOT EXISTS unsubscribed_at TIMESTAMPTZ;
+         CREATE INDEX IF NOT EXISTS idx_leads_unsubscribed ON leads(unsubscribed_at) WHERE unsubscribed_at IS NULL;
+  */
+  const sb = getSupabase();
+  if (!sb) {
+    return new Response(
+      page("Erreur", "Service temporairement indisponible. Contactez-nous à contact@immoverdict.com.", false),
+      HTML
+    );
+  }
+
   const { error } = await sb
     .from("leads")
-    .update({
-      emailed_j14: "2099-01-01T00:00:00.000Z",
-      emailed_j30: "2099-01-01T00:00:00.000Z",
-    })
+    .update({ unsubscribed_at: new Date().toISOString() })
     .eq("email", email);
 
   if (error) {
@@ -76,7 +88,8 @@ export async function GET(request) {
   return new Response(
     page(
       "Désabonné avec succès",
-      `L'adresse <strong>${email}</strong> ne recevra plus nos emails automatiques.<br>Vous pouvez continuer à utiliser ImmoVerdict gratuitement.`,
+      // escapeHtml : l'email est validé par regex mais on encode pour la défense en profondeur
+      `L'adresse <strong>${email.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")}</strong> ne recevra plus nos emails automatiques.<br>Vous pouvez continuer à utiliser ImmoVerdict gratuitement.`,
       true
     ),
     HTML

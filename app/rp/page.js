@@ -1,6 +1,7 @@
 "use client";
 import { useState, useMemo, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { createClient } from "@supabase/supabase-js";
 
 /* ── Supabase guard ── */
@@ -887,7 +888,7 @@ function AssistantNegociation() {
             Calculez maintenant la rentabilité LMNP de ce bien — TRI, cash-flow, bouclier fiscal.
           </div>
         </div>
-        <a
+        <Link
           href="/lmnp"
           style={{
             flexShrink: 0,
@@ -903,7 +904,7 @@ function AssistantNegociation() {
           }}
         >
           Simuler en LMNP →
-        </a>
+        </Link>
       </div>
     </div>
   );

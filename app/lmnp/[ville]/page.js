@@ -4,12 +4,13 @@ import { getVille, SLUGS, VILLES_LIST } from "./data";
 
 /* ── Métadonnées dynamiques ── */
 export async function generateMetadata({ params }) {
-  const v = getVille(params.ville);
+  const { ville } = await params; // Next.js 15 : params est une Promise
+  const v = getVille(ville);
   if (!v) return {};
   return {
     title: `LMNP ${v.nom} 2026 — Rendement, prix, conseils | ImmoVerdict`,
     description: `Investissement LMNP à ${v.nom} : rendement brut ${v.rendementBrut.min}–${v.rendementBrut.max}%, prix médian ${v.prixMedM2.toLocaleString("fr-FR")}€/m², quartiers, conseils et simulateur gratuit.`,
-    alternates: { canonical: `https://immoverdict.com/lmnp/${v.slug}` },
+    alternates: { canonical: `https://immoverdict.com/lmnp/${ville}` },
     openGraph: {
       title: `LMNP ${v.nom} — Rendement & conseils 2026 | ImmoVerdict`,
       description: `Tout sur l'investissement LMNP à ${v.nom} : prix DVF, rendements, quartiers recommandés et simulation fiscale gratuite.`,
@@ -46,8 +47,9 @@ function StatCard({ label, value, sub }) {
 }
 
 /* ── Page principale ── */
-export default function VillePage({ params }) {
-  const v = getVille(params.ville);
+export default async function VillePage({ params }) {
+  const { ville } = await params; // Next.js 15 : params est une Promise
+  const v = getVille(ville);
   if (!v) notFound();
 
   const simUrl = `/lmnp?prix=${v.exemple.prix}&loyer=${v.exemple.loyer}&surface=${v.exemple.surface}&charges=${v.exemple.charges}&taxeFonciere=${v.exemple.taxeFonciere}&vacance=${v.exemple.vacance}&typeBien=${encodeURIComponent(v.exemple.typeBien)}&adresse=${encodeURIComponent(v.nom)}&step=3`;

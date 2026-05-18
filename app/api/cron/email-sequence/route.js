@@ -1,11 +1,13 @@
 import { NextResponse } from "next/server";
 import { createClient }  from "@supabase/supabase-js";
 
-/* ─── Clients ────────────────────────────────────────────── */
-const sb = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL  ?? "",
-  process.env.SUPABASE_SERVICE_ROLE_KEY ?? ""
-);
+/* ─── Clients (lazy pour éviter le crash au build sans env vars) ─ */
+function getSupabase() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!url || !key) return null;
+  return createClient(url, key);
+}
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
 const RESEND_FROM    = process.env.RESEND_FROM_EMAIL ?? "onboarding@resend.dev";
 const CRON_SECRET    = process.env.CRON_SECRET;
@@ -406,15 +408,19 @@ async function sendEmail({ to, subject, html }) {
 
 /* ─── Handler GET /api/cron/email-sequence ───────────────── */
 export async function GET(request) {
-  if (CRON_SECRET) {
-    const authHeader = request.headers.get("authorization");
-    if (authHeader !== `Bearer ${CRON_SECRET}`) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+  // Sécurité : l'autorisation est TOUJOURS requise, CRON_SECRET doit être défini
+  const authHeader = request.headers.get("authorization");
+  if (!CRON_SECRET || authHeader !== `Bearer ${CRON_SECRET}`) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   if (!RESEND_API_KEY) {
     return NextResponse.json({ skipped: true, reason: "RESEND_API_KEY not set" });
+  }
+
+  const sb = getSupabase();
+  if (!sb) {
+    return NextResponse.json({ skipped: true, reason: "SUPABASE_SERVICE_ROLE_KEY not set" });
   }
 
   const results = {
