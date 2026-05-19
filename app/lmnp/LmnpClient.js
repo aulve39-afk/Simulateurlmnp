@@ -2825,6 +2825,57 @@ function StepResultats({ form, results, comparaison, amort, onLead, onArgumentai
         <BouclierFiscalChart rows={best.rows} />
       </Card>
 
+      {/* ── CTA Arbitrage Fiscal ── */}
+      <div
+        className="rounded-2xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4"
+        style={{
+          background: "linear-gradient(135deg, rgba(99,102,241,0.12) 0%, rgba(139,92,246,0.12) 100%)",
+          border: "1.5px solid rgba(99,102,241,0.30)",
+        }}
+      >
+        <div>
+          <div className="flex items-center gap-2 mb-1">
+            <span className="text-xl">⚖️</span>
+            <span className="font-bold text-slate-800 text-base">Quand vendre ce bien ?</span>
+          </div>
+          <p className="text-sm text-slate-500 max-w-sm">
+            Simulez l&apos;expiration de votre bouclier fiscal et trouvez le moment optimal
+            pour arbitrer — vendre, conserver ou basculer en SCI à l&apos;IS.
+          </p>
+        </div>
+        <button
+          onClick={() => {
+            try {
+              const arbitrageData = {
+                valeurActuelle:   form.prix,
+                anneeAcquisition: 0,
+                prixAcquisition:  form.prix,
+                fraisNotaire:     form.notaire,
+                travauxInitiaux:  form.travaux,
+                mobilierInitial:  form.mobilier,
+                terrainPct:       form.terrain ?? 15,
+                capitalRestantDu: best.rows[0]?.capRestant ?? 0,
+                tauxInteret:      form.interet,
+                dureeRestante:    form.dureeCredit,
+                loyerMensuel:     form.loyer,
+                chargesAnnuelles: (form.charges ?? 0) * 12 + (form.taxeFonciere ?? 900) + (form.cfe ?? 200) + (form.assurancePNO ?? 200),
+                vacance:          form.vacance,
+                revalorisation:   form.revalorisation,
+                tmi:              form.tmi,
+                deficitReportable: 0,
+                horizonSimulation: Math.min(form.horizon ?? 20, 20),
+              };
+              localStorage.setItem("immo_arbitrage_prefill", JSON.stringify(arbitrageData));
+            } catch { /* noop si localStorage indisponible */ }
+            window.location.href = "/arbitrage";
+          }}
+          className="shrink-0 flex items-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold text-white transition-all hover:opacity-90 active:scale-95"
+          style={{ background: "linear-gradient(135deg, #6366f1, #8b5cf6)" }}
+        >
+          Simuler l&apos;arbitrage →
+        </button>
+      </div>
+
       {/* Projection patrimoniale */}
       <Card>
         <SectionTitle icon="🏗️" title="Projection patrimoniale"
