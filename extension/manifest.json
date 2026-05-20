@@ -1,0 +1,38 @@
+{
+  "manifest_version": 3,
+  "name": "ImmoVerdict — Injection LMNP",
+  "short_name": "ImmoVerdict",
+  "version": "1.0.0",
+  "description": "Détecte les annonces immobilières sur Leboncoin, SeLoger et Bien'ici et pré-remplit le simulateur LMNP ImmoVerdict en un clic.",
+
+  "permissions": ["storage"],
+
+  "host_permissions": [
+    "https://*.leboncoin.fr/*",
+    "https://*.seloger.com/*",
+    "https://*.bienici.com/*"
+  ],
+
+  "content_scripts": [
+    {
+      "matches": [
+        "https://*.leboncoin.fr/*",
+        "https://*.seloger.com/*",
+        "https://*.bienici.com/*"
+      ],
+      "js": ["content-script.js"],
+      "run_at": "document_idle",
+      "all_frames": false
+    }
+  ],
+
+  "action": {
+    "default_title": "ImmoVerdict"
+  },
+
+  "icons": {
+    "16":  "icons/icon-16.png",
+    "48":  "icons/icon-48.png",
+    "128": "icons/icon-128.png"
+  }
+}

@@ -12,6 +12,7 @@ import { useState, useEffect, useCallback } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { computeArbitrageTimeline } from "../../lib/calcul-arbitrage";
+import { useBridgeData, mergeFormFromInputs } from "../../hooks/useBridgeData";
 
 // ─── Chargement dynamique des graphiques (ssr: false) ─────────────────────────
 
@@ -222,38 +223,25 @@ export default function ArbitrageClient() {
   const [showExpert, setShowExpert]   = useState(false);
   const [result, setResult]           = useState(null);
   const [copied, setCopied]           = useState(false);
+  const [terrain, setTerrain]         = useState(false);
 
-  // ── Prefill depuis localStorage (si venant de /lmnp) ──
+  // ── Prefill via le hook bridge (remplace le useEffect localStorage inline) ──
+  const { hasPrefill, inputs: bridgeInputs, meta: bridgeMeta } = useBridgeData();
+
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem("immo_arbitrage_prefill");
-      if (!raw) return;
-      const data = JSON.parse(raw);
-      // Ne consommer qu'une fois
-      localStorage.removeItem("immo_arbitrage_prefill");
-      setForm(prev => ({
-        ...prev,
-        valeurActuelle:   data.valeurActuelle   ?? prev.valeurActuelle,
-        prixAcquisition:  data.prixAcquisition  ?? prev.prixAcquisition,
-        fraisNotaire:     data.fraisNotaire      ?? prev.fraisNotaire,
-        travauxInitiaux:  data.travauxInitiaux   ?? prev.travauxInitiaux,
-        mobilierInitial:  data.mobilierInitial   ?? prev.mobilierInitial,
-        terrainPct:       data.terrainPct        ?? prev.terrainPct,
-        anneeAcquisition: data.anneeAcquisition  ?? prev.anneeAcquisition,
-        capitalRestantDu: data.capitalRestantDu  ?? prev.capitalRestantDu,
-        tauxInteret:      data.tauxInteret       ?? prev.tauxInteret,
-        dureeRestante:    data.dureeRestante      ?? prev.dureeRestante,
-        loyerMensuel:     data.loyerMensuel       ?? prev.loyerMensuel,
-        chargesAnnuelles: data.chargesAnnuelles   ?? prev.chargesAnnuelles,
-        vacance:          data.vacance            ?? prev.vacance,
-        revalorisation:   data.revalorisation     ?? prev.revalorisation,
-        tmi:              data.tmi                ?? prev.tmi,
-        deficitReportable: data.deficitReportable ?? prev.deficitReportable,
-        horizonSimulation: data.horizonSimulation  ?? prev.horizonSimulation,
-      }));
-    } catch {
-      // JSON invalide ou localStorage indisponible → ignorer
+    if (hasPrefill && bridgeInputs) {
+      setForm(prev => mergeFormFromInputs(prev, bridgeInputs));
     }
+  }, [hasPrefill, bridgeInputs]);
+
+  // ── Mode Terrain : init depuis URL ?mode=terrain ou localStorage ──
+  useEffect(() => {
+    const params    = new URLSearchParams(window.location.search);
+    const fromUrl   = params.get("mode") === "terrain";
+    const fromStore = (() => {
+      try { return localStorage.getItem("immo_terrain_mode") === "1"; } catch { return false; }
+    })();
+    setTerrain(fromUrl || fromStore);
   }, []);
 
   // ── Calcul réactif ──
@@ -273,6 +261,18 @@ export default function ArbitrageClient() {
     setForm(prev => ({ ...prev, [key]: val }));
   }, []);
 
+  // ── Toggle Mode Terrain ──
+  const toggleTerrain = useCallback(() => {
+    setTerrain(prev => {
+      const next = !prev;
+      try {
+        if (next) localStorage.setItem("immo_terrain_mode", "1");
+        else      localStorage.removeItem("immo_terrain_mode");
+      } catch { /* noop */ }
+      return next;
+    });
+  }, []);
+
   // ── Copier le lien ──
   const copyLink = useCallback(() => {
     try {
@@ -287,16 +287,34 @@ export default function ArbitrageClient() {
   const verdict   = result?.verdict;
   const timeline  = result?.timeline ?? [];
 
+  // ── Styles adaptatifs terrain ──
+  const rootBg = terrain
+    ? "#0C0C10"
+    : "linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%)";
+
   return (
     <div
       className="min-h-screen text-slate-100 pb-16"
-      style={{ background: "linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%)" }}
+      style={{ background: rootBg }}
     >
       {/* ── En-tête ── */}
       <div className="max-w-3xl mx-auto px-4 pt-10 pb-6">
-        <Link href="/lmnp" className="inline-flex items-center gap-1 text-sm text-slate-400 hover:text-slate-200 mb-6 transition-colors">
+        <Link href="/lmnp" className="inline-flex items-center gap-1 text-sm text-slate-400 hover:text-slate-200 mb-4 transition-colors">
           ← Retour au simulateur LMNP
         </Link>
+
+        {/* Bandeau bridge — affiché uniquement si préfill depuis /lmnp */}
+        {hasPrefill && bridgeMeta && (
+          <div className="mb-4 flex items-center gap-2 rounded-xl px-4 py-2 text-xs"
+            style={{ background: "rgba(99,102,241,0.15)", border: "1px solid rgba(99,102,241,0.3)" }}>
+            <span>⚡</span>
+            <span className="text-indigo-300">
+              Simulation importée depuis le calculateur LMNP
+              {bridgeMeta.ville ? ` — ${bridgeMeta.ville}` : ""}
+              {bridgeMeta.typeBien ? ` (${bridgeMeta.typeBien})` : ""}
+            </span>
+          </div>
+        )}
         <div className="flex items-start justify-between gap-4 flex-wrap">
           <div>
             <h1 className="text-3xl font-extrabold text-white mb-2 leading-tight">
@@ -306,18 +324,35 @@ export default function ArbitrageClient() {
               Simulez l&apos;évolution fiscale de votre bien sur 20 ans et déterminez le moment optimal pour vendre, conserver ou restructurer.
             </p>
           </div>
-          <button
-            onClick={copyLink}
-            className="shrink-0 flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-medium transition-all"
-            style={{
-              background: copied ? "rgba(34,197,94,0.15)" : "rgba(255,255,255,0.08)",
-              border: "1.5px solid rgba(255,255,255,0.15)",
-              color: copied ? "#22c55e" : "#94a3b8",
-            }}
-            title="Copier le lien de cette simulation (Cmd+Shift+C)"
-          >
-            {copied ? "✓ Lien copié !" : "🔗 Copier le lien"}
-          </button>
+          <div className="flex items-center gap-2 flex-wrap">
+            {/* Toggle Mode Terrain */}
+            <button
+              onClick={toggleTerrain}
+              className="shrink-0 flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-medium transition-all"
+              style={{
+                background: terrain ? "rgba(249,115,22,0.20)" : "rgba(255,255,255,0.08)",
+                border: `1.5px solid ${terrain ? "rgba(249,115,22,0.5)" : "rgba(255,255,255,0.15)"}`,
+                color: terrain ? "#f97316" : "#94a3b8",
+              }}
+              title="Mode Terrain : interface optimisée pour les visites immobilières"
+            >
+              {terrain ? "🏗 Mode Terrain actif" : "🏗 Mode Terrain"}
+            </button>
+
+            {/* Copier le lien */}
+            <button
+              onClick={copyLink}
+              className="shrink-0 flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-medium transition-all"
+              style={{
+                background: copied ? "rgba(34,197,94,0.15)" : "rgba(255,255,255,0.08)",
+                border: "1.5px solid rgba(255,255,255,0.15)",
+                color: copied ? "#22c55e" : "#94a3b8",
+              }}
+              title="Copier le lien de cette simulation (Cmd+Shift+C)"
+            >
+              {copied ? "✓ Lien copié !" : "🔗 Copier le lien"}
+            </button>
+          </div>
         </div>
       </div>
 
@@ -562,8 +597,8 @@ export default function ArbitrageClient() {
           </Card>
         )}
 
-        {/* ══════════ TABLEAU DÉTAILLÉ ══════════ */}
-        {timeline.length > 0 && (
+        {/* ══════════ TABLEAU DÉTAILLÉ (masqué en mode terrain) ══════════ */}
+        {timeline.length > 0 && !terrain && (
           <Card>
             <SectionTitle
               icon="📋"
@@ -618,19 +653,21 @@ export default function ArbitrageClient() {
           </Card>
         )}
 
-        {/* ══════════ CTA — LIEN VERS LE SIMULATEUR COMPLET ══════════ */}
-        <div className="rounded-2xl p-6 text-center" style={{ background: "rgba(99,102,241,0.10)", border: "1.5px solid rgba(99,102,241,0.25)" }}>
-          <p className="text-slate-300 text-sm mb-3">
-            Vous n&apos;avez pas encore simulé ce bien en détail ?
-          </p>
-          <Link
-            href="/lmnp"
-            className="inline-flex items-center gap-2 rounded-xl px-6 py-3 text-sm font-semibold text-white transition-all hover:opacity-90"
-            style={{ background: "linear-gradient(135deg, #6366f1, #8b5cf6)" }}
-          >
-            Simuler avec le calculateur LMNP complet →
-          </Link>
-        </div>
+        {/* ══════════ CTA — LIEN VERS LE SIMULATEUR COMPLET (masqué en mode terrain) ══════════ */}
+        {!terrain && (
+          <div className="rounded-2xl p-6 text-center" style={{ background: "rgba(99,102,241,0.10)", border: "1.5px solid rgba(99,102,241,0.25)" }}>
+            <p className="text-slate-300 text-sm mb-3">
+              Vous n&apos;avez pas encore simulé ce bien en détail ?
+            </p>
+            <Link
+              href="/lmnp"
+              className="inline-flex items-center gap-2 rounded-xl px-6 py-3 text-sm font-semibold text-white transition-all hover:opacity-90"
+              style={{ background: "linear-gradient(135deg, #6366f1, #8b5cf6)" }}
+            >
+              Simuler avec le calculateur LMNP complet →
+            </Link>
+          </div>
+        )}
 
         {/* Mention légale */}
         <p className="text-xs text-center text-slate-500 pb-4">

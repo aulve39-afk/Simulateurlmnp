@@ -1,57 +1,63 @@
 {
-  "name": "ImmoVerdict — Simulateur immobilier",
+  "name": "ImmoVerdict — Simulateur LMNP",
   "short_name": "ImmoVerdict",
-  "description": "Simulateur LMNP, PTZ, DPE, DVF — votre copilote immobilier gratuit",
-  "start_url": "/",
+  "description": "Simulez votre fiscalité LMNP et optimisez votre stratégie d'arbitrage immobilier.",
+  "start_url": "/lmnp",
+  "scope": "/",
   "display": "standalone",
-  "background_color": "#0C0C10",
-  "theme_color": "#F97316",
   "orientation": "portrait-primary",
-  "lang": "fr",
+  "background_color": "#0C0C10",
+  "theme_color": "#0C0C10",
+  "lang": "fr-FR",
   "categories": ["finance", "productivity"],
   "icons": [
     {
-      "src": "/favicon.svg",
-      "sizes": "any",
+      "src": "/icon.svg",
       "type": "image/svg+xml",
+      "sizes": "any",
       "purpose": "any"
     },
     {
+      "src": "/icon.svg",
+      "type": "image/svg+xml",
+      "sizes": "any",
+      "purpose": "maskable"
+    },
+    {
       "src": "/icon-192.png",
-      "sizes": "192x192",
       "type": "image/png",
+      "sizes": "192x192",
       "purpose": "any"
     },
     {
       "src": "/icon-512.png",
+      "type": "image/png",
       "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any maskable"
-    }
-  ],
-  "screenshots": [
+      "purpose": "any"
+    },
     {
-      "src": "/og-image.png",
-      "sizes": "1200x630",
+      "src": "/apple-touch-icon.png",
       "type": "image/png",
-      "form_factor": "wide",
-      "label": "Simulateur LMNP — 4 régimes fiscaux"
+      "sizes": "180x180",
+      "purpose": "any"
     }
   ],
   "shortcuts": [
     {
       "name": "Simulateur LMNP",
       "short_name": "LMNP",
-      "description": "Ouvrir le simulateur LMNP",
+      "description": "Calculez votre fiscalité LMNP Réel",
       "url": "/lmnp",
-      "icons": [{ "src": "/favicon.svg", "sizes": "any" }]
+      "icons": [{ "src": "/icon.svg", "sizes": "any" }]
     },
     {
-      "name": "Résidence principale",
-      "short_name": "RP",
-      "description": "Simulateur achat résidence principale",
-      "url": "/rp",
-      "icons": [{ "src": "/favicon.svg", "sizes": "any" }]
+      "name": "Arbitrage Fiscal",
+      "short_name": "Arbitrage",
+      "description": "Simuler vendre, conserver ou restructurer",
+      "url": "/arbitrage?mode=terrain",
+      "icons": [{ "src": "/icon.svg", "sizes": "any" }]
     }
-  ]
+  ],
+  "screenshots": [],
+  "prefer_related_applications": false
 }

@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="ImmoVerdict">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1e1b4b"/>
+      <stop offset="100%" style="stop-color:#0C0C10"/>
+    </linearGradient>
+    <linearGradient id="orange" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#f97316"/>
+      <stop offset="100%" style="stop-color:#EA580C"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Fond maskable (zone de sécurité = cercle inscrit dans le carré) -->
+  <rect width="512" height="512" rx="96" fill="url(#bg)"/>
+
+  <!-- Balance — pivot central -->
+  <rect x="247" y="148" width="18" height="220" rx="9" fill="url(#orange)"/>
+
+  <!-- Flèche haut du pivot -->
+  <polygon points="256,108 240,148 272,148" fill="url(#orange)"/>
+
+  <!-- Bras horizontal -->
+  <rect x="128" y="190" width="256" height="14" rx="7" fill="url(#orange)"/>
+
+  <!-- Chaîne gauche -->
+  <rect x="163" y="204" width="10" height="52" rx="5" fill="#f97316" opacity="0.85"/>
+  <!-- Plateau gauche (légèrement levé — verdicts favorables) -->
+  <rect x="128" y="252" width="80" height="14" rx="7" fill="url(#orange)"/>
+
+  <!-- Chaîne droite -->
+  <rect x="339" y="204" width="10" height="68" rx="5" fill="#f97316" opacity="0.85"/>
+  <!-- Plateau droit (légèrement bas) -->
+  <rect x="304" y="268" width="80" height="14" rx="7" fill="url(#orange)"/>
+
+  <!-- Base -->
+  <rect x="216" y="360" width="80" height="14" rx="7" fill="url(#orange)"/>
+  <rect x="188" y="374" width="136" height="12" rx="6" fill="#EA580C" opacity="0.7"/>
+
+  <!-- Checkmark / verdict intégré dans le plateau gauche -->
+  <polyline
+    points="143,259 155,271 175,247"
+    fill="none"
+    stroke="#ffffff"
+    stroke-width="7"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    opacity="0.95"
+  />
+</svg>
