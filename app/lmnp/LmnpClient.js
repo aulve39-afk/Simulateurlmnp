@@ -13,6 +13,8 @@ const BouclierFiscalChart = dynamic(() => import("./LmnpCharts").then(m => m.Bou
 const PatrimoineChart    = dynamic(() => import("./LmnpCharts").then(m => m.PatrimoineChart),    { ssr:false, loading: ChartLoading });
 const AchatVsEpargneChart = dynamic(() => import("./LmnpCharts").then(m => m.AchatVsEpargneChart), { ssr:false, loading: ChartLoading });
 const ArbitrageBridgeCard  = dynamic(() => import("./ArbitrageBridgeCard"),                          { ssr:false, loading: () => null });
+const LeadCaptureCard      = dynamic(() => import("./LeadCaptureCard"),                               { ssr:false, loading: () => null });
+const PremiumPDFModal      = dynamic(() => import("./PremiumPDFModal"),                               { ssr:false, loading: () => null });
 import {
   amortCredit,
   calcAmortComposants,
@@ -20,6 +22,7 @@ import {
   runCalc,
   calcComparaison10ans,
 } from "@/lib/calcul-lmnp";
+import { COURTIERS as COURTIERS_DATA, PNO_PARTNERS, GESTION_PARTNERS, makeAffUrl, CAMPAIGNS } from "@/lib/monetization-links";
 
 /* ── Formatters ── */
 const fmt    = (n) => new Intl.NumberFormat("fr-FR", { style:"currency", currency:"EUR", maximumFractionDigits:0 }).format(n ?? 0);
@@ -743,20 +746,16 @@ function AffiliationBanner({ taux, mensualite }) {
           {mensualite ? <strong className="text-green-700"> ~{Math.round(mensualite * 0.04)} €/mois</strong> : " plusieurs dizaines d'euros/mois"}.
         </p>
         <div className="grid grid-cols-2 gap-2">
-          <a href={`https://www.pretto.fr?utm_source=immoverdict&utm_medium=banner&utm_campaign=lmnp-taux&utm_content=taux-${taux}`}
-            target="_blank" rel="noopener noreferrer"
-            onClick={() => { try { window.gtag?.("event","clic_affiliation",{ partner:"Pretto", source:"banner", taux }); } catch(_){} }}
-            className="flex items-center justify-center gap-1.5 bg-white border border-amber-200 rounded-xl py-2.5 text-xs font-bold text-amber-800 hover:bg-amber-50 transition-colors">
-            <span>🏦</span> Pretto
-            <span className="text-[9px] bg-amber-100 text-amber-600 px-1 rounded">Partenaire</span>
-          </a>
-          <a href={`https://www.meilleurtaux.com?utm_source=immoverdict&utm_medium=banner&utm_campaign=lmnp-taux&utm_content=taux-${taux}`}
-            target="_blank" rel="noopener noreferrer"
-            onClick={() => { try { window.gtag?.("event","clic_affiliation",{ partner:"MeilleurTaux", source:"banner", taux }); } catch(_){} }}
-            className="flex items-center justify-center gap-1.5 bg-white border border-amber-200 rounded-xl py-2.5 text-xs font-bold text-amber-800 hover:bg-amber-50 transition-colors">
-            <span>📊</span> MeilleurTaux
-            <span className="text-[9px] bg-amber-100 text-amber-600 px-1 rounded">Partenaire</span>
-          </a>
+          {COURTIERS_DATA.slice(0,2).map(p => (
+            <a key={p.id}
+              href={makeAffUrl(p.base, { campaign:CAMPAIGNS.BANNER, content:`taux-${taux}`, medium:"banner" })}
+              target="_blank" rel="noopener noreferrer"
+              onClick={() => { try { window.gtag?.("event","clic_affiliation",{ partner:p.name, source:"banner", taux }); } catch { /* noop */ } }}
+              className="flex items-center justify-center gap-1.5 bg-white border border-amber-200 rounded-xl py-2.5 text-xs font-bold text-amber-800 hover:bg-amber-50 transition-colors">
+              <span>{p.emoji}</span> {p.name}
+              <span className="text-[9px] bg-amber-100 text-amber-600 px-1 rounded">Partenaire</span>
+            </a>
+          ))}
         </div>
         <p className="text-[9px] text-amber-400 mt-2 text-center">Liens partenaires · Comparaison gratuite sans engagement</p>
       </div>
@@ -1491,9 +1490,42 @@ function StepProjet({ form, set }) {
         <SliderField label="Assurance PNO (Propriétaire Non Occupant)" value={form.assurancePNO ?? 200}
           onChange={set("assurancePNO")} min={50} max={1000} step={25} format={fmt}
           help="Assurance obligatoire en copropriété. Comptez 150–300 €/an pour un appartement standard." color="#F59E0B" />
+        {/* ── CTA affilié PNO ── */}
+        <div className="flex items-center gap-2 -mt-1 mb-1 px-0.5">
+          <span className="text-[10px] text-slate-400 shrink-0">Comparer les offres PNO :</span>
+          <div className="flex gap-1.5">
+            {PNO_PARTNERS.map(p => (
+              <a key={p.id}
+                href={makeAffUrl(p.base, { campaign: CAMPAIGNS.PNO, content: `pno-${Math.round(form.assurancePNO ?? 200)}` })}
+                target="_blank" rel="noopener noreferrer"
+                onClick={() => { try { window.gtag?.("event","clic_affiliation",{ partner:p.name, source:"slider_pno", pno:form.assurancePNO }); } catch { /* noop */ } }}
+                className="flex items-center gap-1 px-2 py-0.5 rounded-full border border-indigo-200 bg-indigo-50 text-[10px] font-semibold text-indigo-700 hover:bg-indigo-100 transition-colors whitespace-nowrap">
+                {p.emoji} {p.name}
+                {p.badge && <span className="text-[8px] bg-indigo-100 text-indigo-500 px-1 rounded-full">{p.badge}</span>}
+              </a>
+            ))}
+          </div>
+        </div>
+
         <SliderField label="Frais de gestion locative" value={form.fraisGestion ?? 0}
           onChange={set("fraisGestion")} min={0} max={3000} step={50} format={fmt}
           help="Si vous confiez la gestion à une agence : généralement 6–8% des loyers encaissés. Zéro si gestion en direct." color="#F59E0B" />
+        {/* ── CTA affilié Gestion locative (affiché uniquement si fraisGestion > 0 ou invite) ── */}
+        <div className="flex items-center gap-2 -mt-1 mb-1 px-0.5">
+          <span className="text-[10px] text-slate-400 shrink-0">Déléguer la gestion :</span>
+          <div className="flex gap-1.5">
+            {GESTION_PARTNERS.map(p => (
+              <a key={p.id}
+                href={makeAffUrl(p.base, { campaign: CAMPAIGNS.GESTION, content: `loyer-${form.loyer ?? 0}` })}
+                target="_blank" rel="noopener noreferrer"
+                onClick={() => { try { window.gtag?.("event","clic_affiliation",{ partner:p.name, source:"slider_gestion", loyer:form.loyer }); } catch { /* noop */ } }}
+                className="flex items-center gap-1 px-2 py-0.5 rounded-full border border-sky-200 bg-sky-50 text-[10px] font-semibold text-sky-700 hover:bg-sky-100 transition-colors whitespace-nowrap">
+                {p.emoji} {p.name}
+                {p.badge && <span className="text-[8px] bg-sky-100 text-sky-500 px-1 rounded-full">{p.badge}</span>}
+              </a>
+            ))}
+          </div>
+        </div>
         {form.objetTravaux !== undefined && (
           <InputField label="Nature des travaux (si applicable)" value={form.objetTravaux ?? ""}
             onChange={set("objetTravaux")}
@@ -2199,36 +2231,12 @@ function AffiliationContextuelle({ results, form }) {
   const triIsGreat    = tri >= 6;
   const economie04    = mens ? Math.round(mens * 0.04) : null;
 
-  // Courtiers partenaires
-  const COURTIERS = [
-    {
-      name: "Pretto",
-      emoji: "🟣",
-      tag: "100% digital",
-      desc: "Simulation en 2 min, offre en 48h",
-      badge: triIsGreat ? "Recommandé" : null,
-      url: `https://www.pretto.fr?utm_source=immoverdict&utm_medium=affiliation&utm_content=tri-${tri}`,
-      color: "#F97316",
-    },
-    {
-      name: "MeilleurTaux",
-      emoji: "🔵",
-      tag: "Leader du marché",
-      desc: "200+ banques comparées",
-      badge: null,
-      url: `https://www.meilleurtaux.com?utm_source=immoverdict&utm_medium=affiliation&utm_content=tri-${tri}`,
-      color: "#F97316",
-    },
-    {
-      name: "CAFPI",
-      emoji: "🟢",
-      tag: "Spécialiste investisseurs",
-      desc: "Expertise locatif & LMNP",
-      badge: "Expert LMNP",
-      url: `https://www.cafpi.fr?utm_source=immoverdict&utm_medium=affiliation`,
-      color: "#F97316",
-    },
-  ];
+  // Courtiers partenaires — enrichis depuis la centrale d'affiliation
+  const COURTIERS = COURTIERS_DATA.map(p => ({
+    ...p,
+    badge: p.id === "pretto" && triIsGreat ? "Recommandé" : (p.badge ?? null),
+    url: makeAffUrl(p.base, { campaign: CAMPAIGNS.CREDIT, content: `tri-${tri}` }),
+  }));
 
   if (!showCourtier && !showComptable) return null;
 
@@ -2957,22 +2965,8 @@ function StepResultats({ form, results, comparaison, amort, onLead, onArgumentai
         <SocialProof />
       </Card>
 
-      {/* CTA Lead Capture */}
-      <div className="rounded-2xl overflow-hidden"
-        style={{ background:"#131318" }}>
-        <div className="p-6 text-center">
-          <p className="text-2xl mb-2">📄</p>
-          <h3 className="text-white font-bold text-base mb-1">Rapport fiscal complet</h3>
-          <p className="text-orange-200 text-xs mb-4">
-            Tableau de projection 20 ans · Comparatif des 4 régimes · Analyse amortissements · Conseils personnalisés
-          </p>
-          <button onClick={onLead}
-            className="w-full bg-white text-orange-300 font-bold py-3 px-6 rounded-xl text-sm hover:bg-orange-50 transition-colors">
-            Générer mon rapport complet →
-          </button>
-          <p className="text-orange-300 text-[10px] mt-2">Gratuit · Reçu par email en quelques secondes</p>
-        </div>
-      </div>
+      {/* ── Lead Capture contextuel — Levier 1 monétisation ── */}
+      <LeadCaptureCard form={form} best={best} />
 
       {/* CTAs affiliés contextuels */}
       <AffiliationContextuelle results={results} form={form} />
@@ -4250,15 +4244,15 @@ function StepDossier({ form, results, amort }) {
           <span style={{fontSize:16}}>📄</span>
           TÉLÉCHARGER LE DOSSIER BANCAIRE (PDF)
         </button>
-        {/* Rapport Pro — enrichi avec graphiques, comparatif 4 régimes, simulation revente */}
+        {/* Rapport Pro — Paywall Stripe */}
         <button
-          onClick={()=>downloadPremiumReport(form,results,amort)}
+          onClick={()=>setShowPremiumModal(true)}
           style={{width:"100%",padding:"14px",background:"linear-gradient(135deg,#F97316,#EA580C)",color:"white",border:"none",borderRadius:4,fontSize:13,fontWeight:700,cursor:"pointer",letterSpacing:".03em",display:"flex",alignItems:"center",justifyContent:"center",gap:8}}>
           <span style={{fontSize:16}}>⭐</span>
-          RAPPORT PRO — Graphiques · Comparatif 4 régimes · Simulation revente
+          RAPPORT PRO — Graphiques · Comparatif 4 régimes · Simulation revente — 9,99&nbsp;€
         </button>
         <p style={{textAlign:"center",fontSize:11,color:"#94A3B8",fontFamily:"Arial,sans-serif"}}>
-          Dossier Bancaire : sections officielles · Rapport Pro : analyse patrimoniale enrichie pour CGP
+          Dossier Bancaire standard gratuit · Rapport Pro : analyse patrimoniale enrichie pour CGP (9,99&nbsp;€)
         </p>
       </div>
 
@@ -4954,6 +4948,7 @@ export default function App() {
   const [showAuth,        setShowAuth]        = useState(false);
   const [showLead,        setShowLead]        = useState(false);
   const [showArgumentaire,setShowArgumentaire]= useState(false);
+  const [showPremiumModal,setShowPremiumModal]= useState(false);
   const topRef = useRef(null);
 
   /* ── A/B Email Capture Hook ── */
@@ -5081,6 +5076,19 @@ export default function App() {
       }
     } catch {}
   // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  /* ── Stripe retour : ?session_id=...&download=true → ouvre la modal premium ── */
+  useEffect(() => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("download") === "true" && params.get("session_id")) {
+        setShowPremiumModal(true);
+        // Passer directement à l'étape résultats pour montrer le rapport
+        setPhase("sim");
+        setStep(4);
+      }
+    } catch { /* noop */ }
   }, []);
 
   /* ── URL State : mise à jour de l'URL à chaque changement ── */
@@ -5538,6 +5546,14 @@ export default function App() {
       {/* ── MODALS ── */}
       {showAuth && <AuthModal onAuth={u => { setUser(u); setShowAuth(false); }} onClose={() => setShowAuth(false)} />}
       {showLead && <LeadModal onClose={() => setShowLead(false)} form={form} results={results} />}
+      {showPremiumModal && (
+        <PremiumPDFModal
+          form={form}
+          best={results?.[0] ?? null}
+          onClose={() => setShowPremiumModal(false)}
+          onDownload={() => { setShowPremiumModal(false); downloadPremiumReport(form, results, amort); }}
+        />
+      )}
       {showArgumentaire && results && (
         <ArgumentaireModal form={form} results={results} onClose={() => setShowArgumentaire(false)} />
       )}
