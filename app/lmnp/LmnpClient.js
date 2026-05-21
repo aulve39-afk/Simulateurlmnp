@@ -154,7 +154,9 @@ function feuxTricolores(tri, cashflowM, ratioEndt) {
   let score = 0;
   if (tri >= 6) score+=2; else if (tri >= 4) score+=1;
   if (cashflowM >= 0) score+=2; else if (cashflowM >= -100) score+=1;
-  if (ratioEndt <= 33) score+=2; else if (ratioEndt <= 35) score+=1;
+  // ratioEndt peut être null si revenusMensuels = 0 → on le traite comme "non renseigné" (score neutre)
+  if (ratioEndt == null) score+=1; // neutre : ni pénalisé ni récompensé
+  else if (ratioEndt <= 33) score+=2; else if (ratioEndt <= 35) score+=1;
   if (score >= 5) return { color:"#10B981", bg:"rgba(16,185,129,0.15)", border:"rgba(16,185,129,0.4)", label:"Excellent", emoji:"🟢" };
   if (score >= 3) return { color:"#F59E0B", bg:"rgba(245,158,11,0.12)", border:"rgba(245,158,11,0.4)", label:"Acceptable", emoji:"🟡" };
   return     { color:"#EF4444", bg:"rgba(239,68,68,0.15)", border:"rgba(239,68,68,0.4)", label:"Risqué",    emoji:"🔴" };
@@ -292,7 +294,7 @@ function FeuxBadge({ tri, cashflowM, ratioEndt }) {
         <span className="text-3xl">{f.emoji}</span>
         <div>
           <p className="font-bold text-sm" style={{ color:f.color }}>Verdict : {f.label}</p>
-          <p className="text-[11px] text-slate-500">TRI {tri}% · CF {fmtK(cashflowM)}/mois · Endt {ratioEndt}%</p>
+          <p className="text-[11px] text-slate-500">TRI {tri}% · CF {fmtK(cashflowM)}/mois · Endt {ratioEndt != null ? `${ratioEndt}%` : "—"}</p>
         </div>
       </div>
     </div>
@@ -307,11 +309,12 @@ function ScoreBancabilite({ ratioEndt, cashflowM, tri, apport, prix, rendBrut })
   let score = 0;
   const details = [];
 
-  // 1. Taux d'endettement (25 pts)
-  if (ratioEndt <= 28)      { score += 25; details.push({ label:"Taux endettement",  val:`${ratioEndt}%`,        ok:true,  note:"Excellent" }); }
-  else if (ratioEndt <= 33) { score += 18; details.push({ label:"Taux endettement",  val:`${ratioEndt}%`,        ok:true,  note:"Bon" }); }
-  else if (ratioEndt <= 35) { score += 10; details.push({ label:"Taux endettement",  val:`${ratioEndt}%`,        ok:null,  note:"Limite HCSF" }); }
-  else                      { score +=  0; details.push({ label:"Taux endettement",  val:`${ratioEndt}%`,        ok:false, note:"Hors limite" }); }
+  // 1. Taux d'endettement (25 pts) — ratioEndt peut être null si revenus non renseignés
+  if (ratioEndt == null)    { score += 12; details.push({ label:"Taux endettement",  val:"—",                   ok:null,  note:"Revenus non renseignés" }); }
+  else if (ratioEndt <= 28) { score += 25; details.push({ label:"Taux endettement",  val:`${ratioEndt}%`,       ok:true,  note:"Excellent" }); }
+  else if (ratioEndt <= 33) { score += 18; details.push({ label:"Taux endettement",  val:`${ratioEndt}%`,       ok:true,  note:"Bon" }); }
+  else if (ratioEndt <= 35) { score += 10; details.push({ label:"Taux endettement",  val:`${ratioEndt}%`,       ok:null,  note:"Limite HCSF" }); }
+  else                      { score +=  0; details.push({ label:"Taux endettement",  val:`${ratioEndt}%`,       ok:false, note:"Hors limite" }); }
 
   // 2. Cash-flow mensuel (25 pts)
   if (cashflowM >= 200)      { score += 25; details.push({ label:"Cash-flow mensuel", val:`+${cashflowM}€/mois`,  ok:true,  note:"Excellent" }); }
@@ -2604,15 +2607,16 @@ function VerdictScore({ form, results }) {
     levier: ["E","F","G"].includes(dpe) ? "Travaux d'isolation indispensables avant location" : null,
   });
 
-  // 6. Ratio d'endettement (10 pts)
-  const endtPts = ratioEndt <= 28 ? 10 : ratioEndt <= 33 ? 7 : ratioEndt <= 35 ? 4 : 0;
+  // 6. Ratio d'endettement (10 pts) — null si revenus non renseignés → score neutre
+  const endtPts = ratioEndt == null ? 5 : ratioEndt <= 28 ? 10 : ratioEndt <= 33 ? 7 : ratioEndt <= 35 ? 4 : 0;
   score += endtPts;
   dims.push({
     label: "Taux d'endettement",
-    val: `${ratioEndt}%`,
+    val: ratioEndt != null ? `${ratioEndt}%` : "—",
     pts: endtPts, max: 10,
-    ok: ratioEndt <= 33, warn: ratioEndt > 33 && ratioEndt <= 35,
-    levier: ratioEndt > 35 ? "Augmentez l'apport ou réduisez la durée du crédit" : null,
+    ok: ratioEndt != null && ratioEndt <= 33,
+    warn: ratioEndt != null && ratioEndt > 33 && ratioEndt <= 35,
+    levier: ratioEndt != null && ratioEndt > 35 ? "Augmentez l'apport ou réduisez la durée du crédit" : null,
   });
 
   const scoreColor = score >= 80 ? "#10B981" : score >= 65 ? "#F59E0B" : score >= 50 ? "#FB923C" : "#EF4444";
@@ -2839,8 +2843,10 @@ function StepResultats({ form, results, comparaison, amort, onLead, onArgumentai
         form={form}
         bestRows={best.rows}
         finBouclier={(() => {
+          // Retourne la dernière année PROTÉGÉE (= 1re année d'impôt - 1)
+          // pour être cohérent avec VerdictScore qui utilise .an - 1
           const idx = best.rows.findIndex(r => r.impot > 200);
-          return idx >= 0 ? best.rows[idx].an : null;
+          return idx >= 0 ? best.rows[idx].an - 1 : null;
         })()}
       />
 
@@ -4970,16 +4976,14 @@ export default function App() {
 
   const switchBien = (idx) => {
     if (idx === activeBien) return;
+    // Correction Bug #4 : l'updater de setBiens doit être pur (pas de setTimeout dedans).
+    // On sauvegarde le bien courant, puis on met à jour activeBien et form directement.
     isSwitching.current = true;
-    setBiens(bs => {
-      const saved = bs.map((b, i) => i === activeBien ? { ...b, form:{ ...form } } : b);
-      setTimeout(() => {
-        setActiveBien(idx);
-        setForm({ ...saved[idx].form });
-        setTimeout(() => { isSwitching.current = false; }, 50);
-      }, 0);
-      return saved;
-    });
+    const savedBiens = biens.map((b, i) => i === activeBien ? { ...b, form:{ ...form } } : b);
+    setBiens(savedBiens);
+    setActiveBien(idx);
+    setForm({ ...savedBiens[idx].form });
+    setTimeout(() => { isSwitching.current = false; }, 50);
   };
 
   const addBien = () => {
@@ -5016,9 +5020,14 @@ export default function App() {
   const [pwaInstalled,  setPwaInstalled]  = useState(false);
   useEffect(() => {
     const handler = (e) => { e.preventDefault(); setInstallPrompt(e); };
+    // Correction Bug #5 : les deux listeners doivent être nettoyés dans le cleanup
+    const installedHandler = () => { setInstallPrompt(null); setPwaInstalled(true); };
     window.addEventListener("beforeinstallprompt", handler);
-    window.addEventListener("appinstalled", () => { setInstallPrompt(null); setPwaInstalled(true); });
-    return () => window.removeEventListener("beforeinstallprompt", handler);
+    window.addEventListener("appinstalled", installedHandler);
+    return () => {
+      window.removeEventListener("beforeinstallprompt", handler);
+      window.removeEventListener("appinstalled", installedHandler);
+    };
   }, []);
   const handleInstall = async () => {
     if (!installPrompt) return;
