@@ -2691,7 +2691,7 @@ function VerdictScore({ form, results }) {
   );
 }
 
-function StepResultats({ form, results, comparaison, amort, onLead, onArgumentaire }) {
+function StepResultats({ form, results, comparaison, amort, onLead, onArgumentaire, set }) {
   if (!results) return null;
   const best = results[0]; // LMNP Réel
   const micro = results[1]; // Micro-BIC
@@ -5503,7 +5503,7 @@ export default function App() {
         {step===3 && results && (
           <StepResultats form={form} results={results} comparaison={comparaison}
             amort={amort} onLead={() => setShowLead(true)}
-            onArgumentaire={() => setShowArgumentaire(true)} />
+            onArgumentaire={() => setShowArgumentaire(true)} set={set} />
         )}
 
         {step===4 && results && (
