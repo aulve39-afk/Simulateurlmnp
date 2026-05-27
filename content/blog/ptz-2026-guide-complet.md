@@ -1,7 +1,7 @@
 ---
 title: "PTZ 2026 : conditions, montants et simulation complète"
 description: "Guide complet du Prêt à Taux Zéro 2026 : zones éligibles, plafonds de revenus, montants maximum, biens éligibles. Calculez votre PTZ en 2 minutes."
-date: "2026-04-25"
+date: "2026-05-27"
 category: "Résidence Principale"
 readingTime: "7 min"
 image: "/og-image.png"
@@ -126,6 +126,30 @@ Le PTZ se cumule avec d'autres dispositifs :
 2. **Se baser sur les revenus de l'année en cours** : le PTZ prend les revenus de N-2, pas de N.
 3. **Ne pas anticiper la fin du différé** : quand le remboursement du PTZ commence, votre mensualité augmente. Vérifiez que vous pouvez assumer.
 4. **Oublier de déclarer le PTZ à votre assureur** : certaines banques exigent que le PTZ soit couvert par l'assurance emprunteur.
+
+---
+
+## 🆕 PTZ familial : jusqu'à 100 000 € sans conditions de revenus (mai 2026)
+
+Une proposition de loi déposée par la députée Constance de Pélichy (groupe LIOT) crée un **PTZ familial** d'un nouveau genre, examiné à l'Assemblée nationale le 28 mai 2026.
+
+### Ce que prévoit cette proposition
+
+- **Montant** : jusqu'à **100 000 €** pour acheter ou agrandir une résidence principale
+- **Déclencheur** : mobilisable dès la **déclaration de grossesse**, jusqu'aux 5 ans de l'enfant
+- **Pas de condition de revenus** — contrairement au PTZ classique
+- **Objectif** : aider les familles à accéder à un logement plus grand
+
+### Différence avec le PTZ classique
+
+| | PTZ classique 2026 | PTZ familial (proposition) |
+|--|--|--|
+| Condition revenus | ✅ Plafonds stricts | ❌ Aucune |
+| Montant max | Selon zone et revenus | 100 000 € |
+| Déclencheur | Primo-accédant | Grossesse ou enfant < 5 ans |
+| Statut | En vigueur | En discussion (vote 28 mai 2026) |
+
+> ⚠️ **Cette mesure n'est pas encore adoptée.** Le ministre du Logement Vincent Jeanbrun s'est dit "philosophiquement favorable". Revenez sur cette page pour le suivi de son adoption.
 
 ---
 
